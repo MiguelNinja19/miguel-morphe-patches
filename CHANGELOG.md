@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.1.1...v1.1.2) (2026-07-08)
+
+### 🐛 Bug Fixes
+
+* drop definingClass from premium fingerprint for robustness ([ea33919](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ea33919b2f5fb612dc01b8958c609272444f37cd))
+
 ## [1.1.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.1.0...v1.1.1) (2026-07-08)
 
 ### 🐛 Bug Fixes
