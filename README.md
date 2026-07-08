@@ -25,6 +25,10 @@ shared across all ZipoApps titles and is generally stable across releases.
 
 ## 🩹 Patches
 
+<!-- PATCHES_START EXPANDED -->
+
+<!-- PATCHES_END -->
+
 | # | Patch name | What it does |
 |---|------------|--------------|
 | 1 | **Unlock premium** | Returns `true` from `PremiumHelper.hasActivePurchase()` (`zc.g.i()`). Unlocks the Advanced Solver (the "last cube" option that was greyed out at the end of the solver selector), custom color schemes, VIP support email, and disables the in-app "Remove Ads" prompt. |
