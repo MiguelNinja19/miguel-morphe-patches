@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.0.2...v1.1.0) (2026-07-08)
+
+### ✨ New Features
+
+* simplify patches to premium and relaunch only ([cedb0e7](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cedb0e7ba2ef431ca0dd753117b514718a561e8d))
+
 ## [1.0.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.0.1...v1.0.2) (2026-07-08)
 
 ### 🐛 Bug Fixes

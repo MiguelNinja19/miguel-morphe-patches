@@ -1,73 +1,7 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "patches": [
-    {
-      "name": "Auto-reward ads",
-      "description": "Forces AdManager.isAdEnabled(REWARDED) to return true and all other ad types to return false. In this app version there is no user-visible rewarded-ad button, so this patch is mainly defensive — if a future update adds a 'watch ad to skip' flow, the rewarded ad loader will already be allowed. Use the 'Unlock premium' patch for the equivalent of 'always granted reward' today.",
-      "default": true,
-      "dependencies": [],
-      "compatiblePackages": [
-        {
-          "packageName": "diozz.cubex",
-          "name": "CubeX Solver",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#29CC29",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "4.1.0",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            },
-            {
-              "version": null,
-              "versionCodes": null,
-              "isExperimental": true,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
-      "name": "Remove non-rewarded ads",
-      "description": "Disables interstitial, banner, native and exit ads without touching rewarded ads. Belt-and-suspenders complement to the premium unlock — useful if the AdManager's own premium suppression is bypassed by a remote config flag.",
-      "default": true,
-      "dependencies": [],
-      "compatiblePackages": [
-        {
-          "packageName": "diozz.cubex",
-          "name": "CubeX Solver",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#29CC29",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "4.1.0",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            },
-            {
-              "version": null,
-              "versionCodes": null,
-              "isExperimental": true,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
     {
       "name": "Remove relaunch protection",
       "description": "Disables the ZipoApps PremiumHelper relaunch / start-like-pro flow that shows a \"Baixe este app na Play Store\" screen when the app detects it has been modified. Patches zc.k.n(String) to no-op and zc.k.h() to always return false.",
