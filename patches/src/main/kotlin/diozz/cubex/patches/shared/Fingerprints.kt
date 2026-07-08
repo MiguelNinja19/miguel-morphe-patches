@@ -2,10 +2,10 @@
  * Copyright 2025 diozz-cubex-patches
  * https://github.com/diozz-cubex-patches/morphe-patches
  *
- * Fingerprints for the PremiumHelper SDK and the AdManager shipped
- * inside CubeX Solver. The SDK is shipped obfuscated (zc.*, rc.*, bd.*,
- * nd.*) but the method bodies are very stable because ZipoApps reuses
- * the same SDK across all their apps.
+ * Fingerprints for the PremiumHelper SDK shipped inside CubeX Solver.
+ * The SDK is shipped obfuscated (zc.*, rc.*, bd.*, nd.*) but the method
+ * bodies are very stable because ZipoApps reuses the same SDK across
+ * all their apps.
  */
 
 package diozz.cubex.patches.shared
@@ -25,7 +25,9 @@ import com.android.tools.smali.dexlib2.AccessFlags
  *     → SharedPreferences.getBoolean("has_active_purchase", false)
  *
  * Returning `true` from it makes the app think an active premium
- * subscription is present, which unlocks every premium-gated feature.
+ * subscription is present, which unlocks every premium-gated feature
+ * (Advanced Solver / Kociemba, custom color schemes, VIP support, no
+ * relaunch screens, no ads).
  *
  * We anchor on the very stable SharedPreferences string constant
  * `"has_active_purchase"` — the on-disk key the SDK has been using
@@ -44,51 +46,11 @@ object PremiumHelperHasActivePurchaseFingerprint : Fingerprint(
 )
 
 /**
- * `rc.a.f(...)` — `isAdEnabled(adType, ..., continuation)`.
- *
- * Returns true if the given ad type should be shown. The method
- * consults the per-app remote config (`rc.j.a(...)`) and the local
- * premium flag, then returns a `Boolean` to the caller.
- *
- * We anchor on the string `"disabled"` (used as the sentinel return
- * value when an ad type is turned off). This string is unique to
- * this method inside `rc.a`.
- *
- * Matching method: `rc.a.f(Lrc/a$a;ZLje/d;)Ljava/lang/Boolean;`
- */
-object IsAdEnabledFingerprint : Fingerprint(
-    definingClass = "Lrc/a;",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    returnType = "Ljava/lang/Boolean;",
-    parameters = listOf("L", "Z", "L"),
-    filters = listOf(
-        string("disabled"),
-    )
-)
-
-/**
- * `rc.a.k(Activity)` — `shouldShowExitAd(activity)`.
- *
- * Called by `MainActivity.onBackPressed()` to decide whether to show
- * an interstitial when the user tries to leave the app.
- *
- * The body references the `ph_ad_close_view` resource ID, which is
- * unique to this method. We anchor on it.
- *
- * Matching method: `rc.a.k(Landroid/app/Activity;)Z`
- */
-object ExitAdFingerprint : Fingerprint(
-    definingClass = "Lrc/a;",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    returnType = "Z",
-    parameters = listOf("Landroid/app/Activity;"),
-    filters = listOf(
-        string("ph_ad_close_view"),
-    )
-)
-
-/**
  * `zc.k.h()` — `shouldShowRelaunchOrPremium()` — public final boolean h().
+ *
+ * The main "should we interrupt the user with a premium relaunch /
+ * start-like-pro screen" gate. Returning false makes the app behave
+ * as if the user is already premium or past the relaunch window.
  *
  * The fingerprint is anchored on the static call
  * `Lrc/v;->b()Z` (`PhConsentManager.isConsentRequired()`),
@@ -114,8 +76,13 @@ object ShouldShowRelaunchFingerprint : Fingerprint(
  * `zc.k.n(String)` — `launchRelaunchPremiumActivity(source)`.
  *
  * Static method that builds an Intent targeting
- * `com.zipoapps.premiumhelper.ui.relaunch.RelaunchPremiumActivity`
- * and starts it.
+ * `com.zipoapps.prempremiumhelper.ui.relaunch.RelaunchPremiumActivity`
+ * and starts it. This is the actual "Baixe este app na Play Store"
+ * trigger — when invoked, the user is yanked out of the app and
+ * shown the relaunch/premium upsell screen.
+ *
+ * Patching this method to immediately `return-void` prevents the
+ * relaunch activity from ever being started.
  *
  * We anchor on the Kotlin compiler-emitted assertion string
  * `"Intent(context, Relaunch…ctivity.ARG_THEME, theme)"` (with the
