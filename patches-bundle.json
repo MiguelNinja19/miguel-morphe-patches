@@ -1,0 +1,7 @@
+{
+  "created_at": "2026-07-08T19:29:51",
+  "description": "## 1.0.0 (2026-07-08)\n\n### 🐛 Bug Fixes\n\n* mark gradlew as executable (EACCES fix) ([41ec51a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/41ec51a2735dc2b27b73901862208c44740c9709))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.0.0/patches-1.0.0.mpp",
+  "signature_download_url": "",
+  "version": "1.0.0"
+}

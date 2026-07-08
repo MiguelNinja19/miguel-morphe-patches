@@ -26,6 +26,24 @@ shared across all ZipoApps titles and is generally stable across releases.
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
+> **[v1.0.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.0.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;4 patches total
+<details open>
+<summary>📦 CubeX Solver&nbsp;&nbsp;•&nbsp;&nbsp;4 patches</summary>
+<br>
+
+**🎯 Supported versions:**
+
+| 4.1.0 |
+| :---: |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Auto-reward ads](#auto-reward-ads) | Forces AdManager.isAdEnabled(REWARDED) to return true and all other ad types to return false. In this app version there is no user-visible rewarded-ad button, so this patch is mainly defensive — if a future update adds a 'watch ad to skip' flow, the rewarded ad loader will already be allowed. Use the 'Unlock premium' patch for the equivalent of 'always granted reward' today. |  |
+| [Remove non-rewarded ads](#remove-non-rewarded-ads) | Disables interstitial, banner, native and exit ads without touching rewarded ads. Belt-and-suspenders complement to the premium unlock — useful if the AdManager's own premium suppression is bypassed by a remote config flag. |  |
+| [Remove relaunch protection](#remove-relaunch-protection) | Disables the ZipoApps PremiumHelper relaunch / start-like-pro flow that shows a "Baixe este app na Play Store" screen when the app detects it has been modified. Patches zc.k.n(String) to no-op and zc.k.h() to always return false. |  |
+| [Unlock premium](#unlock-premium) | Unlocks all premium-gated features (Advanced Solver / Kociemba, custom color schemes, VIP support, no relaunch screens). Returns true from PremiumHelper.hasActivePurchase() so the entire app behaves as if a premium subscription is active. |  |
+
+</details>
 
 <!-- PATCHES_END -->
 
