@@ -1,13 +1,13 @@
-group = "diozz.cubex.patches"
+group = "miguel.morphe.patches"
 
 patches {
     about {
-        name = "CubeX Solver Patches"
-        description = "Patches for CubeX Solver (Cube Solver) by Pipi Chick Studio / ZipoApps. Unlocks premium features, removes non-rewarded ads, removes relaunch/pairip-style protection, and grants rewarded-ad rewards without watching."
-        source = "https://github.com/diozz-cubex-patches/morphe-patches"
-        author = "diozz-cubex-patches"
-        contact = "https://github.com/diozz-cubex-patches/morphe-patches/issues"
-        website = "https://github.com/diozz-cubex-patches/morphe-patches"
+        name = "Miguel's Patches"
+        description = "Morphe patches by MiguelNinja19. Multiple apps supported — see the patch list below."
+        source = "https://github.com/MiguelNinja19/miguel-morphe-patches"
+        author = "MiguelNinja19"
+        contact = "https://github.com/MiguelNinja19/miguel-morphe-patches/issues"
+        website = "https://github.com/MiguelNinja19/miguel-morphe-patches"
         license = "GPLv3"
     }
 }
