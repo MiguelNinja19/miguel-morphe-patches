@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.1.0...v1.1.1) (2026-07-08)
+
+### 🐛 Bug Fixes
+
+* remove problematic LaunchRelaunchActivityFingerprint ([d21f279](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d21f2799dffa2c07cffea8c5160b03ff17b98f5d))
+* simplify RemoveRelaunchProtectionPatch (drop n() patch) ([6fe5744](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6fe57442c8b995bcaace3e029b91ab717339f349))
+
 ## [1.1.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.0.2...v1.1.0) (2026-07-08)
 
 ### ✨ New Features

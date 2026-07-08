@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-08T22:48:39",
-  "description": "## [1.1.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.0.2...v1.1.0) (2026-07-08)\n\n### ✨ New Features\n\n* simplify patches to premium and relaunch only ([cedb0e7](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cedb0e7ba2ef431ca0dd753117b514718a561e8d))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.1.0/patches-1.1.0.mpp",
+  "created_at": "2026-07-08T23:01:23",
+  "description": "## [1.1.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.1.0...v1.1.1) (2026-07-08)\n\n### 🐛 Bug Fixes\n\n* remove problematic LaunchRelaunchActivityFingerprint ([d21f279](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d21f2799dffa2c07cffea8c5160b03ff17b98f5d))\n* simplify RemoveRelaunchProtectionPatch (drop n() patch) ([6fe5744](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6fe57442c8b995bcaace3e029b91ab717339f349))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.1.1/patches-1.1.1.mpp",
   "signature_download_url": "",
-  "version": "1.1.0"
+  "version": "1.1.1"
 }

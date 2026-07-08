@@ -26,7 +26,7 @@ shared across all ZipoApps titles and is generally stable across releases.
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.1.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.1.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+> **[v1.1.1](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.1.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 CubeX Solver&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -38,7 +38,7 @@ shared across all ZipoApps titles and is generally stable across releases.
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Remove relaunch protection](#remove-relaunch-protection) | Disables the ZipoApps PremiumHelper relaunch / start-like-pro flow that shows a "Baixe este app na Play Store" screen when the app detects it has been modified. Patches zc.k.n(String) to no-op and zc.k.h() to always return false. |  |
+| [Remove relaunch protection](#remove-relaunch-protection) | Forces zc.k.h() to return false so the relaunch / start-like-pro decision gate is suppressed. Combined with the Unlock premium patch, this prevents the "Baixe este app na Play Store" screen from appearing. |  |
 | [Unlock premium](#unlock-premium) | Unlocks all premium-gated features (Advanced Solver / Kociemba, custom color schemes, VIP support, no relaunch screens). Returns true from PremiumHelper.hasActivePurchase() so the entire app behaves as if a premium subscription is active. |  |
 
 </details>

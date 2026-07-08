@@ -1,10 +1,10 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "patches": [
     {
       "name": "Remove relaunch protection",
-      "description": "Disables the ZipoApps PremiumHelper relaunch / start-like-pro flow that shows a \"Baixe este app na Play Store\" screen when the app detects it has been modified. Patches zc.k.n(String) to no-op and zc.k.h() to always return false.",
+      "description": "Forces zc.k.h() to return false so the relaunch / start-like-pro decision gate is suppressed. Combined with the Unlock premium patch, this prevents the \"Baixe este app na Play Store\" screen from appearing.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
