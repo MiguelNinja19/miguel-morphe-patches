@@ -45,16 +45,6 @@ shared across all ZipoApps titles and is generally stable across releases.
 
 <!-- PATCHES_END -->
 
-| # | Patch name | What it does |
-|---|------------|--------------|
-| 1 | **Unlock premium** | Returns `true` from `PremiumHelper.hasActivePurchase()` (`zc.g.i()`). Unlocks the Advanced Solver (the "last cube" option that was greyed out at the end of the solver selector), custom color schemes, VIP support email, and disables the in-app "Remove Ads" prompt. |
-| 2 | **Remove non-rewarded ads** | Patches `AdManager.isAdEnabled(adType, ...)` (`rc.a.f(...)`) to return `FALSE` for every ad type except `REWARDED`. Also patches the exit-ad gate (`rc.a.k(Activity)`) to always return `false` so the back-press exit ad is skipped. |
-| 3 | **Remove relaunch protection** | No-ops `zc.k.n(String)` so the `RelaunchPremiumActivity` ("Baixe este app na Play Store") can never be started, and forces `zc.k.h()` to return `false` so the relaunch/start-like-pro flow is suppressed. |
-| 4 | **Auto-reward ads** | Forces `AdManager.isAdEnabled(REWARDED)` to return `true`. In this app version there is no user-visible "watch ad to skip" button, so this patch is mainly defensive. Use the **Unlock premium** patch for the practical equivalent of "every reward granted". |
-
-All four patches are enabled by default. You can disable any of them in
-Morphe Manager before applying.
-
 ## 🚀 How to use
 
 ### Option A — Add this repo to Morphe Manager (recommended)
