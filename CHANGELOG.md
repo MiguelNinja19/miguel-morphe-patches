@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.0.1...v1.0.2) (2026-07-08)
+
+### 🐛 Bug Fixes
+
+* remove AdManagerClassFingerprint, use direct definingClass ([c102eaf](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/c102eaf55e8a96988cdc4b05c700977b13446e6a))
+
 ## [1.0.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.0.0...v1.0.1) (2026-07-08)
 
 ### 🐛 Bug Fixes
