@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-08T23:12:47",
-  "description": "## [1.1.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.1.1...v1.1.2) (2026-07-08)\n\n### 🐛 Bug Fixes\n\n* drop definingClass from premium fingerprint for robustness ([ea33919](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ea33919b2f5fb612dc01b8958c609272444f37cd))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.1.2/patches-1.1.2.mpp",
+  "created_at": "2026-07-08T23:44:48",
+  "description": "## [1.2.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.1.2...v1.2.0) (2026-07-08)\n\n### ✨ New Features\n\n* rename bundle to Miguel's Patches ([55de4c3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/55de4c3c546ddf8395881f5beb0117fc8fe46f51))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.2.0/patches-1.2.0.mpp",
   "signature_download_url": "",
-  "version": "1.1.2"
+  "version": "1.2.0"
 }

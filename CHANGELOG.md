@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.1.2...v1.2.0) (2026-07-08)
+
+### ✨ New Features
+
+* rename bundle to Miguel's Patches ([55de4c3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/55de4c3c546ddf8395881f5beb0117fc8fe46f51))
+
 ## [1.1.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.1.1...v1.1.2) (2026-07-08)
 
 ### 🐛 Bug Fixes
