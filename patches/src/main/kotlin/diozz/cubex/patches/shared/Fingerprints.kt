@@ -44,41 +44,20 @@ object PremiumHelperHasActivePurchaseFingerprint : Fingerprint(
 )
 
 /**
- * ZipoApps AdManager ad-type enum — obfuscated as `rc.a$a` (the inner
- * enum class declared inside `rc.a`).
- *
- * The enum lists the ad types supported by the SDK:
- *   INTERSTITIAL, BANNER, NATIVE, REWARDED, BANNER_MEDIUM_RECT
- *
- * The enum's `<clinit>` static initializer builds the `$VALUES` array
- * and references every enum constant by name as a string. This makes
- * an extremely stable anchor.
- */
-object AdManagerClassFingerprint : Fingerprint(
-    definingClass = "Lrc/a\$a;",
-    accessFlags = listOf(AccessFlags.STATIC, AccessFlags.CONSTRUCTOR),
-    returnType = "V",
-    filters = listOf(
-        string("INTERSTITIAL"),
-        string("BANNER"),
-        string("NATIVE"),
-        string("REWARDED"),
-        string("BANNER_MEDIUM_RECT"),
-    )
-)
-
-/**
  * `rc.a.f(...)` — `isAdEnabled(adType, ..., continuation)`.
  *
- * Returns `true` if the given ad type should be shown. The method
+ * Returns true if the given ad type should be shown. The method
  * consults the per-app remote config (`rc.j.a(...)`) and the local
  * premium flag, then returns a `Boolean` to the caller.
  *
  * We anchor on the string `"disabled"` (used as the sentinel return
- * value when an ad type is turned off).
+ * value when an ad type is turned off). This string is unique to
+ * this method inside `rc.a`.
+ *
+ * Matching method: `rc.a.f(Lrc/a$a;ZLje/d;)Ljava/lang/Boolean;`
  */
 object IsAdEnabledFingerprint : Fingerprint(
-    classFingerprint = AdManagerClassFingerprint,
+    definingClass = "Lrc/a;",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "Ljava/lang/Boolean;",
     parameters = listOf("L", "Z", "L"),
@@ -95,9 +74,11 @@ object IsAdEnabledFingerprint : Fingerprint(
  *
  * The body references the `ph_ad_close_view` resource ID, which is
  * unique to this method. We anchor on it.
+ *
+ * Matching method: `rc.a.k(Landroid/app/Activity;)Z`
  */
 object ExitAdFingerprint : Fingerprint(
-    classFingerprint = AdManagerClassFingerprint,
+    definingClass = "Lrc/a;",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "Z",
     parameters = listOf("Landroid/app/Activity;"),
