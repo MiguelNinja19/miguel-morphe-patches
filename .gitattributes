@@ -1,0 +1,11 @@
+# Make sure these shell scripts have executable bit when checked out
+gradlew        text eol=lf
+gradlew.bat    text eol=crlf
+*.sh           text eol=lf
+*.py           text eol=lf
+*.kts          text eol=lf
+*.kt           text eol=lf
+*.json         text eol=lf
+*.yml          text eol=lf
+*.yaml         text eol=lf
+*.smali        text eol=lf
