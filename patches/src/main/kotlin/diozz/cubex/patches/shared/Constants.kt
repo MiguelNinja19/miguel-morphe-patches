@@ -34,11 +34,7 @@ object Constants {
         appIconColor = 0x29CC29, // CubeX green accent (matches the in-app switch tint)
         targets = listOf(
             AppTarget(
-                version = "4.1.0",
-                versionCodes = mapOf(
-                    app.morphe.patcher.patch.AppTarget.VersionCodeType.Any to
-                        setOf(8000101L)
-                )
+                version = "4.1.0"
             ),
             AppTarget(
                 // Other versions of the same major line — likely to work
