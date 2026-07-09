@@ -1,20 +1,22 @@
 /*
  * Free In-App Purchases patch for Anger of Stick 5 : Zombie.
  *
- * NEW STRATEGY: Instead of patching purchase(int i), we patch
- * launchPurchaseFlow(String sku) - the private method that
- * actually opens Google Play. We replace its body to call
- * nativeOnSuccess(sku, true) directly, skipping Google Play.
+ * STRATEGY: Call nativeOnSuccess (to credit the item) followed by
+ * nativeOnCanceled (to close the "Contacting..." UI).
  *
- * Why this works better:
- * - purchase(int i) runs its FULL normal flow (sets mProductID,
- *   checks billing connection, etc) before calling launchPurchaseFlow
- * - The C++ state machine is fully set up when launchPurchaseFlow
- *   is called, so it's ready to receive the nativeOnSuccess callback
- * - launchPurchaseFlow is private, so it's only called from purchase()
- * - The original launchPurchaseFlow checks productDetailsMap for the
- *   SKU and calls BillingClient.launchBillingFlow - we replace ALL of
- *   that with a simple nativeOnSuccess call
+ * The C++ state machine has two separate concerns:
+ * 1. Crediting the item → handled by nativeOnSuccess
+ * 2. Resetting the purchase state / closing the UI → handled by
+ *    nativeOnCanceled or nativeOnFailure
+ *
+ * When we call nativeOnSuccess directly, it credits the item but
+ * does NOT reset the purchase state. The "Contacting..." UI stays
+ * because the C++ thinks the purchase is still in progress.
+ *
+ * Fix: call nativeOnCanceled AFTER nativeOnSuccess. The cancel
+ * callback resets the purchase state and closes the UI. It does
+ * NOT un-credit the item (in normal flow, cancel means the user
+ * didn't pay, so there's nothing to undo).
  */
 
 package jpark.aos5.patches.iap
@@ -38,28 +40,26 @@ val freeInAppPurchasesPatch = bytecodePatch(
     compatibleWith(ANGER_OF_STICK_5)
 
     execute {
-        // Patch launchPurchaseFlow(String sku) to call nativeOnSuccess
-        // instead of BillingClient.launchBillingFlow.
-        //
-        // Register layout:
-        //   p0 = this  (Lorg/cocos2dx/cpp/AppActivity;)
-        //   p1 = sku   (Ljava/lang/String;)
-
         val method = LaunchPurchaseFlowFingerprint.method
         method.addInstructions(
             0,
             """
-                # Call nativeOnSuccess(p1, true) directly
-                # p1 is the SKU string, already set by purchase()
+                # Step 1: Credit the item
+                # nativeOnSuccess(sku, true) → C++ credits gems/coins
                 const/4 v0, 0x1
                 invoke-static {p1, v0}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnSuccess(Ljava/lang/String;Z)V
+                
+                # Step 2: Close the "Contacting..." UI
+                # nativeOnCanceled(sku) → C++ resets purchase state and hides the loading screen
+                # This does NOT un-credit the item (cancel = user didn't pay = nothing to undo)
+                invoke-static {p1}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnCanceled(Ljava/lang/String;)V
                 
                 # Return immediately - skip the original BillingClient code
                 return-void
             """.trimIndent()
         )
 
-        // Disable restore-purchases flow
+        // Disable restore-purchases flow on startup
         SetRestoreFingerprint.method.addInstructions(0, "return-void")
         RestorePurchasesFingerprint.method.addInstructions(0, "return-void")
     }
