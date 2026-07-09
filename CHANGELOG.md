@@ -1,3 +1,9 @@
+## [1.3.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.3...v1.3.4) (2026-07-09)
+
+### 🐛 Bug Fixes
+
+* call nativeOnCanceled after nativeOnSuccess to close Contacting UI ([4ec5499](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4ec54997d92015e606363f8f324d6206bbab031f))
+
 ## [1.3.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.2...v1.3.3) (2026-07-09)
 
 ### 🐛 Bug Fixes
