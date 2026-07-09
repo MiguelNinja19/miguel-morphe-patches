@@ -56,3 +56,53 @@ object PurchaseFingerprint : Fingerprint(
         ),
     )
 )
+
+/**
+ * AppActivity.setRestore() -> V
+ *
+ * Called by the C++ engine on app startup to restore previous
+ * purchases. It creates a new BillingClient, connects to Google
+ * Play, then queries purchase history. If no purchases are found,
+ * it calls nativeOnRestored("null", -1) which the C++ side
+ * interprets as "nothing to restore" - but the loading UI sometimes
+ * gets stuck waiting for the query to complete.
+ *
+ * We make this method a no-op so the game never tries to contact
+ * Google Play on startup, preventing the loading-screen loop.
+ *
+ * Anchor: the call to BillingClient.newBuilder() - this method
+ * creates a fresh BillingClient specifically for the restore flow.
+ */
+object SetRestoreFingerprint : Fingerprint(
+    definingClass = "Lorg/cocos2dx/cpp/AppActivity;",
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "V",
+    parameters = emptyList(),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lcom/android/billingclient/api/BillingClient;",
+            name = "newBuilder",
+            returnType = "Lcom/android/billingclient/api/BillingClient\$Builder;",
+        ),
+    )
+)
+
+/**
+ * AppActivity.restorePurchases() -> V
+ *
+ * Same as setRestore but called from a different code path. We
+ * make it a no-op too for the same reason.
+ */
+object RestorePurchasesFingerprint : Fingerprint(
+    definingClass = "Lorg/cocos2dx/cpp/AppActivity;",
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "V",
+    parameters = emptyList(),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lcom/android/billingclient/api/BillingClient;",
+            name = "newBuilder",
+            returnType = "Lcom/android/billingclient/api/BillingClient\$Builder;",
+        ),
+    )
+)
