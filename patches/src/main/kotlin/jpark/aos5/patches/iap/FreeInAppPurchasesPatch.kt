@@ -1,19 +1,19 @@
 /*
  * Free In-App Purchases patch for Anger of Stick 5 : Zombie.
  *
- * KEY DISCOVERY from C++ disassembly:
- * - nativeOnSuccess calls vtable[0x550] → CREDITS item, does NOT close screen
- * - nativeOnFailure calls vtable[0x568] → CLOSES screen (same as onCanceled)
- * - vtable[0x568] also shows an error dialog, BUT the message comes from Java
- * - If we pass EMPTY string as the message, the dialog might not show
+ * NEW STRATEGY: "Fire and let it fall through"
  *
- * STRATEGY:
- * 1. Call nativeOnSuccess(sku, true) → credits the item
- * 2. Call nativeOnFailure(sku, "") → closes "Contacting..." screen
- *    (empty message hopefully means no/blank error dialog)
+ * Instead of intercepting launchPurchaseFlow with return-void, we
+ * add nativeOnSuccess at the BEGINNING but DON'T return. The original
+ * code continues to run:
  *
- * In the normal unpatched flow (no billing connected), nativeOnFailure
- * IS what closes the Contacting screen. nativeOnSuccess alone doesn't.
+ * 1. Our code: nativeOnSuccess(sku, true) → credits item
+ * 2. Original code: productDetailsMap.get(sku) → null (no billing)
+ * 3. Original code: nativeOnFailure(sku, "") → original failure path
+ * 4. Original code: return-void
+ *
+ * The nativeOnFailure is called by the ORIGINAL code path (not by us),
+ * which might set up the right context for the C++ to close the screen.
  */
 
 package jpark.aos5.patches.iap
@@ -29,8 +29,8 @@ import jpark.aos5.patches.shared.SetRestoreFingerprint
 val freeInAppPurchasesPatch = bytecodePatch(
     name = "Free in-app purchases",
     description = "Skips Google Play Billing and credits IAP items (gem packs, " +
-        "coin packs, starter packs) directly. Calls nativeOnFailure with empty " +
-        "message after nativeOnSuccess to close the Contacting screen. Also " +
+        "coin packs, starter packs) directly. Lets the original failure path " +
+        "run after crediting to close the Contacting screen naturally. Also " +
         "disables the startup purchase-restore flow.",
     default = true,
 ) {
@@ -41,19 +41,21 @@ val freeInAppPurchasesPatch = bytecodePatch(
         method.addInstructions(
             0,
             """
-                # Step 1: Credit the item
+                # Credit the item FIRST
                 # nativeOnSuccess(sku, true) → C++ credits gems/coins
                 const/4 v0, 0x1
                 invoke-static {p1, v0}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnSuccess(Ljava/lang/String;Z)V
                 
-                # Step 2: Close the "Contacting..." screen
-                # nativeOnFailure(sku, "") → C++ resets purchase state and closes UI
-                # Empty string message = hopefully no error dialog
-                const-string v0, ""
-                invoke-static {p1, v0}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnFailure(Ljava/lang/String;Ljava/lang/String;)V
-                
-                # Return - skip original BillingClient code
-                return-void
+                # DO NOT return-void! Let the original code continue.
+                # Original code will:
+                #   1. productDetailsMap.get(sku) → null (no billing)
+                #   2. Jump to :cond_0
+                #   3. Call nativeOnFailure(sku, "") → original failure path
+                #   4. return-void
+                #
+                # The nativeOnFailure from the ORIGINAL code path should
+                # properly close the Contacting screen because it goes
+                # through the normal C++ state machine flow.
             """.trimIndent()
         )
 
