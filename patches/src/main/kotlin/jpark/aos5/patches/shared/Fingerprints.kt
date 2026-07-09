@@ -32,6 +32,20 @@ object LaunchPurchaseFlowFingerprint : Fingerprint(
     )
 )
 
+object BillingStartLambdaFingerprint : Fingerprint(
+    definingClass = "Lorg/cocos2dx/cpp/AppActivity;",
+    accessFlags = listOf(AccessFlags.SYNTHETIC),
+    returnType = "V",
+    parameters = emptyList(),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lorg/cocos2dx/cpp/AppActivity;",
+            name = "handleConnectionFailure",
+            returnType = "V",
+        ),
+    )
+)
+
 object SetRestoreFingerprint : Fingerprint(
     definingClass = "Lorg/cocos2dx/cpp/AppActivity;",
     accessFlags = listOf(AccessFlags.PUBLIC),
