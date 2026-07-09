@@ -1,3 +1,9 @@
+## [1.3.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.7...v1.3.8) (2026-07-09)
+
+### 🐛 Bug Fixes
+
+* let original failure path run after nativeOnSuccess (no return-void) ([e085488](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e0854882d8c393b69d9f8886133acc97d43b2088))
+
 ## [1.3.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.6...v1.3.7) (2026-07-09)
 
 ### 🐛 Bug Fixes
