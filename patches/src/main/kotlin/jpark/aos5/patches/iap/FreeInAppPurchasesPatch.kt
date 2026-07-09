@@ -1,49 +1,20 @@
 /*
- * Copyright 2025 Miguel's Patches
- * https://github.com/MiguelNinja19/miguel-morphe-patches
- *
  * Free In-App Purchases patch for Anger of Stick 5 : Zombie.
  *
- * The game's billing flow is:
- *   1. C++ game calls AppActivity.purchase(int i) via JNI
- *   2. AppActivity looks up SKU = purchaseItemIDs[i]
- *   3. AppActivity calls launchPurchaseFlow(SKU) -> opens Google Play
- *   4. User pays in Google Play
- *   5. onPurchasesUpdated callback fires
- *   6. handleConsumablePurchase consumes the purchase
- *   7. nativeOnSuccess(SKU, isFinalized) is called -> C++ credits item
+ * NEW STRATEGY: Instead of patching purchase(int i), we patch
+ * launchPurchaseFlow(String sku) - the private method that
+ * actually opens Google Play. We replace its body to call
+ * nativeOnSuccess(sku, true) directly, skipping Google Play.
  *
- * This patch short-circuits steps 3-6 by replacing the body of
- * purchase(int i) with:
- *   - Get SKU from purchaseItemIDs[i]
- *   - Call nativeOnSuccess(SKU, true) directly
- *
- * IMPORTANT: The second parameter to nativeOnSuccess is NOT "isConsumable"
- * as I first thought - it is "isFinalized" (whether the purchase has been
- * acknowledged/consumed). Looking at grantNonConsumableItem() and
- * lambda$handleConsumablePurchase$5(), both always pass `true` (1) when
- * the purchase is fully done. If we pass `false`, the C++ side thinks
- * the purchase is still pending and leaves the "Contacting..." UI on
- * screen indefinitely.
- *
- * So we always pass `true` to tell C++ "the purchase is finalized,
- * credit the item and close the loading screen".
- *
- * This effectively gives:
- *   - Free gem packs (aos5.g001, aos5.g002, aos5.g003)
- *   - Free coin/joker packs (aos5.j001, aos5.j002, aos5.gj001)
- *   - Free starter packs (aos5.sg001-003, aos5.sj001-003, aos5.sgj001-003)
- *   - Free big packs (aos5.ho399, aos5.ht399, aos5.hg599, etc)
- *
- * Side effect: each time you tap "buy" the item is credited
- * instantly - so this also effectively gives unlimited gems/coins
- * (just keep tapping buy).
- *
- * ADDITIONAL: We also no-op setRestore() and restorePurchases() to
- * prevent the game from contacting Google Play on startup to
- * restore previous purchases. Without this, the loading screen
- * can get stuck waiting for the (empty) purchase history query
- * to complete.
+ * Why this works better:
+ * - purchase(int i) runs its FULL normal flow (sets mProductID,
+ *   checks billing connection, etc) before calling launchPurchaseFlow
+ * - The C++ state machine is fully set up when launchPurchaseFlow
+ *   is called, so it's ready to receive the nativeOnSuccess callback
+ * - launchPurchaseFlow is private, so it's only called from purchase()
+ * - The original launchPurchaseFlow checks productDetailsMap for the
+ *   SKU and calls BillingClient.launchBillingFlow - we replace ALL of
+ *   that with a simple nativeOnSuccess call
  */
 
 package jpark.aos5.patches.iap
@@ -51,7 +22,7 @@ package jpark.aos5.patches.iap
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import jpark.aos5.patches.shared.Constants.ANGER_OF_STICK_5
-import jpark.aos5.patches.shared.PurchaseFingerprint
+import jpark.aos5.patches.shared.LaunchPurchaseFlowFingerprint
 import jpark.aos5.patches.shared.RestorePurchasesFingerprint
 import jpark.aos5.patches.shared.SetRestoreFingerprint
 
@@ -60,57 +31,35 @@ val freeInAppPurchasesPatch = bytecodePatch(
     name = "Free in-app purchases",
     description = "Skips Google Play Billing and credits IAP items (gem packs, " +
         "coin packs, starter packs) directly. Tap any buy button in the shop " +
-        "and the item is granted instantly without payment. Effectively gives " +
-        "unlimited gems and coins since you can 'buy' the largest pack as many " +
-        "times as you want. Also disables the startup purchase-restore flow " +
-        "to prevent the loading screen from getting stuck.",
+        "and the item is granted instantly without payment. Also disables the " +
+        "startup purchase-restore flow.",
     default = true,
 ) {
     compatibleWith(ANGER_OF_STICK_5)
 
     execute {
-        // =========================================================
-        // 1) Free IAP: replace purchase(int i) body
-        // =========================================================
-        val purchaseMethod = PurchaseFingerprint.method
-        purchaseMethod.addInstructions(
+        // Patch launchPurchaseFlow(String sku) to call nativeOnSuccess
+        // instead of BillingClient.launchBillingFlow.
+        //
+        // Register layout:
+        //   p0 = this  (Lorg/cocos2dx/cpp/AppActivity;)
+        //   p1 = sku   (Ljava/lang/String;)
+
+        val method = LaunchPurchaseFlowFingerprint.method
+        method.addInstructions(
             0,
             """
-                # Get SKU from purchaseItemIDs.get(p1)
-                sget-object v0, Lorg/cocos2dx/cpp/AppActivity;->purchaseItemIDs:Ljava/util/ArrayList;
-                invoke-virtual {v0, p1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-                move-result-object v0
-                check-cast v0, Ljava/lang/String;
+                # Call nativeOnSuccess(p1, true) directly
+                # p1 is the SKU string, already set by purchase()
+                const/4 v0, 0x1
+                invoke-static {p1, v0}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnSuccess(Ljava/lang/String;Z)V
                 
-                # Store SKU in mProductID
-                sput-object v0, Lorg/cocos2dx/cpp/AppActivity;->mProductID:Ljava/lang/String;
-                
-                # Call nativeOnSuccess(v0, true) - notify C++ that the "purchase"
-                # succeeded AND is finalized (acknowledged/consumed).
-                # The `true` is critical: if we pass false, the C++ side thinks
-                # the purchase is still pending and the "Contacting..." UI never
-                # closes.
-                const/4 v1, 0x1
-                invoke-static {v0, v1}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnSuccess(Ljava/lang/String;Z)V
-                
-                # Return immediately
+                # Return immediately - skip the original BillingClient code
                 return-void
             """.trimIndent()
         )
 
-        // =========================================================
-        // 2) Disable restore-purchases flow on startup
-        // =========================================================
-        // setRestore() and restorePurchases() both create a new
-        // BillingClient, connect to Google Play, then query purchase
-        // history. On a patched APK this query either times out or
-        // returns empty, leaving the C++ side waiting for a
-        // nativeOnRestored() callback that can leave the loading UI
-        // in a stuck state.
-        //
-        // We make both methods immediate no-ops by inserting
-        // return-void at the very start.
-
+        // Disable restore-purchases flow
         SetRestoreFingerprint.method.addInstructions(0, "return-void")
         RestorePurchasesFingerprint.method.addInstructions(0, "return-void")
     }
