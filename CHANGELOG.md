@@ -1,3 +1,11 @@
+## [1.3.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.5...v1.3.6) (2026-07-09)
+
+### 🐛 Bug Fixes
+
+* add native .so patch to fix Contacting screen ([b94b435](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b94b435d964021c08ae9080289bb05070e0cf98f))
+* use UI thread + 500ms delay for nativeOnSuccess ($$ escaping fix) (file: 1 of 2)) ([db47f41](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/db47f41544b9560e83c82bca9682ca62c7f98430))
+* use UI thread + 500ms delay for nativeOnSuccess ($$ escaping fix) (file: 2 of 2)) ([1b12e11](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1b12e11b1e30a4828ff6966c5bee697dc74327ba))
+
 ## [1.3.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.4...v1.3.5) (2026-07-09)
 
 ### 🐛 Bug Fixes
