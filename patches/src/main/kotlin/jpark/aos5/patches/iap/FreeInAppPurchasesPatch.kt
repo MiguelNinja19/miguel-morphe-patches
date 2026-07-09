@@ -1,21 +1,28 @@
 /*
  * Free In-App Purchases patch for Anger of Stick 5 : Zombie.
  *
- * This patch does THREE things in one:
+ * ROOT CAUSE: nativeOnSuccess must be called on the UI thread, not
+ * the C++ GL thread. In the original flow, Google Play calls back
+ * on the UI thread. Our patch was calling it on the GL thread, so
+ * the C++ could credit the item but couldn't update the UI to close
+ * the "Contacting..." screen.
  *
- * 1. JAVA: Patches launchPurchaseFlow to call nativeOnSuccess directly,
- *    skipping Google Play Billing. Credits items without payment.
+ * SOLUTION:
+ * 1. Patch lambda$billingStart$2 to call nativeOnSuccess(mProductID, true)
+ * 2. Patch launchPurchaseFlow to post a 500ms delayed Runnable on the
+ *    UI thread using Handler.postDelayed + ExternalSyntheticLambda3
+ * 3. ExternalSyntheticLambda3 calls lambda$billingStart$2 on the UI thread
+ * 4. nativeOnSuccess fires on the UI thread -> C++ credits AND closes UI
  *
- * 2. NATIVE: Modifies libMyGame.so to change the boolean parameter
- *    passed to the C++ onSuccess from false (0) to true (1).
- *
- * 3. Disables setRestore/restorePurchases to prevent startup issues.
+ * The $$ in ExternalSyntheticLambda3 is escaped as ${'$'}${'$'} because
+ * Kotlin triple-quoted strings interpret $ as interpolation.
  */
 
 package jpark.aos5.patches.iap
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
+import jpark.aos5.patches.shared.BillingStartLambdaFingerprint
 import jpark.aos5.patches.shared.Constants.ANGER_OF_STICK_5
 import jpark.aos5.patches.shared.LaunchPurchaseFlowFingerprint
 import jpark.aos5.patches.shared.RestorePurchasesFingerprint
@@ -25,85 +32,41 @@ import jpark.aos5.patches.shared.SetRestoreFingerprint
 val freeInAppPurchasesPatch = bytecodePatch(
     name = "Free in-app purchases",
     description = "Skips Google Play Billing and credits IAP items (gem packs, " +
-        "coin packs, starter packs) directly. Also patches libMyGame.so to " +
-        "fix the native purchase callback. Disables the startup purchase-restore " +
-        "flow to prevent loading screen issues.",
+        "coin packs, starter packs) directly. Uses UI thread + delay to " +
+        "properly close the Contacting screen. Also disables the startup " +
+        "purchase-restore flow.",
     default = true,
 ) {
     compatibleWith(ANGER_OF_STICK_5)
 
     execute {
-        // 1) JAVA: Patch launchPurchaseFlow
-        val method = LaunchPurchaseFlowFingerprint.method
-        method.addInstructions(
+        // 1) Patch lambda$billingStart$2 to call nativeOnSuccess
+        BillingStartLambdaFingerprint.method.addInstructions(
             0,
             """
-                const/4 v0, 0x1
-                invoke-static {p1, v0}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnSuccess(Ljava/lang/String;Z)V
+                sget-object v0, Lorg/cocos2dx/cpp/AppActivity;->mProductID:Ljava/lang/String;
+                const/4 v1, 0x1
+                invoke-static {v0, v1}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnSuccess(Ljava/lang/String;Z)V
                 return-void
             """.trimIndent()
         )
 
-        // 2) NATIVE: Patch libMyGame.so ARM64
-        try {
-            val arm64File = get("lib/arm64-v8a/libMyGame.so")
-            val arm64Bytes = arm64File.readBytes()
-
-            val arm64Search = byteArrayOf(
-                0xE0.toByte(), 0x03, 0x13, 0xAA.toByte(),
-                0xE2.toByte(), 0x03, 0x1F, 0x2A.toByte(),
-                0x00, 0x01, 0x3F, 0xD6.toByte()
-            )
-            val arm64Replace = byteArrayOf(
-                0xE0.toByte(), 0x03, 0x13, 0xAA.toByte(),
-                0x22, 0x00, 0x80, 0x52,
-                0x00, 0x01, 0x3F, 0xD6.toByte()
-            )
-
-            val idx = arm64Bytes.indexOfSlice(arm64Search)
-            if (idx >= 0) {
-                for (i in arm64Replace.indices) {
-                    arm64Bytes[idx + i] = arm64Replace[i]
-                }
-                arm64File.writeBytes(arm64Bytes)
-            }
-        } catch (e: Exception) {
-        }
-
-        // 2b) NATIVE: Patch libMyGame.so ARM32
-        try {
-            val arm32File = get("lib/armeabi-v7a/libMyGame.so")
-            val arm32Bytes = arm32File.readBytes()
-
-            val search1 = byteArrayOf(0x20, 0x46, 0x00, 0x22, 0x98.toByte(), 0x47)
-            val replace1 = byteArrayOf(0x20, 0x46, 0x01, 0x22, 0x98.toByte(), 0x47)
-            val idx1 = arm32Bytes.indexOfSlice(search1)
-            if (idx1 >= 0) {
-                for (i in replace1.indices) {
-                    arm32Bytes[idx1 + i] = replace1[i]
-                }
-            }
-
-            val search2 = byteArrayOf(
-                0xD2.toByte(), 0xF8.toByte(), 0xA8.toByte(), 0x32,
-                0x00, 0x22, 0x18, 0x47
-            )
-            val replace2 = byteArrayOf(
-                0xD2.toByte(), 0xF8.toByte(), 0xA8.toByte(), 0x32,
-                0x01, 0x22, 0x18, 0x47
-            )
-            val idx2 = arm32Bytes.indexOfSlice(search2)
-            if (idx2 >= 0) {
-                for (i in replace2.indices) {
-                    arm32Bytes[idx2 + i] = replace2[i]
-                }
-            }
-
-            if (idx1 >= 0 || idx2 >= 0) {
-                arm32File.writeBytes(arm32Bytes)
-            }
-        } catch (e: Exception) {
-        }
+        // 2) Patch launchPurchaseFlow to post delayed Runnable on UI thread
+        val method = LaunchPurchaseFlowFingerprint.method
+        method.addInstructions(
+            0,
+            """
+                new-instance v0, Landroid/os/Handler;
+                invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+                move-result-object v1
+                invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+                new-instance v1, Lorg/cocos2dx/cpp/AppActivity${'$'}${'$'}ExternalSyntheticLambda3;
+                invoke-direct {v1, p0}, Lorg/cocos2dx/cpp/AppActivity${'$'}${'$'}ExternalSyntheticLambda3;-><init>(Lorg/cocos2dx/cpp/AppActivity;)V
+                const-wide/16 v2, 0x1f4
+                invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+                return-void
+            """.trimIndent()
+        )
 
         // 3) Disable restore-purchases on startup
         SetRestoreFingerprint.method.addInstructions(0, "return-void")
