@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.0...v1.3.1) (2026-07-09)
+
+### 🐛 Bug Fixes
+
+* add fingerprints for setRestore and restorePurchases ([3a828cb](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/3a828cb6d4418a62a08236c4450916e2ba14042c))
+* disable restore-purchases flow to prevent loading loop ([8f30915](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8f30915623518018357f230f63e056e8cbd6cf4c))
+
 ## [1.3.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.2.0...v1.3.0) (2026-07-09)
 
 ### ✨ New Features

@@ -20,7 +20,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.3.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.3.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+> **[v1.3.1](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.3.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 Anger of Stick 5&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
 <br>
@@ -32,7 +32,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing and credits IAP items (gem packs, coin packs, starter packs) directly. Tap any buy button in the shop and the item is granted instantly without payment. Effectively gives unlimited gems and coins since you can 'buy' the largest pack as many times as you want. |  |
+| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing and credits IAP items (gem packs, coin packs, starter packs) directly. Tap any buy button in the shop and the item is granted instantly without payment. Effectively gives unlimited gems and coins since you can 'buy' the largest pack as many times as you want. Also disables the startup purchase-restore flow to prevent the loading screen from getting stuck. |  |
 
 </details>
 

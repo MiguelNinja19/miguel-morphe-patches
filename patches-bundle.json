@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-09T16:28:12",
-  "description": "## [1.3.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.2.0...v1.3.0) (2026-07-09)\n\n### ✨ New Features\n\n* add Anger of Stick 5 free IAP patch (file 3 of 3) ([1d1e166](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1d1e16642d30dd9f58cb73cc02df2b7cff3eb6a9))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.3.0/patches-1.3.0.mpp",
+  "created_at": "2026-07-09T16:50:49",
+  "description": "## [1.3.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.0...v1.3.1) (2026-07-09)\n\n### 🐛 Bug Fixes\n\n* add fingerprints for setRestore and restorePurchases ([3a828cb](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/3a828cb6d4418a62a08236c4450916e2ba14042c))\n* disable restore-purchases flow to prevent loading loop ([8f30915](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8f30915623518018357f230f63e056e8cbd6cf4c))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.3.1/patches-1.3.1.mpp",
   "signature_download_url": "",
-  "version": "1.3.0"
+  "version": "1.3.1"
 }
