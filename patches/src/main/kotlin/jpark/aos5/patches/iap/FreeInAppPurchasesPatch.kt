@@ -11,25 +11,29 @@
  *   4. User pays in Google Play
  *   5. onPurchasesUpdated callback fires
  *   6. handleConsumablePurchase consumes the purchase
- *   7. nativeOnSuccess(SKU, isConsumable) is called -> C++ credits item
+ *   7. nativeOnSuccess(SKU, isFinalized) is called -> C++ credits item
  *
  * This patch short-circuits steps 3-6 by replacing the body of
  * purchase(int i) with:
  *   - Get SKU from purchaseItemIDs[i]
- *   - Call isConsumable(SKU)
- *   - Call nativeOnSuccess(SKU, isConsumable) directly
+ *   - Call nativeOnSuccess(SKU, true) directly
  *
- * The C++ engine receives a "purchase succeeded" notification and
- * credits the gem/coin pack without ever talking to Google Play.
+ * IMPORTANT: The second parameter to nativeOnSuccess is NOT "isConsumable"
+ * as I first thought - it is "isFinalized" (whether the purchase has been
+ * acknowledged/consumed). Looking at grantNonConsumableItem() and
+ * lambda$handleConsumablePurchase$5(), both always pass `true` (1) when
+ * the purchase is fully done. If we pass `false`, the C++ side thinks
+ * the purchase is still pending and leaves the "Contacting..." UI on
+ * screen indefinitely.
+ *
+ * So we always pass `true` to tell C++ "the purchase is finalized,
+ * credit the item and close the loading screen".
  *
  * This effectively gives:
  *   - Free gem packs (aos5.g001, aos5.g002, aos5.g003)
  *   - Free coin/joker packs (aos5.j001, aos5.j002, aos5.gj001)
  *   - Free starter packs (aos5.sg001-003, aos5.sj001-003, aos5.sgj001-003)
  *   - Free big packs (aos5.ho399, aos5.ht399, aos5.hg599, etc)
- *
- * Note: this works for ALL 22 SKUs in the purchaseItemIDs list, so
- * it covers both "gem packs" and "starter packs" with one patch.
  *
  * Side effect: each time you tap "buy" the item is credited
  * instantly - so this also effectively gives unlimited gems/coins
@@ -38,8 +42,8 @@
  * ADDITIONAL: We also no-op setRestore() and restorePurchases() to
  * prevent the game from contacting Google Play on startup to
  * restore previous purchases. Without this, the loading screen
- * gets stuck in a loop waiting for the (empty) purchase history
- * query to complete.
+ * can get stuck waiting for the (empty) purchase history query
+ * to complete.
  */
 
 package jpark.aos5.patches.iap
@@ -81,11 +85,12 @@ val freeInAppPurchasesPatch = bytecodePatch(
                 # Store SKU in mProductID
                 sput-object v0, Lorg/cocos2dx/cpp/AppActivity;->mProductID:Ljava/lang/String;
                 
-                # Call isConsumable(v0) -> Z
-                invoke-direct {p0, v0}, Lorg/cocos2dx/cpp/AppActivity;->isConsumable(Ljava/lang/String;)Z
-                move-result v1
-                
-                # Call nativeOnSuccess(v0, v1)
+                # Call nativeOnSuccess(v0, true) - notify C++ that the "purchase"
+                # succeeded AND is finalized (acknowledged/consumed).
+                # The `true` is critical: if we pass false, the C++ side thinks
+                # the purchase is still pending and the "Contacting..." UI never
+                # closes.
+                const/4 v1, 0x1
                 invoke-static {v0, v1}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnSuccess(Ljava/lang/String;Z)V
                 
                 # Return immediately
@@ -100,8 +105,8 @@ val freeInAppPurchasesPatch = bytecodePatch(
         // BillingClient, connect to Google Play, then query purchase
         // history. On a patched APK this query either times out or
         // returns empty, leaving the C++ side waiting for a
-        // nativeOnRestored() callback that sometimes leaves the
-        // loading UI in a stuck state.
+        // nativeOnRestored() callback that can leave the loading UI
+        // in a stuck state.
         //
         // We make both methods immediate no-ops by inserting
         // return-void at the very start.
