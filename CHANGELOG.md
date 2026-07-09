@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.2.0...v1.3.0) (2026-07-09)
+
+### ✨ New Features
+
+* add Anger of Stick 5 free IAP patch (file 3 of 3) ([1d1e166](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1d1e16642d30dd9f58cb73cc02df2b7cff3eb6a9))
+
 ## [1.2.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.1.2...v1.2.0) (2026-07-08)
 
 ### ✨ New Features

@@ -1,23 +1,23 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "patches": [
     {
-      "name": "Remove relaunch protection",
-      "description": "Forces zc.k.h() to return false so the relaunch / start-like-pro decision gate is suppressed. Combined with the Unlock premium patch, this prevents the \"Baixe este app na Play Store\" screen from appearing.",
+      "name": "Free in-app purchases",
+      "description": "Skips Google Play Billing and credits IAP items (gem packs, coin packs, starter packs) directly. Tap any buy button in the shop and the item is granted instantly without payment. Effectively gives unlimited gems and coins since you can 'buy' the largest pack as many times as you want.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
         {
-          "packageName": "diozz.cubex",
-          "name": "CubeX Solver",
+          "packageName": "jpark.AOS5",
+          "name": "Anger of Stick 5",
           "description": null,
           "apkFileType": "APK",
-          "appIconColor": "#29CC29",
+          "appIconColor": "#C62828",
           "signatures": null,
           "targets": [
             {
-              "version": "4.1.0",
+              "version": "1.1.94",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,
