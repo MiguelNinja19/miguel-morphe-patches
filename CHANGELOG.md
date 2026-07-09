@@ -1,3 +1,12 @@
+## [1.3.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.4...v1.3.5) (2026-07-09)
+
+### 🐛 Bug Fixes
+
+* call nativeOnSuccess on UI thread with 500ms delay via Handler ([2e4e841](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/2e4e841d8bbe3c02cfde640c7f675cc1410c1577))
+* call nativeOnSuccess on UI thread with 500ms delay via Handler ([5558733](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/555873350bb72a495f99e5dd05501a738e039402))
+* remove ExternalSyntheticLambda3 (Kotlin $$ escaping issue) (file: 1 of 2)) ([0261bca](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0261bca6085a664dcda8311a98fcfb196fd01936))
+* remove ExternalSyntheticLambda3 (Kotlin $$ escaping issue) (file: 2 of 2) ([d347c75](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d347c75ae0d5671ee5c7a870ff0f3e7ff7cf8aa7))
+
 ## [1.3.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.3...v1.3.4) (2026-07-09)
 
 ### 🐛 Bug Fixes
