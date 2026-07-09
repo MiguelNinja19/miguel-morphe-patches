@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.2...v1.3.3) (2026-07-09)
+
+### 🐛 Bug Fixes
+
+* intercept launchPurchaseFlow instead of purchase for proper C++ state (files: 1 of 2)) ([4dc3312](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4dc3312cad8d84a32dbea737e38758e5545d2ff2))
+* intercept launchPurchaseFlow instead of purchase for proper C++ state (files: 2 of 2)) ([7c5da4a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7c5da4ada224d53cc922ecb75af41bf1506b1b05))
+
 ## [1.3.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.1...v1.3.2) (2026-07-09)
 
 ### 🐛 Bug Fixes

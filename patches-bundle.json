@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-09T17:09:22",
-  "description": "## [1.3.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.1...v1.3.2) (2026-07-09)\n\n### 🐛 Bug Fixes\n\n* always pass true to nativeOnSuccess to close Contacting UI ([b05fcbc](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b05fcbcbb3fbbcf7d6a077c8533ef1cf74c185fa))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.3.2/patches-1.3.2.mpp",
+  "created_at": "2026-07-09T17:32:47",
+  "description": "## [1.3.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.2...v1.3.3) (2026-07-09)\n\n### 🐛 Bug Fixes\n\n* intercept launchPurchaseFlow instead of purchase for proper C++ state (files: 1 of 2)) ([4dc3312](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4dc3312cad8d84a32dbea737e38758e5545d2ff2))\n* intercept launchPurchaseFlow instead of purchase for proper C++ state (files: 2 of 2)) ([7c5da4a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7c5da4ada224d53cc922ecb75af41bf1506b1b05))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.3.3/patches-1.3.3.mpp",
   "signature_download_url": "",
-  "version": "1.3.2"
+  "version": "1.3.3"
 }
