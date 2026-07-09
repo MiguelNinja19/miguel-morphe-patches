@@ -34,6 +34,12 @@
  * Side effect: each time you tap "buy" the item is credited
  * instantly - so this also effectively gives unlimited gems/coins
  * (just keep tapping buy).
+ *
+ * ADDITIONAL: We also no-op setRestore() and restorePurchases() to
+ * prevent the game from contacting Google Play on startup to
+ * restore previous purchases. Without this, the loading screen
+ * gets stuck in a loop waiting for the (empty) purchase history
+ * query to complete.
  */
 
 package jpark.aos5.patches.iap
@@ -42,6 +48,8 @@ import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import jpark.aos5.patches.shared.Constants.ANGER_OF_STICK_5
 import jpark.aos5.patches.shared.PurchaseFingerprint
+import jpark.aos5.patches.shared.RestorePurchasesFingerprint
+import jpark.aos5.patches.shared.SetRestoreFingerprint
 
 @Suppress("unused")
 val freeInAppPurchasesPatch = bytecodePatch(
@@ -50,39 +58,18 @@ val freeInAppPurchasesPatch = bytecodePatch(
         "coin packs, starter packs) directly. Tap any buy button in the shop " +
         "and the item is granted instantly without payment. Effectively gives " +
         "unlimited gems and coins since you can 'buy' the largest pack as many " +
-        "times as you want.",
+        "times as you want. Also disables the startup purchase-restore flow " +
+        "to prevent the loading screen from getting stuck.",
     default = true,
 ) {
     compatibleWith(ANGER_OF_STICK_5)
 
     execute {
-        // Original method:
-        //   public void purchase(int i) {
-        //     if (!isBillingConnected) nativeOnFailure(mProductID, "...");
-        //     String sku = purchaseItemIDs.get(i);
-        //     mProductID = sku;
-        //     launchPurchaseFlow(sku);
-        //   }
-        //
-        // Patched method (we add this at the very start, the original
-        // body becomes unreachable dead code):
-        //   public void purchase(int i) {
-        //     String sku = purchaseItemIDs.get(i);
-        //     mProductID = sku;
-        //     boolean consumable = isConsumable(sku);
-        //     nativeOnSuccess(sku, consumable);
-        //     return;
-        //     // ... original body (dead code) ...
-        //   }
-        //
-        // Register layout (instance method with int param):
-        //   p0 = this  (Lorg/cocos2dx/cpp/AppActivity;)
-        //   p1 = i     (I - the index)
-        //
-        // We use .locals 2 (v0, v1) for the SKU string and boolean.
-
-        val method = PurchaseFingerprint.method
-        method.addInstructions(
+        // =========================================================
+        // 1) Free IAP: replace purchase(int i) body
+        // =========================================================
+        val purchaseMethod = PurchaseFingerprint.method
+        purchaseMethod.addInstructions(
             0,
             """
                 # Get SKU from purchaseItemIDs.get(p1)
@@ -91,21 +78,35 @@ val freeInAppPurchasesPatch = bytecodePatch(
                 move-result-object v0
                 check-cast v0, Ljava/lang/String;
                 
-                # Store SKU in mProductID (so any subsequent code that reads
-                # mProductID still works correctly).
+                # Store SKU in mProductID
                 sput-object v0, Lorg/cocos2dx/cpp/AppActivity;->mProductID:Ljava/lang/String;
                 
                 # Call isConsumable(v0) -> Z
-                # isConsumable is private, so we use invoke-direct on p0 (this).
                 invoke-direct {p0, v0}, Lorg/cocos2dx/cpp/AppActivity;->isConsumable(Ljava/lang/String;)Z
                 move-result v1
                 
-                # Call nativeOnSuccess(v0, v1) - notify C++ that the "purchase" succeeded.
+                # Call nativeOnSuccess(v0, v1)
                 invoke-static {v0, v1}, Lorg/cocos2dx/cpp/AppActivity;->nativeOnSuccess(Ljava/lang/String;Z)V
                 
-                # Return immediately - skip the original launchPurchaseFlow call.
+                # Return immediately
                 return-void
             """.trimIndent()
         )
+
+        // =========================================================
+        // 2) Disable restore-purchases flow on startup
+        // =========================================================
+        // setRestore() and restorePurchases() both create a new
+        // BillingClient, connect to Google Play, then query purchase
+        // history. On a patched APK this query either times out or
+        // returns empty, leaving the C++ side waiting for a
+        // nativeOnRestored() callback that sometimes leaves the
+        // loading UI in a stuck state.
+        //
+        // We make both methods immediate no-ops by inserting
+        // return-void at the very start.
+
+        SetRestoreFingerprint.method.addInstructions(0, "return-void")
+        RestorePurchasesFingerprint.method.addInstructions(0, "return-void")
     }
 }
