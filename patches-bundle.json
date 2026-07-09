@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-09T20:22:33",
-  "description": "## [1.3.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.5...v1.3.6) (2026-07-09)\n\n### 🐛 Bug Fixes\n\n* add native .so patch to fix Contacting screen ([b94b435](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b94b435d964021c08ae9080289bb05070e0cf98f))\n* use UI thread + 500ms delay for nativeOnSuccess ($$ escaping fix) (file: 1 of 2)) ([db47f41](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/db47f41544b9560e83c82bca9682ca62c7f98430))\n* use UI thread + 500ms delay for nativeOnSuccess ($$ escaping fix) (file: 2 of 2)) ([1b12e11](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1b12e11b1e30a4828ff6966c5bee697dc74327ba))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.3.6/patches-1.3.6.mpp",
+  "created_at": "2026-07-09T20:32:08",
+  "description": "## [1.3.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.6...v1.3.7) (2026-07-09)\n\n### 🐛 Bug Fixes\n\n* use nativeOnFailure(\"\") to close Contacting screen after crediting ([28748da](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/28748da67b9094f89e1fc2ae175bcf3f790ed2f0))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.3.7/patches-1.3.7.mpp",
   "signature_download_url": "",
-  "version": "1.3.6"
+  "version": "1.3.7"
 }

@@ -1,3 +1,9 @@
+## [1.3.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.6...v1.3.7) (2026-07-09)
+
+### 🐛 Bug Fixes
+
+* use nativeOnFailure("") to close Contacting screen after crediting ([28748da](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/28748da67b9094f89e1fc2ae175bcf3f790ed2f0))
+
 ## [1.3.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.5...v1.3.6) (2026-07-09)
 
 ### 🐛 Bug Fixes
