@@ -1,9 +1,12 @@
 /*
  * Unlimited Resources patch for Hunter Assassin.
  *
- * FIX: Previous versions crashed because SharedPreferences was accessed
- * too early in onCreate. This version patches onResume() instead.
- * Also fixed Kotlin string escaping for $Editor inner class.
+ * FIX: onResume has .locals 2, meaning v2 = p0 = this.
+ * Our code was overwriting 'this' with int values, causing crash.
+ *
+ * onCreate has .locals 7 (v0-v6 are all safe locals).
+ * We insert at index 1 (AFTER invoke-super) so the Activity
+ * is fully initialized before we access SharedPreferences.
  *
  * Based on the Lucky Patcher custom patch by MD ALI HOSSAIN.
  */
@@ -13,22 +16,22 @@ package com.rubygames.assassin.patches.iap
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import com.rubygames.assassin.patches.shared.Constants.HUNTER_ASSASSIN
-import com.rubygames.assassin.patches.shared.OnResumeFingerprint
+import com.rubygames.assassin.patches.shared.OnCreateFingerprint
 
 @Suppress("unused")
 val freePurchasesPatch = bytecodePatch(
     name = "Unlimited gems, keys & unlock all",
     description = "Sets gems to 9999999, keys to 9999999, unlocks VIP " +
         "(removes ads) and all assassin characters (2-35) by writing " +
-        "directly to the game's SharedPreferences on app resume.",
+        "directly to the game's SharedPreferences on startup.",
     default = true,
 ) {
     compatibleWith(HUNTER_ASSASSIN)
 
     execute {
-        val method = OnResumeFingerprint.method
+        val method = OnCreateFingerprint.method
         method.addInstructions(
-            0,
+            1,
             """
                 const-string v0, "Cocos2dxPrefsFile"
                 const/4 v1, 0x0
