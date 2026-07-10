@@ -4,15 +4,15 @@ import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.methodCall
 import com.android.tools.smali.dexlib2.AccessFlags
 
-object OnResumeFingerprint : Fingerprint(
+object OnCreateFingerprint : Fingerprint(
     definingClass = "Lorg/cocos2dx/cpp/AppActivity;",
     accessFlags = listOf(AccessFlags.PROTECTED),
     returnType = "V",
-    parameters = emptyList(),
+    parameters = listOf("Landroid/os/Bundle;"),
     filters = listOf(
         methodCall(
             definingClass = "Lcom/rovio/beacon/Application;",
-            name = "onResume",
+            name = "setActivity",
         ),
     )
 )
