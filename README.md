@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.5.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.5.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;6 patches total
+> **[v1.5.1](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.5.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;6 patches total
 <details open>
 <summary>📦 Plants vs. Zombies FREE&nbsp;&nbsp;•&nbsp;&nbsp;3 patches</summary>
 <br>
@@ -47,7 +47,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Free in-app purchases](#free-in-app-purchases) | Patches BillingResult.getResponseCode() to always return 0 (OK). This makes all billing operations report success, including purchases. When you tap buy, the game thinks the purchase was successful without contacting Google Play. |  |
+| [Free in-app purchases](#free-in-app-purchases) | Forces the purchase result handler to always report success, regardless of the actual billing result. When you tap buy, the Play Store may open and give an error, but the game treats it as a successful purchase and grants the item. |  |
 
 </details>
 

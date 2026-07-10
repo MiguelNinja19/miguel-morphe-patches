@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "patches": [
     {
       "name": "Free in-app purchases",
@@ -37,7 +37,7 @@
     },
     {
       "name": "Free in-app purchases",
-      "description": "Patches BillingResult.getResponseCode() to always return 0 (OK). This makes all billing operations report success, including purchases. When you tap buy, the game thinks the purchase was successful without contacting Google Play.",
+      "description": "Forces the purchase result handler to always report success, regardless of the actual billing result. When you tap buy, the Play Store may open and give an error, but the game treats it as a successful purchase and grants the item.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [

@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.5.0...v1.5.1) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* return 1 from getResponseCode to trigger success path in na0 ([ea10a0a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ea10a0a4e33292854f7c84222ae7253849a6c26c))
+* return 1 from getResponseCode to trigger success path in na0 ([358e720](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/358e7200af0cbe0d15a93e5b480432f45bd45bc6))
+
 ## [1.5.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.4.3...v1.5.0) (2026-07-10)
 
 ### 🐛 Bug Fixes

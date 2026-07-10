@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-10T18:05:25",
-  "description": "## [1.5.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.4.3...v1.5.0) (2026-07-10)\n\n### 🐛 Bug Fixes\n\n* add Johnny Trigger free in-app purchases patch ([d389436](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d38943606664ad007c7a19814185fb886bba3b1a))\n* add Johnny Trigger free in-app purchases patch ([294e9fd](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/294e9fdd7d24b67a42425d8cdafa030a234b5891))\n\n### ✨ New Features\n\n* add Johnny Trigger free in-app purchases patch ([9c59d96](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9c59d96be5a09024eb505a191fc11829210449ed))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.5.0/patches-1.5.0.mpp",
+  "created_at": "2026-07-10T18:23:59",
+  "description": "## [1.5.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.5.0...v1.5.1) (2026-07-10)\n\n### 🐛 Bug Fixes\n\n* return 1 from getResponseCode to trigger success path in na0 ([ea10a0a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ea10a0a4e33292854f7c84222ae7253849a6c26c))\n* return 1 from getResponseCode to trigger success path in na0 ([358e720](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/358e7200af0cbe0d15a93e5b480432f45bd45bc6))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.5.1/patches-1.5.1.mpp",
   "signature_download_url": "",
-  "version": "1.5.0"
+  "version": "1.5.1"
 }
