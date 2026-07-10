@@ -2,17 +2,17 @@ package com.rubygames.assassin.patches.shared
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.methodCall
-import app.morphe.patcher.string
 import com.android.tools.smali.dexlib2.AccessFlags
 
-object StartPurchaseFlowFingerprint : Fingerprint(
-    definingClass = "Lcom/rovio/beacon/billing/GooglePlayBillingProvider;",
+object OnCreateFingerprint : Fingerprint(
+    definingClass = "Lorg/cocos2dx/cpp/AppActivity;",
+    accessFlags = listOf(AccessFlags.PROTECTED),
     returnType = "V",
+    parameters = listOf("Landroid/os/Bundle;"),
     filters = listOf(
-        string("Purchase: Starting purchase flow"),
         methodCall(
-            definingClass = "Lcom/android/billingclient/api/BillingClient;",
-            name = "launchBillingFlow",
+            definingClass = "Lcom/rovio/beacon/Application;",
+            name = "setActivity",
         ),
     )
 )
