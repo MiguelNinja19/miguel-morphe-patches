@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-10T20:35:42",
-  "description": "## [1.6.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.2...v1.6.3) (2026-07-10)\n\n### 🐛 Bug Fixes\n\n* rewrite Hunter Assassin patch to inject SharedPreferences (based on Lucky Patcher) ([9bc4d6f](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9bc4d6f350f4584250e205ffe8b00b3117c61874))\n* rewrite Hunter Assassin patch to inject SharedPreferences (based on Lucky Patcher) ([9494c8c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9494c8cddc423900f8e31d9337d2b646d6e31e3c))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.6.3/patches-1.6.3.mpp",
+  "created_at": "2026-07-10T20:42:25",
+  "description": "## [1.6.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.3...v1.6.4) (2026-07-10)\n\n### 🐛 Bug Fixes\n\n* rename patch to \"Unlimited gems, keys & unlock all\" ([9820b3e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9820b3e91e95d3bac8dee3842c6ee62c771e7ed1))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.6.4/patches-1.6.4.mpp",
   "signature_download_url": "",
-  "version": "1.6.3"
+  "version": "1.6.4"
 }

@@ -1,3 +1,9 @@
+## [1.6.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.3...v1.6.4) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* rename patch to "Unlimited gems, keys & unlock all" ([9820b3e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9820b3e91e95d3bac8dee3842c6ee62c771e7ed1))
+
 ## [1.6.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.2...v1.6.3) (2026-07-10)
 
 ### 🐛 Bug Fixes

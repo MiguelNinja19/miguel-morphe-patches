@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.6.3](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.6.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
+> **[v1.6.4](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.6.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -31,7 +31,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Auto reward ads](#auto-reward-ads) | When a rewarded ad is closed, the game always thinks you watched the entire ad. You get the reward even if you skip or close the ad immediately. |  |
-| [Unlimited gems, keys & unlock all](#unlimited-gems-keys-unlock-all) | Sets gems to 9999999, keys to 9999999, unlocks VIP and all assassin characters (2-35) by writing directly to the game's SharedPreferences on startup. Based on the Lucky Patcher custom patch. |  |
+| [Unlimited gems, keys & unlock all](#unlimited-gems-keys-unlock-all) | Sets gems to 9999999, keys to 9999999, unlocks VIP (removes ads) and all assassin characters (2-35) by writing directly to the game's SharedPreferences on startup. Based on the Lucky Patcher custom patch approach. |  |
 
 </details>
 
