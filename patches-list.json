@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "patches": [
     {
       "name": "Free in-app purchases",
@@ -18,6 +18,39 @@
           "targets": [
             {
               "version": "3.16.0",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Free in-app purchases",
+      "description": "Patches BillingResult.getResponseCode() to always return 0 (OK). This makes all billing operations report success, including purchases. When you tap buy, the game thinks the purchase was successful without contacting Google Play.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.time.trigger",
+          "name": "Johnny Trigger",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#FF5722",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "1.12.65",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,

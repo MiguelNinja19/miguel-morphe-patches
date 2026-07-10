@@ -1,3 +1,14 @@
+## [1.5.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.4.3...v1.5.0) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* add Johnny Trigger free in-app purchases patch ([d389436](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d38943606664ad007c7a19814185fb886bba3b1a))
+* add Johnny Trigger free in-app purchases patch ([294e9fd](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/294e9fdd7d24b67a42425d8cdafa030a234b5891))
+
+### ✨ New Features
+
+* add Johnny Trigger free in-app purchases patch ([9c59d96](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9c59d96be5a09024eb505a191fc11829210449ed))
+
 ## [1.4.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.4.2...v1.4.3) (2026-07-10)
 
 ### 🐛 Bug Fixes

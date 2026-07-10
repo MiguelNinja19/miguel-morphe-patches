@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.4.3](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.4.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;5 patches total
+> **[v1.5.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.5.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;6 patches total
 <details open>
 <summary>📦 Plants vs. Zombies FREE&nbsp;&nbsp;•&nbsp;&nbsp;3 patches</summary>
 <br>
@@ -33,6 +33,21 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 | [Free in-app purchases](#free-in-app-purchases) | When you try to buy something, the purchase is immediately marked as successful without contacting Google Play. The EA Nimble MTX system receives a null error (success) and grants the item. |  |
 | [Free reward ads](#free-reward-ads) | When the game tries to show a rewarded ad, it immediately fires the ad-clicked and ad-closed callbacks without actually showing the ad. You get the reward instantly. |  |
 | [Remove ads](#remove-ads) | Prevents video ads from loading. When the game tries to load an ad, nothing happens. Ads will not be shown. |  |
+
+</details>
+
+<details open>
+<summary>📦 Johnny Trigger&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
+<br>
+
+**🎯 Supported versions:**
+
+| 1.12.65 |
+| :---: |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Free in-app purchases](#free-in-app-purchases) | Patches BillingResult.getResponseCode() to always return 0 (OK). This makes all billing operations report success, including purchases. When you tap buy, the game thinks the purchase was successful without contacting Google Play. |  |
 
 </details>
 
