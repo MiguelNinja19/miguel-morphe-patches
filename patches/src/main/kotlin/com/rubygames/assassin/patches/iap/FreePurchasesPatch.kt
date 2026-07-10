@@ -1,25 +1,20 @@
 /*
  * Free In-App Purchases patch for Hunter Assassin.
  *
- * FIX: Register layout was wrong in previous version.
- * The method has .locals 2, so:
- *   v0, v1 = locals
- *   v2 = p0 = this
- *   v3 = p1 = sku (String)
- *   v4 = p2 = ProductDetails
- *   v5 = p3 = String
- *   v6 = p4 = boolean
+ * Based on the Lucky Patcher custom patch by MD ALI HOSSAIN.
+ * Instead of faking billing (which the C++ rejects), this patch
+ * directly writes to the game's SharedPreferences (Cocos2dxPrefsFile)
+ * at app startup, setting:
+ *   - gems = 9999999
+ *   - keys = 9999999
+ *   - vipPurchased = true
+ *   - assassinOwned2-35 = true (all characters unlocked)
  *
- * invoke-interface/range {v0 .. v6} needs:
- *   v0 = listener
- *   v1 = status (0)
- *   v2 = sku
- *   v3 = token
- *   v4 = json
- *   v5 = signature
- *   v6 = responseCode
+ * The game reads these values from SharedPreferences via
+ * Cocos2dxHelper.getIntegerForKey() and getBoolForKey().
  *
- * So we must move sku from v3 to v2 AFTER getting the listener from v2.
+ * This approach bypasses the billing system entirely and gives
+ * unlimited gems, keys, VIP status, and all characters unlocked.
  */
 
 package com.rubygames.assassin.patches.iap
@@ -27,49 +22,65 @@ package com.rubygames.assassin.patches.iap
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import com.rubygames.assassin.patches.shared.Constants.HUNTER_ASSASSIN
-import com.rubygames.assassin.patches.shared.StartPurchaseFlowFingerprint
+import com.rubygames.assassin.patches.shared.OnCreateFingerprint
 
 @Suppress("unused")
 val freePurchasesPatch = bytecodePatch(
-    name = "Free in-app purchases",
-    description = "Skips Google Play Billing and reports the purchase as " +
-        "successful immediately with fake receipt data. When you tap buy, " +
-        "the item is granted without payment or Play Store popup.",
+    name = "Unlimited gems, keys & unlock all",
+    description = "Sets gems to 9999999, keys to 9999999, unlocks VIP and " +
+        "all assassin characters (2-35) by writing directly to the game's " +
+        "SharedPreferences on startup. Based on the Lucky Patcher custom patch.",
     default = true,
 ) {
     compatibleWith(HUNTER_ASSASSIN)
 
     execute {
-        val method = StartPurchaseFlowFingerprint.method
+        val method = OnCreateFingerprint.method
         method.addInstructions(
             0,
             """
-                # v0 = listener (from p0 which is v2 = this)
-                iget-object v0, p0, Lcom/rovio/beacon/billing/GooglePlayBillingProvider;->listener:Lcom/rovio/beacon/billing/GooglePlayBillingListener;
+                # Set gems = 9999999
+                const-string v0, "gems"
+                const v1, 0x98967f
+                invoke-static {v0, v1}, Lorg/cocos2dx/lib/Cocos2dxHelper;->setIntegerForKey(Ljava/lang/String;I)V
                 
-                # v1 = 0 (status = SUCCEEDED)
-                const/4 v1, 0x0
+                # Set keys = 9999999
+                const-string v0, "keys"
+                const v1, 0x98967f
+                invoke-static {v0, v1}, Lorg/cocos2dx/lib/Cocos2dxHelper;->setIntegerForKey(Ljava/lang/String;I)V
                 
-                # v2 = sku (move from v3/p1, overwrites p0/this which we already used)
-                move-object v2, p1
+                # Set vipPurchased = true
+                const-string v0, "vipPurchased"
+                const/4 v1, 0x1
+                invoke-static {v0, v1}, Lorg/cocos2dx/lib/Cocos2dxHelper;->setBoolForKey(Ljava/lang/String;Z)V
                 
-                # v3 = "fake_token" (overwrites p1/sku which we already moved)
-                const-string v3, "fake_token"
+                # Unlock all assassins (2-35)
+                const/4 v2, 0x2
                 
-                # v4 = originalJson (overwrites p2/ProductDetails, not needed)
-                const-string v4, "{\"orderId\":\"fake\",\"productId\":\"fake\",\"purchaseTime\":0,\"purchaseState\":0,\"acknowledged\":false}"
+                :loop_start
+                const/16 v3, 0x23
                 
-                # v5 = "fake_sig" (overwrites p3, not needed)
-                const-string v5, "fake_sig"
+                if-le v2, v3, :loop_end
                 
-                # v6 = 0 (overwrites p4, not needed)
-                const/4 v6, 0x0
+                # Build key string "assassinOwned" + number
+                const-string v0, "assassinOwned"
+                invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+                move-result-object v4
+                new-instance v5, Ljava/lang/StringBuilder;
+                invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+                invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+                invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+                invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+                move-result-object v0
                 
-                # Call listener.onPurchase(0, sku, "fake_token", json, "fake_sig", 0)
-                invoke-interface/range {v0 .. v6}, Lcom/rovio/beacon/billing/GooglePlayBillingListener;->onPurchase(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V
+                # Set assassinOwnedN = true
+                const/4 v1, 0x1
+                invoke-static {v0, v1}, Lorg/cocos2dx/lib/Cocos2dxHelper;->setBoolForKey(Ljava/lang/String;Z)V
                 
-                # Return immediately - skip launchBillingFlow
-                return-void
+                add-int/lit8 v2, v2, 0x1
+                goto :loop_start
+                
+                :loop_end
             """.trimIndent()
         )
     }
