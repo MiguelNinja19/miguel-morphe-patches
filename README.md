@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.4.2](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.4.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;5 patches total
+> **[v1.4.3](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.4.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;5 patches total
 <details open>
 <summary>📦 Plants vs. Zombies FREE&nbsp;&nbsp;•&nbsp;&nbsp;3 patches</summary>
 <br>
