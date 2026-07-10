@@ -1,3 +1,10 @@
+## [1.6.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.5...v1.6.6) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* use onCreate with .locals 7 and insert after invoke-super to avoid register conflict ([fc59617](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fc59617094c2e08cdb93da5d1023221257427747))
+* use onCreate with .locals 7 and insert after invoke-super to avoid register conflict ([c71ab81](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/c71ab812f8864b0eb42aff662646e8d1d80fc0ba))
+
 ## [1.6.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.4...v1.6.5) (2026-07-10)
 
 ### 🐛 Bug Fixes
