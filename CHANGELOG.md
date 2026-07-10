@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.4.0...v1.4.1) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* simplify PurchaseItemFingerprint (remove definingClass and parameters) ([15d6d32](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/15d6d32775232320c2ed94471fb708c6efcc1509))
+
 ## [1.4.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.9...v1.4.0) (2026-07-10)
 
 ### ✨ New Features
