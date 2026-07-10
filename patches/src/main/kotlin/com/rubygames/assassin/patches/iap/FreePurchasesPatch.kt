@@ -1,19 +1,12 @@
 /*
  * Unlimited Resources patch for Hunter Assassin.
  *
+ * FIX: Previous version used Cocos2dxHelper which is not initialized
+ * yet during onCreate (it's initialized by super.onCreate()). This
+ * version accesses SharedPreferences DIRECTLY via the Activity context,
+ * which is always available. No dependency on Cocos2dxHelper.
+ *
  * Based on the Lucky Patcher custom patch by MD ALI HOSSAIN.
- * Directly writes to the game's SharedPreferences (Cocos2dxPrefsFile)
- * at app startup, setting:
- *   - gems = 9999999
- *   - keys = 9999999
- *   - vipPurchased = true (removes ads)
- *   - assassinOwned2-35 = true (all characters unlocked)
- *
- * The game reads these values from SharedPreferences via
- * Cocos2dxHelper.getIntegerForKey() and getBoolForKey().
- *
- * This approach bypasses the billing system entirely and gives
- * unlimited gems, keys, VIP status, and all characters unlocked.
  */
 
 package com.rubygames.assassin.patches.iap
@@ -28,8 +21,7 @@ val freePurchasesPatch = bytecodePatch(
     name = "Unlimited gems, keys & unlock all",
     description = "Sets gems to 9999999, keys to 9999999, unlocks VIP " +
         "(removes ads) and all assassin characters (2-35) by writing " +
-        "directly to the game's SharedPreferences on startup. Based on " +
-        "the Lucky Patcher custom patch approach.",
+        "directly to the game's SharedPreferences on startup.",
     default = true,
 ) {
     compatibleWith(HUNTER_ASSASSIN)
@@ -39,48 +31,105 @@ val freePurchasesPatch = bytecodePatch(
         method.addInstructions(
             0,
             """
-                # Set gems = 9999999
-                const-string v0, "gems"
-                const v1, 0x98967f
-                invoke-static {v0, v1}, Lorg/cocos2dx/lib/Cocos2dxHelper;->setIntegerForKey(Ljava/lang/String;I)V
-                
-                # Set keys = 9999999
-                const-string v0, "keys"
-                const v1, 0x98967f
-                invoke-static {v0, v1}, Lorg/cocos2dx/lib/Cocos2dxHelper;->setIntegerForKey(Ljava/lang/String;I)V
-                
-                # Set vipPurchased = true
-                const-string v0, "vipPurchased"
-                const/4 v1, 0x1
-                invoke-static {v0, v1}, Lorg/cocos2dx/lib/Cocos2dxHelper;->setBoolForKey(Ljava/lang/String;Z)V
-                
-                # Unlock all assassins (2-35)
-                const/4 v2, 0x2
-                
-                :loop_start
-                const/16 v3, 0x23
-                
-                if-le v2, v3, :loop_end
-                
-                # Build key string "assassinOwned" + number
-                const-string v0, "assassinOwned"
-                invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-                move-result-object v4
-                new-instance v5, Ljava/lang/StringBuilder;
-                invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
-                invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-                invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-                invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+                # Get SharedPreferences "Cocos2dxPrefsFile" directly
+                # p0 = this (Activity), which is a Context
+                const-string v0, "Cocos2dxPrefsFile"
+                const/4 v1, 0x0
+                invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
                 move-result-object v0
                 
-                # Set assassinOwnedN = true
-                const/4 v1, 0x1
-                invoke-static {v0, v1}, Lorg/cocos2dx/lib/Cocos2dxHelper;->setBoolForKey(Ljava/lang/String;Z)V
+                # Get editor
+                invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+                move-result-object v0
                 
-                add-int/lit8 v2, v2, 0x1
-                goto :loop_start
+                # gems = 9999999
+                const-string v1, "gems"
+                const v2, 0x98967f
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
                 
-                :loop_end
+                # keys = 9999999
+                const-string v1, "keys"
+                const v2, 0x98967f
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+                
+                # vipPurchased = true
+                const-string v1, "vipPurchased"
+                const/4 v2, 0x1
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                
+                # Unlock assassins 2-35 (unrolled loop for safety)
+                const-string v1, "assassinOwned2"
+                const/4 v2, 0x1
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned3"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned4"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned5"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned6"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned7"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned8"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned9"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned10"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned11"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned12"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned13"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned14"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned15"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned16"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned17"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned18"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned19"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned20"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned21"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned22"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned23"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned24"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned25"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned26"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned27"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned28"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned29"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned30"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned31"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned32"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned33"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned34"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                const-string v1, "assassinOwned35"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+                
+                # Apply changes
+                invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
             """.trimIndent()
         )
     }
