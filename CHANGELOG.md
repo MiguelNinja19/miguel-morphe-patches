@@ -1,3 +1,9 @@
+## [1.6.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.7...v1.6.8) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* use correct save keys for Hunter Assassin - rubyAmount for diamonds, add vipCancelled/removeAdsPurchased/freeTrialUsed, remove invalid CHARACTER_* keys ([1cfc97b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1cfc97bed0f96000c1db81827526ccde947025ef))
+
 ## [1.6.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.6...v1.6.7) (2026-07-10)
 
 ### 🐛 Bug Fixes
