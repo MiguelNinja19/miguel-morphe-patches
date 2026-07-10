@@ -1,12 +1,14 @@
 /*
  * Unlimited Resources patch for Hunter Assassin.
  *
- * FIX: onResume has .locals 2, meaning v2 = p0 = this.
- * Our code was overwriting 'this' with int values, causing crash.
+ * Adds: crystals, cash, all knives, all characters
  *
- * onCreate has .locals 7 (v0-v6 are all safe locals).
- * We insert at index 1 (AFTER invoke-super) so the Activity
- * is fully initialized before we access SharedPreferences.
+ * Save keys found in libAssassin.so:
+ *   gems, keys, crystals, cash - currencies
+ *   vipPurchased - removes ads
+ *   hasXKnifeSaveKey - unlocks special knives
+ *   assassinOwned2-35 - unlocks assassin characters
+ *   CHARACTER_DRACULA/GRINCH/MYERS/NUTCRACKER/SANTA/SCARECROW/THOR/WOLVERINE - special chars
  *
  * Based on the Lucky Patcher custom patch by MD ALI HOSSAIN.
  */
@@ -21,9 +23,11 @@ import com.rubygames.assassin.patches.shared.OnCreateFingerprint
 @Suppress("unused")
 val freePurchasesPatch = bytecodePatch(
     name = "Unlimited gems, keys & unlock all",
-    description = "Sets gems to 9999999, keys to 9999999, unlocks VIP " +
-        "(removes ads) and all assassin characters (2-35) by writing " +
-        "directly to the game's SharedPreferences on startup.",
+    description = "Sets gems, keys, crystals and cash to 9999999. Unlocks VIP " +
+        "(removes ads), all assassin characters (2-35), all special characters " +
+        "(Dracula, Grinch, Myers, Nutcracker, Santa, Scarecrow, Thor, Wolverine) " +
+        "and all special knives (AuroraFang, CandyBlade, Cricket, Dracula, Myers, " +
+        "PineBlade, Scarecrow, Thor, Wolverine).",
     default = true,
 ) {
     compatibleWith(HUNTER_ASSASSIN)
@@ -43,6 +47,10 @@ val freePurchasesPatch = bytecodePatch(
                 const v2, 0x98967f
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences${'$'}Editor;
                 const-string v1, "keys"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "crystals"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "cash"
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences${'$'}Editor;
                 const-string v1, "vipPurchased"
                 const/4 v2, 0x1
@@ -114,6 +122,40 @@ val freePurchasesPatch = bytecodePatch(
                 const-string v1, "assassinOwned34"
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
                 const-string v1, "assassinOwned35"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "hasAuroraFangKnifeSaveKey"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "hasCandyBladeKnifeSaveKey"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "hasCricketKnifeSaveKey"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "hasDraculaKnifeSaveKey"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "hasMyersKnifeSaveKey"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "hasPineBladeKnifeSaveKey"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "hasScarecrowKnifeSaveKey"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "hasThorKnifeSaveKey"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "hasWolverineKnifeSaveKey"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "CHARACTER_DRACULA"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "CHARACTER_GRINCH"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "CHARACTER_MYERS"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "CHARACTER_NUTCRACKER"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "CHARACTER_SANTA"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "CHARACTER_SCARECROW"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "CHARACTER_THOR"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "CHARACTER_WOLVERINE"
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
                 invoke-interface {v0}, Landroid/content/SharedPreferences${'$'}Editor;->apply()V
             """.trimIndent()
