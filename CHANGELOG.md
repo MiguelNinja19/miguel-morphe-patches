@@ -1,3 +1,9 @@
+## [1.6.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.1...v1.6.2) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* correct register layout - move sku from v3 to v2 before invoke-interface/range ([635d894](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/635d894fb8923240bf8575cbc91ada06e70c5e6c))
+
 ## [1.6.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.0...v1.6.1) (2026-07-10)
 
 ### 🐛 Bug Fixes
