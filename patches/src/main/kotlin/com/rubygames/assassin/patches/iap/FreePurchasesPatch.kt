@@ -1,19 +1,18 @@
 /*
  * Free In-App Purchases patch for Hunter Assassin.
  *
- * The game uses Rovio Beacon SDK for billing. When a purchase is
- * requested, GooglePlayBillingProvider.startInAppPurchase() calls
- * launchBillingFlow() which opens Google Play.
+ * Previous version used callOnPurchaseFailed which passes empty strings
+ * for receipt data. The C++ validates these and shows "Something went wrong!".
  *
- * This patch intercepts the lambda that calls launchBillingFlow,
- * and instead calls callOnPurchaseFailed() with PurchaseStatus.SUCCEEDED.
+ * This version calls listener.onPurchase DIRECTLY with non-empty fake data:
+ *   status = 0 (SUCCEEDED)
+ *   sku = p1 (from method parameter)
+ *   token = "fake_token"
+ *   originalJson = valid-looking JSON
+ *   signature = "fake_sig"
+ *   responseCode = 0
  *
- * Despite the name "callOnPurchaseFailed", it just calls the listener's
- * onPurchase(status, sku, ...) with whatever status you pass.
- * SUCCEEDED has ordinal 0, which the C++ engine interprets as success.
- *
- * No server validation exists - the purchase result is processed
- * entirely client-side via JNI callback.
+ * The C++ receives non-empty receipt data and processes it as success.
  */
 
 package com.rubygames.assassin.patches.iap
@@ -27,8 +26,8 @@ import com.rubygames.assassin.patches.shared.StartPurchaseFlowFingerprint
 val freePurchasesPatch = bytecodePatch(
     name = "Free in-app purchases",
     description = "Skips Google Play Billing and reports the purchase as " +
-        "successful immediately. When you tap buy, the item is granted " +
-        "without payment or Play Store popup.",
+        "successful immediately with fake receipt data. When you tap buy, " +
+        "the item is granted without payment or Play Store popup.",
     default = true,
 ) {
     compatibleWith(HUNTER_ASSASSIN)
@@ -41,14 +40,26 @@ val freePurchasesPatch = bytecodePatch(
                 # Get the listener from this.listener
                 iget-object v0, p0, Lcom/rovio/beacon/billing/GooglePlayBillingProvider;->listener:Lcom/rovio/beacon/billing/GooglePlayBillingListener;
                 
-                # Get PurchaseStatus.SUCCEEDED (ordinal = 0)
-                sget-object v1, Lcom/rovio/beacon/billing/PurchaseStatus;->SUCCEEDED:Lcom/rovio/beacon/billing/PurchaseStatus;
+                # v1 = status = 0 (SUCCEEDED)
+                const/4 v1, 0x0
                 
-                # Call callOnPurchaseFailed(listener, sku, SUCCEEDED, 0)
-                # Despite the name, this calls listener.onPurchase(0, sku, "", "", "", 0)
-                # which means status=SUCCEEDED, sku=p1, empty strings, 0
-                const/4 v2, 0x0
-                invoke-static {v0, p1, v1, v2}, Lcom/rovio/beacon/billing/GooglePlayBillingProviderUtils;->callOnPurchaseFailed(Lcom/rovio/beacon/billing/GooglePlayBillingListener;Ljava/lang/String;Lcom/rovio/beacon/billing/PurchaseStatus;I)V
+                # v2 = sku = p1 (already the product ID)
+                # p1 is already the SKU string
+                
+                # v3 = token = "fake_token"
+                const-string v3, "fake_token"
+                
+                # v4 = originalJson = valid-looking JSON
+                const-string v4, "{\"orderId\":\"fake\",\"productId\":\"fake\",\"purchaseTime\":0,\"purchaseState\":0,\"acknowledged\":false}"
+                
+                # v5 = signature = "fake_sig"
+                const-string v5, "fake_sig"
+                
+                # v6 = responseCode = 0
+                const/4 v6, 0x0
+                
+                # Call listener.onPurchase(0, sku, "fake_token", json, "fake_sig", 0)
+                invoke-interface/range {v0 .. v6}, Lcom/rovio/beacon/billing/GooglePlayBillingListener;->onPurchase(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V
                 
                 # Return immediately - skip launchBillingFlow
                 return-void
