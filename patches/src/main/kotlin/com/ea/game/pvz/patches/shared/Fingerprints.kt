@@ -21,13 +21,7 @@ object LoadAdFingerprint : Fingerprint(
 )
 
 object PurchaseItemFingerprint : Fingerprint(
-    definingClass = "Lcom/ea/nimble/mtx/googleplay/GooglePlay;",
     accessFlags = listOf(AccessFlags.PUBLIC),
     returnType = "Lcom/ea/nimble/Error;",
-    parameters = listOf(
-        "Ljava/lang/String;",
-        "Lcom/ea/nimble/mtx/INimbleMTX${'$'}PurchaseTransactionCallback;",
-        "Ljava/lang/String;"
-    ),
     filters = listOf(string("purchaseItem() call with sku"))
 )
