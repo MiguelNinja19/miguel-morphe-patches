@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.4.1...v1.4.2) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* use exact string match for PurchaseItemFingerprint ([cb53572](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cb53572d3c980aa3c5f5e56a482dc9b8305f1c82))
+
 ## [1.4.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.4.0...v1.4.1) (2026-07-10)
 
 ### 🐛 Bug Fixes
