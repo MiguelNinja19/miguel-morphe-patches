@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.0...v1.6.1) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* use non-empty fake receipt data to avoid C++ validation error ([a19fb96](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a19fb9666e91e7e87dd713d81d3832ac61ef018d))
+
 ## [1.6.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.5.1...v1.6.0) (2026-07-10)
 
 ### ✨ New Features

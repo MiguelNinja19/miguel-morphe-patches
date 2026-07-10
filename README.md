@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.6.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.6.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
+> **[v1.6.1](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.6.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -31,7 +31,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Auto reward ads](#auto-reward-ads) | When a rewarded ad is closed, the game always thinks you watched the entire ad. You get the reward even if you skip or close the ad immediately. |  |
-| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing and reports the purchase as successful immediately. When you tap buy, the item is granted without payment or Play Store popup. |  |
+| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing and reports the purchase as successful immediately with fake receipt data. When you tap buy, the item is granted without payment or Play Store popup. |  |
 
 </details>
 
