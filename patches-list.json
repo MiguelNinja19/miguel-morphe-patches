@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -51,39 +51,6 @@
           "targets": [
             {
               "version": "3.16.0",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            },
-            {
-              "version": null,
-              "versionCodes": null,
-              "isExperimental": true,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
-      "name": "Free in-app purchases",
-      "description": "Skips Google Play Billing and reports the purchase as successful immediately with fake receipt data. When you tap buy, the item is granted without payment or Play Store popup.",
-      "default": true,
-      "dependencies": [],
-      "compatiblePackages": [
-        {
-          "packageName": "com.rubygames.assassin",
-          "name": "Hunter Assassin",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#1A1A1A",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "2.041",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,
@@ -183,6 +150,39 @@
           "targets": [
             {
               "version": "3.16.0",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Unlimited gems, keys & unlock all",
+      "description": "Sets gems to 9999999, keys to 9999999, unlocks VIP and all assassin characters (2-35) by writing directly to the game's SharedPreferences on startup. Based on the Lucky Patcher custom patch.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.rubygames.assassin",
+          "name": "Hunter Assassin",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#1A1A1A",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "2.041",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,

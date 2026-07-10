@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.2...v1.6.3) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* rewrite Hunter Assassin patch to inject SharedPreferences (based on Lucky Patcher) ([9bc4d6f](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9bc4d6f350f4584250e205ffe8b00b3117c61874))
+* rewrite Hunter Assassin patch to inject SharedPreferences (based on Lucky Patcher) ([9494c8c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9494c8cddc423900f8e31d9337d2b646d6e31e3c))
+
 ## [1.6.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.1...v1.6.2) (2026-07-10)
 
 ### 🐛 Bug Fixes

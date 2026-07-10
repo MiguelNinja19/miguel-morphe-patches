@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.6.2](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.6.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
+> **[v1.6.3](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.6.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -31,7 +31,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Auto reward ads](#auto-reward-ads) | When a rewarded ad is closed, the game always thinks you watched the entire ad. You get the reward even if you skip or close the ad immediately. |  |
-| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing and reports the purchase as successful immediately with fake receipt data. When you tap buy, the item is granted without payment or Play Store popup. |  |
+| [Unlimited gems, keys & unlock all](#unlimited-gems-keys-unlock-all) | Sets gems to 9999999, keys to 9999999, unlocks VIP and all assassin characters (2-35) by writing directly to the game's SharedPreferences on startup. Based on the Lucky Patcher custom patch. |  |
 
 </details>
 
