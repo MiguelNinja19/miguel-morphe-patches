@@ -1,10 +1,13 @@
 /*
  * Unlimited Resources patch for Hunter Assassin.
  *
- * FIX: Previous version used Cocos2dxHelper which is not initialized
- * yet during onCreate (it's initialized by super.onCreate()). This
- * version accesses SharedPreferences DIRECTLY via the Activity context,
- * which is always available. No dependency on Cocos2dxHelper.
+ * FIX: Previous versions crashed because SharedPreferences was accessed
+ * too early in onCreate (before super.onCreate() or before the Activity
+ * was fully initialized). 
+ *
+ * This version patches onResume() instead, which is called AFTER the
+ * Activity is fully created and the context is guaranteed to be valid.
+ * onResume has .locals 2 (v0, v1 available).
  *
  * Based on the Lucky Patcher custom patch by MD ALI HOSSAIN.
  */
@@ -14,25 +17,24 @@ package com.rubygames.assassin.patches.iap
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import com.rubygames.assassin.patches.shared.Constants.HUNTER_ASSASSIN
-import com.rubygames.assassin.patches.shared.OnCreateFingerprint
+import com.rubygames.assassin.patches.shared.OnResumeFingerprint
 
 @Suppress("unused")
 val freePurchasesPatch = bytecodePatch(
     name = "Unlimited gems, keys & unlock all",
     description = "Sets gems to 9999999, keys to 9999999, unlocks VIP " +
         "(removes ads) and all assassin characters (2-35) by writing " +
-        "directly to the game's SharedPreferences on startup.",
+        "directly to the game's SharedPreferences on app resume.",
     default = true,
 ) {
     compatibleWith(HUNTER_ASSASSIN)
 
     execute {
-        val method = OnCreateFingerprint.method
+        val method = OnResumeFingerprint.method
         method.addInstructions(
             0,
             """
-                # Get SharedPreferences "Cocos2dxPrefsFile" directly
-                # p0 = this (Activity), which is a Context
+                # Get SharedPreferences "Cocos2dxPrefsFile"
                 const-string v0, "Cocos2dxPrefsFile"
                 const/4 v1, 0x0
                 invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
@@ -49,7 +51,6 @@ val freePurchasesPatch = bytecodePatch(
                 
                 # keys = 9999999
                 const-string v1, "keys"
-                const v2, 0x98967f
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
                 
                 # vipPurchased = true
@@ -57,9 +58,8 @@ val freePurchasesPatch = bytecodePatch(
                 const/4 v2, 0x1
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
                 
-                # Unlock assassins 2-35 (unrolled loop for safety)
+                # Unlock assassins 2-35
                 const-string v1, "assassinOwned2"
-                const/4 v2, 0x1
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
                 const-string v1, "assassinOwned3"
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
