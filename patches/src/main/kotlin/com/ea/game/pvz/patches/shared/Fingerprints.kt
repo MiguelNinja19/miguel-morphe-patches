@@ -21,7 +21,5 @@ object LoadAdFingerprint : Fingerprint(
 )
 
 object PurchaseItemFingerprint : Fingerprint(
-    accessFlags = listOf(AccessFlags.PUBLIC),
-    returnType = "Lcom/ea/nimble/Error;",
-    filters = listOf(string("purchaseItem() call with sku"))
+    filters = listOf(string("purchaseItem() call with sku(%s)"))
 )
