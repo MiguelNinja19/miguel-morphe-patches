@@ -8,17 +8,17 @@ import com.time.trigger.patches.shared.Constants.JOHNNY_TRIGGER
 @Suppress("unused")
 val freePurchasesPatch = bytecodePatch(
     name = "Free in-app purchases",
-    description = "Patches BillingResult.getResponseCode() to always return 0 (OK). " +
-        "This makes all billing operations report success, including purchases. " +
-        "When you tap buy, the game thinks the purchase was successful without " +
-        "contacting Google Play.",
+    description = "Forces the purchase result handler to always report success, " +
+        "regardless of the actual billing result. When you tap buy, the Play " +
+        "Store may open and give an error, but the game treats it as a " +
+        "successful purchase and grants the item.",
     default = true,
 ) {
     compatibleWith(JOHNNY_TRIGGER)
 
     execute {
-        val method = BillingResultGetResponseCodeFingerprint.method
-        method.replaceInstruction(0, "const/4 v0, 0x0")
-        method.replaceInstruction(1, "return v0")
+        val getResponseCodeMethod = BillingResultGetResponseCodeFingerprint.method
+        getResponseCodeMethod.replaceInstruction(0, "const/4 v0, 0x1")
+        getResponseCodeMethod.replaceInstruction(1, "return v0")
     }
 }
