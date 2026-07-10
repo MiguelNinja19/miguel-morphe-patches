@@ -1,3 +1,12 @@
+## [1.6.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.4...v1.6.5) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* access SharedPreferences directly instead of uninitialized Cocos2dxHelper ([ca16326](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ca163269124ef543e9d8273b20300ce307b48597))
+* escape $Editor in Kotlin string literals ([00b2326](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/00b23269f38904ee7b8e158d1c3eae81a6c5dc8e))
+* patch onResume instead of onCreate to avoid early init crash ([08271ba](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/08271ba04f651e50843c1a467519536721684ab2))
+* patch onResume instead of onCreate to avoid early init crash ([e4623f4](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e4623f477ab92602705e0a3d5f58faf8f1494f74))
+
 ## [1.6.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.3...v1.6.4) (2026-07-10)
 
 ### 🐛 Bug Fixes
