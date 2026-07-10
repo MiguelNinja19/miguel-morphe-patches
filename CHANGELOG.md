@@ -1,3 +1,9 @@
+## [1.6.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.6...v1.6.7) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* add crystals, cash, all knives and all special characters to Hunter Assassin patch ([e6a0d11](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e6a0d110964159bc649ad30572dcb4f14fe045a9))
+
 ## [1.6.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.5...v1.6.6) (2026-07-10)
 
 ### 🐛 Bug Fixes
