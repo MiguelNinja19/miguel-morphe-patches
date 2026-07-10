@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.3.8](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.3.8)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+> **[v1.3.9](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.3.9)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 Anger of Stick 5&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
 <br>
@@ -40,8 +40,8 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 **🎯 Supported versions:**
 
-| 4.1.0 |
-| :---: |
+| 4.1.1 | 4.1.0 |
+| :---: | :---: |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|

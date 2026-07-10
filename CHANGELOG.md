@@ -1,3 +1,9 @@
+## [1.3.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.8...v1.3.9) (2026-07-10)
+
+### 🐛 Bug Fixes
+
+* add CubeX Solver 4.1.1 as supported version ([9180fb5](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9180fb515682a13ef898b6ed1a1b576ec0ad884e))
+
 ## [1.3.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.7...v1.3.8) (2026-07-09)
 
 ### 🐛 Bug Fixes
