@@ -1,3 +1,13 @@
+## [1.4.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.9...v1.4.0) (2026-07-10)
+
+### ✨ New Features
+
+* add Plants vs. Zombies patches (remove ads, free rewards, free IAP) ([57cbdc8](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/57cbdc81396e828d119b68d09035a6ecd478f8e2))
+* add Plants vs. Zombies patches (remove ads, free rewards, free IAP) ([4db08bc](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4db08bc1f21a058ba06e53aae05b4361531626e7))
+* add Plants vs. Zombies patches (remove ads, free rewards, free IAP) ([4b5b2b7](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4b5b2b76ec27dd4401362683e5f8b24185897e54))
+* add Plants vs. Zombies patches (remove ads, free rewards, free IAP) ([839b3de](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/839b3de100fd1c11585308722ab10692f8dc94b6))
+* add Plants vs. Zombies patches (remove ads, free rewards, free IAP) ([142332f](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/142332f8783d0994343f7c46284ebb5f281dd14d))
+
 ## [1.3.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.3.8...v1.3.9) (2026-07-10)
 
 ### 🐛 Bug Fixes
