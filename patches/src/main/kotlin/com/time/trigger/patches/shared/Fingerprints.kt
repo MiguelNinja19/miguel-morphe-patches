@@ -1,6 +1,7 @@
 package com.time.trigger.patches.shared
 
 import app.morphe.patcher.Fingerprint
+import app.morphe.patcher.string
 import com.android.tools.smali.dexlib2.AccessFlags
 
 object BillingResultGetResponseCodeFingerprint : Fingerprint(
@@ -10,14 +11,10 @@ object BillingResultGetResponseCodeFingerprint : Fingerprint(
     parameters = emptyList(),
 )
 
-object PurchaseProductFingerprint : Fingerprint(
-    definingClass = "Lsaygames/bridge/unity/SayKitBridge;",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL),
-    returnType = "V",
+object PurchaseResultFingerprint : Fingerprint(
+    returnType = "Ljava/lang/Object;",
     filters = listOf(
-        app.morphe.patcher.methodCall(
-            definingClass = "Lsaygames/saykit/SayKit${'$'}Purchases;",
-            name = "purchaseProduct",
-        ),
+        string("onPurchasesUpdated"),
+        string("GoogleBillingApi"),
     )
 )
