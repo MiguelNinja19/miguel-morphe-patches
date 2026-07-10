@@ -1,7 +1,40 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "patches": [
+    {
+      "name": "Auto reward ads",
+      "description": "When a rewarded ad is closed, the game always thinks you watched the entire ad. You get the reward even if you skip or close the ad immediately.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.rubygames.assassin",
+          "name": "Hunter Assassin",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#1A1A1A",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "2.041",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
     {
       "name": "Free in-app purchases",
       "description": "When you try to buy something, the purchase is immediately marked as successful without contacting Google Play. The EA Nimble MTX system receives a null error (success) and grants the item.",
@@ -37,20 +70,20 @@
     },
     {
       "name": "Free in-app purchases",
-      "description": "Forces the purchase result handler to always report success, regardless of the actual billing result. When you tap buy, the Play Store may open and give an error, but the game treats it as a successful purchase and grants the item.",
+      "description": "Skips Google Play Billing and reports the purchase as successful immediately. When you tap buy, the item is granted without payment or Play Store popup.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
         {
-          "packageName": "com.time.trigger",
-          "name": "Johnny Trigger",
+          "packageName": "com.rubygames.assassin",
+          "name": "Hunter Assassin",
           "description": null,
           "apkFileType": "APK",
-          "appIconColor": "#FF5722",
+          "appIconColor": "#1A1A1A",
           "signatures": null,
           "targets": [
             {
-              "version": "1.12.65",
+              "version": "2.041",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,

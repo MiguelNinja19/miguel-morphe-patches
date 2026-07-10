@@ -1,3 +1,12 @@
+## [1.6.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.5.1...v1.6.0) (2026-07-10)
+
+### ✨ New Features
+
+* add Hunter Assassin patches (free IAP + auto reward ads) ([5e24ebe](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/5e24ebe366f0638d95af41ae2b020f0646c77281))
+* add Hunter Assassin patches (free IAP + auto reward ads) ([d0ae52a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d0ae52ad0ab764638e9e3abdf4e4a9f55e1b90f2))
+* add Hunter Assassin patches (free IAP + auto reward ads) ([2c226d2](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/2c226d2fdd6e9dd88ea022e0ad3d305baf785aa6))
+* add Hunter Assassin patches (free IAP + auto reward ads) ([fd20fc3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fd20fc3f565c6b7e2f731ae71c8bb15ac210b64c))
+
 ## [1.5.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.5.0...v1.5.1) (2026-07-10)
 
 ### 🐛 Bug Fixes
