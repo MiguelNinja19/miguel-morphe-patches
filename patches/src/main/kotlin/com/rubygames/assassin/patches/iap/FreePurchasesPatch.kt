@@ -1,13 +1,12 @@
 /*
- * Free In-App Purchases patch for Hunter Assassin.
+ * Unlimited Resources patch for Hunter Assassin.
  *
  * Based on the Lucky Patcher custom patch by MD ALI HOSSAIN.
- * Instead of faking billing (which the C++ rejects), this patch
- * directly writes to the game's SharedPreferences (Cocos2dxPrefsFile)
+ * Directly writes to the game's SharedPreferences (Cocos2dxPrefsFile)
  * at app startup, setting:
  *   - gems = 9999999
  *   - keys = 9999999
- *   - vipPurchased = true
+ *   - vipPurchased = true (removes ads)
  *   - assassinOwned2-35 = true (all characters unlocked)
  *
  * The game reads these values from SharedPreferences via
@@ -27,9 +26,10 @@ import com.rubygames.assassin.patches.shared.OnCreateFingerprint
 @Suppress("unused")
 val freePurchasesPatch = bytecodePatch(
     name = "Unlimited gems, keys & unlock all",
-    description = "Sets gems to 9999999, keys to 9999999, unlocks VIP and " +
-        "all assassin characters (2-35) by writing directly to the game's " +
-        "SharedPreferences on startup. Based on the Lucky Patcher custom patch.",
+    description = "Sets gems to 9999999, keys to 9999999, unlocks VIP " +
+        "(removes ads) and all assassin characters (2-35) by writing " +
+        "directly to the game's SharedPreferences on startup. Based on " +
+        "the Lucky Patcher custom patch approach.",
     default = true,
 ) {
     compatibleWith(HUNTER_ASSASSIN)
