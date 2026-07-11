@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.6.8](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.6.8)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
+> **[v1.6.9](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.6.9)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -31,7 +31,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Auto reward ads](#auto-reward-ads) | When a rewarded ad is closed, the game always thinks you watched the entire ad. You get the reward even if you skip or close the ad immediately. |  |
-| [Unlimited gems, rubies & unlock all](#unlimited-gems-rubies-unlock-all) | Sets gems, rubies (diamonds), keys and tickets to 9999999. Unlocks VIP (removes ads + VIP rewards), all assassin characters (2-35), and all special knives — each knife also unlocks its corresponding legendary character (Dracula, Myers, Scarecrow, Thor, Wolverine, Santa, Grinch, Nutcracker, Cricket Player) via the game's character-knife bundle system. |  |
+| [Unlimited gems, rubies & unlock all](#unlimited-gems-rubies-unlock-all) | Sets gems, rubies (diamonds), keys and tickets to 9999999. Unlocks VIP (removes ads + VIP rewards + Ninja Assassin VIP character), all assassin characters (2-44), including all Legendary characters (Scarecrow, Dracula, Thor, Wolverine, Myers, Santa, Grinch, Nutcracker, Cricket Player), and all special knives. |  |
 
 </details>
 

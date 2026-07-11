@@ -1,3 +1,9 @@
+## [1.6.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.8...v1.6.9) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* add Legendary characters (assassinOwned36-44) to Hunter Assassin patch ([65b11b2](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/65b11b2aa7537e07fffc5ac6f818b80c5263f6c2))
+
 ## [1.6.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.7...v1.6.8) (2026-07-10)
 
 ### 🐛 Bug Fixes
