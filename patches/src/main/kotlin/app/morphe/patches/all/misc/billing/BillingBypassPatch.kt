@@ -68,18 +68,17 @@ val billingBypassPatch = bytecodePatch(
                 val returnType = method.returnType
                 val paramCount = method.parameterTypes.size
 
-                // Helper: clear method body, then add our instructions
                 fun replaceMethodBody(smali: String) {
                     val insnCount = method.implementation!!.instructions.size
                     method.removeInstructions(0, insnCount)
                     method.addInstructions(0, smali)
                 }
 
-                // --- Callback methods (use p-registers only, never v0) ---
+                // --- Callback methods (use typed signatures) ---
 
                 if (methodName == "startConnection" && returnType == "V" && paramCount == 1) {
                     replaceMethodBody("""
-                        invoke-static/range {p1 .. p1}, $EXTENSION_CLASS->handleStartConnection(Ljava/lang/Object;)V
+                        invoke-static/range {p1 .. p1}, $EXTENSION_CLASS->handleStartConnection(Lcom/android/billingclient/api/BillingClientStateListener;)V
                         return-void
                     """.trimIndent())
                     patchedCount++; callbackCount++
@@ -91,7 +90,7 @@ val billingBypassPatch = bytecodePatch(
                     returnType == "V" && paramCount == 2
                 ) {
                     replaceMethodBody("""
-                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleQueryPurchases(Ljava/lang/Object;)V
+                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleQueryPurchases(Lcom/android/billingclient/api/PurchasesResponseListener;)V
                         return-void
                     """.trimIndent())
                     patchedCount++; callbackCount++
@@ -100,7 +99,7 @@ val billingBypassPatch = bytecodePatch(
 
                 if (methodName == "consumeAsync" && returnType == "V" && paramCount == 2) {
                     replaceMethodBody("""
-                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleConsumeAsync(Ljava/lang/Object;)V
+                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleConsumeAsync(Lcom/android/billingclient/api/ConsumeResponseListener;)V
                         return-void
                     """.trimIndent())
                     patchedCount++; callbackCount++
@@ -112,36 +111,34 @@ val billingBypassPatch = bytecodePatch(
                     returnType == "V" && paramCount == 2
                 ) {
                     replaceMethodBody("""
-                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleAcknowledgePurchase(Ljava/lang/Object;)V
+                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleAcknowledgePurchase(Lcom/android/billingclient/api/AcknowledgePurchaseResponseListener;)V
                         return-void
                     """.trimIndent())
                     patchedCount++; callbackCount++
                     logger.info("  ✓ $methodName() → onAcknowledgePurchaseResponse(OK)")
                 }
 
-                // launchBillingFlow: use p0 for everything (no v0 needed)
                 if (methodName == "launchBillingFlow" && paramCount == 2 &&
                     returnType == "Lcom/android/billingclient/api/BillingResult;"
                 ) {
                     replaceMethodBody("""
-                        invoke-static/range {p0 .. p0}, $EXTENSION_CLASS->handleLaunchBillingFlow(Ljava/lang/Object;)Ljava/lang/Object;
-                        move-result-object p0
-                        check-cast p0, Lcom/android/billingclient/api/BillingResult;
-                        return-object p0
+                        invoke-static/range {p0 .. p0}, $EXTENSION_CLASS->handleLaunchBillingFlow(Lcom/android/billingclient/api/BillingClient;)Lcom/android/billingclient/api/BillingResult;
+                        move-result-object v0
+                        return-object v0
                     """.trimIndent())
                     patchedCount++; callbackCount++
                     logger.info("  ✓ $methodName() → onPurchasesUpdated(OK) + returns OK")
                 }
 
-                // --- Simple return methods (use p0, never v0) ---
+                // --- Simple return methods ---
 
                 if ((methodName == "isBillingSupported" ||
                     methodName == "isBillingSupportedExtraParams") &&
                     returnType == "I"
                 ) {
                     replaceMethodBody("""
-                        const/4 p0, 0x0
-                        return p0
+                        const/4 v0, 0x0
+                        return v0
                     """.trimIndent())
                     patchedCount++
                     logger.info("  ✓ $methodName() = 0 (OK)")
@@ -152,8 +149,8 @@ val billingBypassPatch = bytecodePatch(
                     returnType == "I"
                 ) {
                     replaceMethodBody("""
-                        const/4 p0, 0x0
-                        return p0
+                        const/4 v0, 0x0
+                        return v0
                     """.trimIndent())
                     patchedCount++
                     logger.info("  ✓ $methodName() = 0 (success)")
@@ -161,8 +158,8 @@ val billingBypassPatch = bytecodePatch(
 
                 if (methodName == "isReady" && returnType == "Z") {
                     replaceMethodBody("""
-                        const/4 p0, 0x1
-                        return p0
+                        const/4 v0, 0x1
+                        return v0
                     """.trimIndent())
                     patchedCount++
                     logger.info("  ✓ $methodName() = true")
@@ -179,8 +176,8 @@ val billingBypassPatch = bytecodePatch(
                     returnType == "I"
                 ) {
                     replaceMethodBody("""
-                        const/4 p0, 0x0
-                        return p0
+                        const/4 v0, 0x0
+                        return v0
                     """.trimIndent())
                     patchedCount++
                     logger.info("  ✓ $methodName() = 0 (supported)")
