@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -33,6 +33,14 @@
           ]
         }
       ],
+      "options": []
+    },
+    {
+      "name": "Billing bypass",
+      "description": "Patches Google Play In-App Billing to simulate successful purchases. Intercepts IInAppBillingService (v3/v6) and BillingClient (v4+) methods. isBillingSupported returns OK, queryPurchases returns void, consumePurchase returns success, isReady returns true, startConnection is skipped. Based on Lucky Patcher's InApp emulation.",
+      "default": false,
+      "dependencies": [],
+      "compatiblePackages": null,
       "options": []
     },
     {

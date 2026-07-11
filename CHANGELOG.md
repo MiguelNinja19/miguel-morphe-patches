@@ -1,3 +1,9 @@
+## [1.7.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.1...v1.7.2) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* add billing bypass patch (test) ([6a01749](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6a017495fcf7e2a0a7fb60d6ec67119abea5fb73))
+
 ## [1.7.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.0...v1.7.1) (2026-07-11)
 
 ### 🐛 Bug Fixes
