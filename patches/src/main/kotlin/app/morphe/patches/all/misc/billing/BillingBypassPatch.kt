@@ -6,18 +6,13 @@ import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import java.util.logging.Logger
 
-private const val EXTENSION_CLASS = "Ldiozz/cubex/patches/extension/BillingBypass;"
-
 @Suppress("unused")
 val billingBypassPatch = bytecodePatch(
     name = "Billing bypass",
     description = "Patches Google Play In-App Billing to simulate successful " +
-        "purchases. Calls billing callbacks with success results via an extension. " +
-        "Based on Lucky Patcher's InApp emulation approach.",
+        "purchases without contacting Google Play.",
     default = false,
 ) {
-    extendWith("extensions/extension.mpe")
-
     execute {
         val logger = Logger.getLogger("BillingBypass")
 
@@ -35,10 +30,10 @@ val billingBypassPatch = bytecodePatch(
             "isReady", "endConnection",
             "isFeatureSupported", "isFeatureSupportedExtraParams",
             "queryPurchaseHistory", "queryPurchaseHistoryAsync",
+            "getPurchaseState", "getOriginalJson", "getSignature",
         )
 
         var patchedCount = 0
-        var callbackCount = 0
 
         logger.info("Scanning for billing classes...")
 
@@ -74,64 +69,62 @@ val billingBypassPatch = bytecodePatch(
                     method.addInstructions(0, smali)
                 }
 
-                // --- Callback methods (use typed signatures) ---
-
-                if (methodName == "startConnection" && returnType == "V" && paramCount == 1) {
-                    replaceMethodBody("""
-                        invoke-static/range {p1 .. p1}, $EXTENSION_CLASS->handleStartConnection(Lcom/android/billingclient/api/BillingClientStateListener;)V
-                        return-void
-                    """.trimIndent())
-                    patchedCount++; callbackCount++
-                    logger.info("  ✓ $methodName() → onBillingSetupFinished(OK)")
+                // startConnection → return void (skip, don't call callback)
+                if (methodName == "startConnection" && returnType == "V") {
+                    replaceMethodBody("return-void")
+                    patchedCount++
+                    logger.info("  ✓ $methodName() = void (skip)")
                 }
 
+                // queryPurchasesAsync → return void (skip)
                 if ((methodName == "queryPurchasesAsync" ||
                     methodName == "queryPurchasesExtraParams") &&
-                    returnType == "V" && paramCount == 2
+                    returnType == "V"
                 ) {
-                    replaceMethodBody("""
-                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleQueryPurchases(Lcom/android/billingclient/api/PurchasesResponseListener;)V
-                        return-void
-                    """.trimIndent())
-                    patchedCount++; callbackCount++
-                    logger.info("  ✓ $methodName() → onQueryPurchasesResponse(OK, empty)")
+                    replaceMethodBody("return-void")
+                    patchedCount++
+                    logger.info("  ✓ $methodName() = void (skip)")
                 }
 
-                if (methodName == "consumeAsync" && returnType == "V" && paramCount == 2) {
-                    replaceMethodBody("""
-                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleConsumeAsync(Lcom/android/billingclient/api/ConsumeResponseListener;)V
-                        return-void
-                    """.trimIndent())
-                    patchedCount++; callbackCount++
-                    logger.info("  ✓ $methodName() → onConsumeResponse(OK)")
+                // consumeAsync → return void (skip)
+                if (methodName == "consumeAsync" && returnType == "V") {
+                    replaceMethodBody("return-void")
+                    patchedCount++
+                    logger.info("  ✓ $methodName() = void (skip)")
                 }
 
+                // acknowledgePurchase → return void (skip)
                 if ((methodName == "acknowledgePurchase" ||
                     methodName == "acknowledgePurchaseExtraParams") &&
-                    returnType == "V" && paramCount == 2
+                    returnType == "V"
                 ) {
-                    replaceMethodBody("""
-                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleAcknowledgePurchase(Lcom/android/billingclient/api/AcknowledgePurchaseResponseListener;)V
-                        return-void
-                    """.trimIndent())
-                    patchedCount++; callbackCount++
-                    logger.info("  ✓ $methodName() → onAcknowledgePurchaseResponse(OK)")
+                    replaceMethodBody("return-void")
+                    patchedCount++
+                    logger.info("  ✓ $methodName() = void (skip)")
                 }
 
-                if (methodName == "launchBillingFlow" && paramCount == 2 &&
-                    returnType == "Lcom/android/billingclient/api/BillingResult;"
-                ) {
-                    replaceMethodBody("""
-                        invoke-static/range {p0 .. p0}, $EXTENSION_CLASS->handleLaunchBillingFlow(Lcom/android/billingclient/api/BillingClient;)Lcom/android/billingclient/api/BillingResult;
-                        move-result-object v0
-                        return-object v0
-                    """.trimIndent())
-                    patchedCount++; callbackCount++
-                    logger.info("  ✓ $methodName() → onPurchasesUpdated(OK) + returns OK")
+                // launchBillingFlow → return void if void, or return 0 if int
+                if (methodName == "launchBillingFlow") {
+                    when (returnType) {
+                        "V" -> {
+                            replaceMethodBody("return-void")
+                            patchedCount++
+                            logger.info("  ✓ $methodName() = void (skip)")
+                        }
+                        "I" -> {
+                            replaceMethodBody("""
+                                const/4 v0, 0x0
+                                return v0
+                            """.trimIndent())
+                            patchedCount++
+                            logger.info("  ✓ $methodName() = 0 (OK)")
+                        }
+                        // BillingResult return type — can't create without extension
+                        // Leave it unpatched (app will try Google Play and fail gracefully)
+                    }
                 }
 
-                // --- Simple return methods ---
-
+                // isBillingSupported → return 0 (OK)
                 if ((methodName == "isBillingSupported" ||
                     methodName == "isBillingSupportedExtraParams") &&
                     returnType == "I"
@@ -144,6 +137,7 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() = 0 (OK)")
                 }
 
+                // consumePurchase → return 0 (success)
                 if ((methodName == "consumePurchase" ||
                     methodName == "consumePurchaseExtraParams") &&
                     returnType == "I"
@@ -156,6 +150,7 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() = 0 (success)")
                 }
 
+                // isReady → return true
                 if (methodName == "isReady" && returnType == "Z") {
                     replaceMethodBody("""
                         const/4 v0, 0x1
@@ -165,12 +160,14 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() = true")
                 }
 
+                // endConnection → return void
                 if (methodName == "endConnection" && returnType == "V") {
                     replaceMethodBody("return-void")
                     patchedCount++
                     logger.info("  ✓ $methodName() = void (no-op)")
                 }
 
+                // isFeatureSupported → return 0
                 if ((methodName == "isFeatureSupported" ||
                     methodName == "isFeatureSupportedExtraParams") &&
                     returnType == "I"
@@ -183,6 +180,7 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() = 0 (supported)")
                 }
 
+                // queryPurchaseHistory → return void
                 if ((methodName == "queryPurchaseHistory" ||
                     methodName == "queryPurchaseHistoryAsync") &&
                     returnType == "V"
@@ -190,6 +188,16 @@ val billingBypassPatch = bytecodePatch(
                     replaceMethodBody("return-void")
                     patchedCount++
                     logger.info("  ✓ $methodName() = void (skip)")
+                }
+
+                // getPurchaseState → return 0 (PURCHASED)
+                if (methodName == "getPurchaseState" && returnType == "I") {
+                    replaceMethodBody("""
+                        const/4 v0, 0x0
+                        return v0
+                    """.trimIndent())
+                    patchedCount++
+                    logger.info("  ✓ $methodName() = 0 (PURCHASED)")
                 }
             }
         }
@@ -200,6 +208,6 @@ val billingBypassPatch = bytecodePatch(
             )
         }
 
-        logger.info("Billing bypass complete: $patchedCount methods patched ($callbackCount with callbacks)")
+        logger.info("Billing bypass complete: $patchedCount methods patched")
     }
 }
