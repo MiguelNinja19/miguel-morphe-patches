@@ -1,9 +1,8 @@
 /*
  * Unlimited Resources patch for Hunter Assassin.
  *
- * Adds: gems, rubies (diamonds), keys, tickets, all assassins,
- * all special knives (which also unlock their special characters
- * via the character-knife bundle system), and VIP status.
+ * Adds: gems, rubies (diamonds), keys, tickets, all assassins (2-44),
+ * all special knives, and VIP status.
  *
  * Save keys found in libAssassin.so v2.041 (analyzed via disassembly):
  *   gems            (int)  - soft currency (visible in HUD)
@@ -14,12 +13,25 @@
  *   vipCancelled    (bool) - VIP cancelled flag (must be FALSE for VIP to work)
  *   removeAdsPurchased (bool) - separate "remove ads" flag
  *   freeTrialUsed   (bool) - free trial consumed
- *   assassinOwned2..35 (bool) - regular assassin characters
- *   hasXKnifeSaveKey (bool) - special knives; each also unlocks its
- *                             corresponding legendary character via the
- *                             in-game "character knife bundle" system
- *                             (Dracula, Myers, Scarecrow, Thor, Wolverine,
- *                              Santa, Grinch, Nutcracker, Cricket-Player)
+ *   assassinOwned2..44 (bool) - assassin characters (format: "assassinOwned%i")
+ *       2-10  = regular assassins (regular room rewards)
+ *       11    = Ninja Assassin VIP (unlocked via vipPurchased, NOT via this key)
+ *       16-25 = prize room reward assassins
+ *       36 = Scarecrow (Legendary)
+ *       37 = Dracula (Legendary)
+ *       38 = Thor (Legendary)
+ *       39 = Wolverine (Legendary)
+ *       40 = Myers (Legendary)
+ *       41 = Santa (Legendary)
+ *       42 = Grinch (Legendary)
+ *       43 = Nutcracker (Legendary)
+ *       44 = Cricket Player (Legendary)
+ *   hasXKnifeSaveKey (bool) - special knives (AuroraFang, CandyBlade, Cricket,
+ *                             Dracula, Myers, PineBlade, Scarecrow, Thor,
+ *                             Wolverine)
+ *
+ * Character IDs discovered by disassembling getCharacterNumber() of each
+ * CharacterSpecialOfferPopup/Node class in libAssassin.so.
  *
  * Based on the Lucky Patcher custom patch by MD ALI HOSSAIN (v1.89.3)
  * and extended via static analysis of libAssassin.so v2.041.
@@ -36,11 +48,10 @@ import com.rubygames.assassin.patches.shared.OnCreateFingerprint
 val freePurchasesPatch = bytecodePatch(
     name = "Unlimited gems, rubies & unlock all",
     description = "Sets gems, rubies (diamonds), keys and tickets to 9999999. " +
-        "Unlocks VIP (removes ads + VIP rewards), all assassin characters (2-35), " +
-        "and all special knives — each knife also unlocks its corresponding " +
-        "legendary character (Dracula, Myers, Scarecrow, Thor, Wolverine, " +
-        "Santa, Grinch, Nutcracker, Cricket Player) via the game's " +
-        "character-knife bundle system.",
+        "Unlocks VIP (removes ads + VIP rewards + Ninja Assassin VIP character), " +
+        "all assassin characters (2-44), including all Legendary characters " +
+        "(Scarecrow, Dracula, Thor, Wolverine, Myers, Santa, Grinch, " +
+        "Nutcracker, Cricket Player), and all special knives.",
     default = true,
 ) {
     compatibleWith(HUNTER_ASSASSIN)
@@ -146,6 +157,25 @@ val freePurchasesPatch = bytecodePatch(
                 const-string v1, "assassinOwned34"
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
                 const-string v1, "assassinOwned35"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+
+                const-string v1, "assassinOwned36"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "assassinOwned37"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "assassinOwned38"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "assassinOwned39"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "assassinOwned40"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "assassinOwned41"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "assassinOwned42"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "assassinOwned43"
+                invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
+                const-string v1, "assassinOwned44"
                 invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences${'$'}Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences${'$'}Editor;
 
                 const-string v1, "hasAuroraFangKnifeSaveKey"
