@@ -26,6 +26,16 @@ val billingBypassPatch = bytecodePatch(
             "Lcom/google/android/gms/iap/",
         )
 
+        val targetMethodNames = setOf(
+            "startConnection", "queryPurchasesAsync", "queryPurchasesExtraParams",
+            "consumeAsync", "acknowledgePurchase", "acknowledgePurchaseExtraParams",
+            "launchBillingFlow", "isBillingSupported", "isBillingSupportedExtraParams",
+            "consumePurchase", "consumePurchaseExtraParams",
+            "isReady", "endConnection",
+            "isFeatureSupported", "isFeatureSupportedExtraParams",
+            "queryPurchaseHistory", "queryPurchaseHistoryAsync",
+        )
+
         var patchedCount = 0
         var callbackCount = 0
 
@@ -41,15 +51,7 @@ val billingBypassPatch = bytecodePatch(
             if (!isBillingClass) return@classDefForEach
 
             val hasBillingMethods = classDef.methods.any { method ->
-                method.name in setOf(
-                    "startConnection", "queryPurchasesAsync", "queryPurchasesExtraParams",
-                    "consumeAsync", "acknowledgePurchase", "acknowledgePurchaseExtraParams",
-                    "launchBillingFlow", "isBillingSupported", "isBillingSupportedExtraParams",
-                    "consumePurchase", "consumePurchaseExtraParams",
-                    "isReady", "endConnection",
-                    "isFeatureSupported", "isFeatureSupportedExtraParams",
-                    "queryPurchaseHistory", "queryPurchaseHistoryAsync",
-                )
+                method.name in targetMethodNames
             }
 
             if (!hasBillingMethods) return@classDefForEach
@@ -65,16 +67,19 @@ val billingBypassPatch = bytecodePatch(
                 val returnType = method.returnType
                 val paramCount = method.parameterTypes.size
 
+                // --- Callback methods ---
+
+                // startConnection(listener) → call onBillingSetupFinished(OK)
                 if (methodName == "startConnection" && returnType == "V" && paramCount == 1) {
                     method.addInstructions(0, """
                         invoke-static/range {p1 .. p1}, $EXTENSION_CLASS->handleStartConnection(Ljava/lang/Object;)V
                         return-void
                     """.trimIndent())
-                    patchedCount++
-                    callbackCount++
-                    logger.info("  ✓ $methodName() → calls onBillingSetupFinished(OK)")
+                    patchedCount++; callbackCount++
+                    logger.info("  ✓ $methodName() → onBillingSetupFinished(OK)")
                 }
 
+                // queryPurchasesAsync(params, listener) → call onQueryPurchasesResponse(OK)
                 if ((methodName == "queryPurchasesAsync" ||
                     methodName == "queryPurchasesExtraParams") &&
                     returnType == "V" && paramCount == 2
@@ -83,44 +88,51 @@ val billingBypassPatch = bytecodePatch(
                         invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleQueryPurchases(Ljava/lang/Object;)V
                         return-void
                     """.trimIndent())
-                    patchedCount++
-                    callbackCount++
-                    logger.info("  ✓ $methodName() → calls onQueryPurchasesResponse(OK, empty)")
+                    patchedCount++; callbackCount++
+                    logger.info("  ✓ $methodName() → onQueryPurchasesResponse(OK, empty)")
                 }
 
+                // consumeAsync(params, listener) → call onConsumeResponse(OK)
+                // FIXED: pass p2 (listener) not p1 (params) — extension now takes 1 arg
                 if (methodName == "consumeAsync" && returnType == "V" && paramCount == 2) {
                     method.addInstructions(0, """
-                        invoke-static/range {p1 .. p1}, $EXTENSION_CLASS->handleConsumeAsync(Ljava/lang/Object;Ljava/lang/Object;)V
+                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleConsumeAsync(Ljava/lang/Object;)V
                         return-void
                     """.trimIndent())
-                    patchedCount++
-                    callbackCount++
-                    logger.info("  ✓ $methodName() → calls onConsumeResponse(OK)")
+                    patchedCount++; callbackCount++
+                    logger.info("  ✓ $methodName() → onConsumeResponse(OK)")
                 }
 
+                // acknowledgePurchase(params, listener) → call onAcknowledgePurchaseResponse(OK)
+                // FIXED: pass p2 (listener) not p1 (params) — extension now takes 1 arg
                 if ((methodName == "acknowledgePurchase" ||
                     methodName == "acknowledgePurchaseExtraParams") &&
                     returnType == "V" && paramCount == 2
                 ) {
                     method.addInstructions(0, """
-                        invoke-static/range {p1 .. p1}, $EXTENSION_CLASS->handleAcknowledgePurchase(Ljava/lang/Object;Ljava/lang/Object;)V
+                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleAcknowledgePurchase(Ljava/lang/Object;)V
                         return-void
                     """.trimIndent())
-                    patchedCount++
-                    callbackCount++
-                    logger.info("  ✓ $methodName() → calls onAcknowledgePurchaseResponse(OK)")
+                    patchedCount++; callbackCount++
+                    logger.info("  ✓ $methodName() → onAcknowledgePurchaseResponse(OK)")
                 }
 
-                if (methodName == "launchBillingFlow" && paramCount == 2) {
+                // launchBillingFlow(activity, params) → call onPurchasesUpdated(OK) + return OK
+                // FIXED: added check-cast back to pass verification
+                if (methodName == "launchBillingFlow" && paramCount == 2 &&
+                    returnType == "Lcom/android/billingclient/api/BillingResult;"
+                ) {
                     method.addInstructions(0, """
                         invoke-static/range {p0 .. p0}, $EXTENSION_CLASS->handleLaunchBillingFlow(Ljava/lang/Object;)Ljava/lang/Object;
                         move-result-object v0
+                        check-cast v0, Lcom/android/billingclient/api/BillingResult;
                         return-object v0
                     """.trimIndent())
-                    patchedCount++
-                    callbackCount++
-                    logger.info("  ✓ $methodName() → calls onPurchasesUpdated(OK) + returns OK")
+                    patchedCount++; callbackCount++
+                    logger.info("  ✓ $methodName() → onPurchasesUpdated(OK) + returns OK")
                 }
+
+                // --- Simple return methods ---
 
                 if ((methodName == "isBillingSupported" ||
                     methodName == "isBillingSupportedExtraParams") &&
@@ -190,8 +202,7 @@ val billingBypassPatch = bytecodePatch(
 
         if (patchedCount == 0) {
             throw PatchException(
-                "No Google Play Billing classes found in this app. " +
-                "The app may not use Google Play In-App Billing."
+                "No Google Play Billing classes found in this app."
             )
         }
 
