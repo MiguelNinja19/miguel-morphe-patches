@@ -11,9 +11,7 @@ private const val EXTENSION_CLASS = "Ldiozz/cubex/patches/extension/BillingBypas
 val billingBypassPatch = bytecodePatch(
     name = "Billing bypass",
     description = "Patches Google Play In-App Billing to simulate successful " +
-        "purchases. Calls billing callbacks (onBillingSetupFinished, " +
-        "onPurchasesUpdated, onQueryPurchasesResponse, onConsumeResponse, " +
-        "onAcknowledgePurchaseResponse) with success results via an extension. " +
+        "purchases. Calls billing callbacks with success results via an extension. " +
         "Based on Lucky Patcher's InApp emulation approach.",
     default = false,
 ) {
@@ -42,6 +40,20 @@ val billingBypassPatch = bytecodePatch(
 
             if (!isBillingClass) return@classDefForEach
 
+            val hasBillingMethods = classDef.methods.any { method ->
+                method.name in setOf(
+                    "startConnection", "queryPurchasesAsync", "queryPurchasesExtraParams",
+                    "consumeAsync", "acknowledgePurchase", "acknowledgePurchaseExtraParams",
+                    "launchBillingFlow", "isBillingSupported", "isBillingSupportedExtraParams",
+                    "consumePurchase", "consumePurchaseExtraParams",
+                    "isReady", "endConnection",
+                    "isFeatureSupported", "isFeatureSupportedExtraParams",
+                    "queryPurchaseHistory", "queryPurchaseHistoryAsync",
+                )
+            }
+
+            if (!hasBillingMethods) return@classDefForEach
+
             logger.info("Found billing class: $className")
 
             val mutableClass = mutableClassDefBy(classDef)
@@ -53,12 +65,9 @@ val billingBypassPatch = bytecodePatch(
                 val returnType = method.returnType
                 val paramCount = method.parameterTypes.size
 
-                // --- Methods that call callbacks via extension ---
-
-                // startConnection(BillingClientStateListener) → call callback + return void
                 if (methodName == "startConnection" && returnType == "V" && paramCount == 1) {
                     method.addInstructions(0, """
-                        invoke-static {p1}, $EXTENSION_CLASS->handleStartConnection(Ljava/lang/Object;)V
+                        invoke-static/range {p1 .. p1}, $EXTENSION_CLASS->handleStartConnection(Ljava/lang/Object;)V
                         return-void
                     """.trimIndent())
                     patchedCount++
@@ -66,13 +75,12 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() → calls onBillingSetupFinished(OK)")
                 }
 
-                // queryPurchasesAsync(params, listener) → call callback + return void
                 if ((methodName == "queryPurchasesAsync" ||
                     methodName == "queryPurchasesExtraParams") &&
                     returnType == "V" && paramCount == 2
                 ) {
                     method.addInstructions(0, """
-                        invoke-static {p2}, $EXTENSION_CLASS->handleQueryPurchases(Ljava/lang/Object;)V
+                        invoke-static/range {p2 .. p2}, $EXTENSION_CLASS->handleQueryPurchases(Ljava/lang/Object;)V
                         return-void
                     """.trimIndent())
                     patchedCount++
@@ -80,10 +88,9 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() → calls onQueryPurchasesResponse(OK, empty)")
                 }
 
-                // consumeAsync(params, listener) → call callback + return void
                 if (methodName == "consumeAsync" && returnType == "V" && paramCount == 2) {
                     method.addInstructions(0, """
-                        invoke-static {p1, p2}, $EXTENSION_CLASS->handleConsumeAsync(Ljava/lang/Object;Ljava/lang/Object;)V
+                        invoke-static/range {p1 .. p1}, $EXTENSION_CLASS->handleConsumeAsync(Ljava/lang/Object;Ljava/lang/Object;)V
                         return-void
                     """.trimIndent())
                     patchedCount++
@@ -91,13 +98,12 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() → calls onConsumeResponse(OK)")
                 }
 
-                // acknowledgePurchase(params, listener) → call callback + return void
                 if ((methodName == "acknowledgePurchase" ||
                     methodName == "acknowledgePurchaseExtraParams") &&
                     returnType == "V" && paramCount == 2
                 ) {
                     method.addInstructions(0, """
-                        invoke-static {p1, p2}, $EXTENSION_CLASS->handleAcknowledgePurchase(Ljava/lang/Object;Ljava/lang/Object;)V
+                        invoke-static/range {p1 .. p1}, $EXTENSION_CLASS->handleAcknowledgePurchase(Ljava/lang/Object;Ljava/lang/Object;)V
                         return-void
                     """.trimIndent())
                     patchedCount++
@@ -105,12 +111,10 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() → calls onAcknowledgePurchaseResponse(OK)")
                 }
 
-                // launchBillingFlow(activity, params) → call callback + return BillingResult.OK
                 if (methodName == "launchBillingFlow" && paramCount == 2) {
                     method.addInstructions(0, """
-                        invoke-static {p0}, $EXTENSION_CLASS->handleLaunchBillingFlow(Ljava/lang/Object;)Ljava/lang/Object;
+                        invoke-static/range {p0 .. p0}, $EXTENSION_CLASS->handleLaunchBillingFlow(Ljava/lang/Object;)Ljava/lang/Object;
                         move-result-object v0
-                        check-cast v0, Lcom/android/billingclient/api/BillingResult;
                         return-object v0
                     """.trimIndent())
                     patchedCount++
@@ -118,9 +122,6 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() → calls onPurchasesUpdated(OK) + returns OK")
                 }
 
-                // --- Simple return methods (no callback needed) ---
-
-                // isBillingSupported → return 0 (OK)
                 if ((methodName == "isBillingSupported" ||
                     methodName == "isBillingSupportedExtraParams") &&
                     returnType == "I"
@@ -133,7 +134,6 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() = 0 (OK)")
                 }
 
-                // consumePurchase → return 0 (success) — IInAppBillingService v3
                 if ((methodName == "consumePurchase" ||
                     methodName == "consumePurchaseExtraParams") &&
                     returnType == "I"
@@ -146,7 +146,6 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() = 0 (success)")
                 }
 
-                // isReady → return true
                 if (methodName == "isReady" && returnType == "Z") {
                     method.addInstructions(0, """
                         const/4 v0, 0x1
@@ -156,7 +155,6 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() = true")
                 }
 
-                // endConnection → return void (no-op)
                 if (methodName == "endConnection" && returnType == "V") {
                     method.addInstructions(0, """
                         return-void
@@ -165,7 +163,6 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() = void (no-op)")
                 }
 
-                // isFeatureSupported → return 0 (supported)
                 if ((methodName == "isFeatureSupported" ||
                     methodName == "isFeatureSupportedExtraParams") &&
                     returnType == "I"
@@ -178,7 +175,6 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  ✓ $methodName() = 0 (supported)")
                 }
 
-                // queryPurchaseHistory → return void (skip)
                 if ((methodName == "queryPurchaseHistory" ||
                     methodName == "queryPurchaseHistoryAsync") &&
                     returnType == "V"
