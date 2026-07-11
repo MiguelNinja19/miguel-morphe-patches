@@ -1,3 +1,19 @@
+## [1.7.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.9...v1.7.0) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* add universal patches — ads, billing, license, prefs, signature bypass ([de375c7](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/de375c79034192e4c3fbd92ebca5011e4c85b312))
+* add universal patches — ads, billing, license, prefs, signature bypass ([10e7d29](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/10e7d295793a4dca3bd335f9eed280d1757e9e9c))
+* add universal patches — ads, billing, license, prefs, signature bypass ([7591a9c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7591a9c75ee7fd70a9d8389d967b27665cf329da))
+* add universal patches — ads, billing, license, prefs, signature bypass ([ea30653](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ea30653a91143968b08ceeafd162bed7cd5cdcfb))
+* add universal patches — ads, billing, license, prefs, signature bypass ([a895f87](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a895f876102b43aecd170d16a76e821ab4f5ac0c))
+* add universal patches — ads, billing, license, prefs, signature bypass ([b32560e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b32560e9973bd9c639fbae4acd38d161b0dbef76))
+* add universal patches — ads, billing, license, prefs, signature bypass ([2a346d1](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/2a346d111ec19231dc5a41a9e81b43fcddc8f18d))
+
+### ✨ New Features
+
+* add universal patches — ads, billing, license, prefs, signature bypass ([692e3db](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/692e3dbdf0181faa1aa5a2f4621a159983aa159b))
+
 ## [1.6.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.8...v1.6.9) (2026-07-11)
 
 ### 🐛 Bug Fixes
