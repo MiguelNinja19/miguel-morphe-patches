@@ -1,3 +1,10 @@
+## [1.7.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.5...v1.7.6) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* fix VerifyError crash by correcting argument ([cc74aa3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cc74aa37872f3569e6f393eca88aa358e877fe9d))
+* fix VerifyError crash by correcting argument ([2749f79](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/2749f79ea82b8f3b8ff1a8be700f28b9cd3506d3))
+
 ## [1.7.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.4...v1.7.5) (2026-07-11)
 
 ### 🐛 Bug Fixes
