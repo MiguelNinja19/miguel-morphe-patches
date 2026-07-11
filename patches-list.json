@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -166,82 +166,6 @@
         }
       ],
       "options": []
-    },
-    {
-      "name": "Universal SharedPreferences injector",
-      "description": "Injects SharedPreferences values into the app at runtime. Configure via the 'prefs-data' option with format: file:type:key:value,file2:type2:key2:value2. Supported types: int, boolean, string, long, float.",
-      "default": false,
-      "dependencies": [],
-      "compatiblePackages": null,
-      "options": [
-        {
-          "key": "prefs-data",
-          "title": "SharedPreferences data",
-          "description": "Comma-separated list of prefs to inject. Format: file:type:key:value,file2:type2:key2:value2. Types: int, boolean, string, long, float. Example: game_prefs:int:coins:99999,game_prefs:boolean:premium:true",
-          "required": true,
-          "type": "kotlin.String",
-          "default": "",
-          "values": null
-        }
-      ]
-    },
-    {
-      "name": "Universal billing bypass",
-      "description": "Patches Google Play In-App Billing classes to simulate successful purchases.",
-      "default": false,
-      "dependencies": [],
-      "compatiblePackages": null,
-      "options": []
-    },
-    {
-      "name": "Universal disable ad components",
-      "description": "Disables ad-related activities, receivers, and services in AndroidManifest.xml.",
-      "default": false,
-      "dependencies": [],
-      "compatiblePackages": null,
-      "options": []
-    },
-    {
-      "name": "Universal offline mode",
-      "description": "Makes the app think it has no internet connection by patching network-checking methods.",
-      "default": false,
-      "dependencies": [],
-      "compatiblePackages": null,
-      "options": []
-    },
-    {
-      "name": "Universal remove ads",
-      "description": "Scans the target APK for common ad SDK classes and patches their ad-loading methods to do nothing.",
-      "default": false,
-      "dependencies": [],
-      "compatiblePackages": null,
-      "options": []
-    },
-    {
-      "name": "Universal remove license verification",
-      "description": "Patches Google Play License Verification Library (LVL) classes to always return licensed.",
-      "default": false,
-      "dependencies": [],
-      "compatiblePackages": null,
-      "options": []
-    },
-    {
-      "name": "Universal signature bypass",
-      "description": "Bypasses signature verification by injecting a Proxy of IPackageManager that returns the original APK signatures. Also spoofs getInstallerPackageName to return 'com.android.vending'. Provide the original signatures via the 'signatures-base64' option (from 'apksigner verify --print-certs'). Equivalent to Lucky Patcher's 'Signature verification killer' (sigkill.dex).",
-      "default": false,
-      "dependencies": [],
-      "compatiblePackages": null,
-      "options": [
-        {
-          "key": "signatures-base64",
-          "title": "Original signatures (Base64)",
-          "description": "Base64-encoded original APK signatures. If empty, only installer package name is spoofed. Format: 1 byte count + (4 byte length + signature bytes) for each cert.",
-          "required": false,
-          "type": "kotlin.String",
-          "default": "",
-          "values": null
-        }
-      ]
     },
     {
       "name": "Unlimited gems, rubies & unlock all",

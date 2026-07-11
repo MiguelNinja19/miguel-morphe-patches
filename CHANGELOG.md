@@ -1,3 +1,9 @@
+## [1.7.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.0...v1.7.1) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* remove ([e130d40](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e130d40b6f5fff8c8ceb704083d787bb07e93df9))
+
 ## [1.7.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.6.9...v1.7.0) (2026-07-11)
 
 ### 🐛 Bug Fixes

@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.7.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.7.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;14 patches total
+> **[v1.7.1](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.7.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -79,22 +79,6 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Unlock premium](#unlock-premium) | Unlocks all premium-gated features (Advanced Solver / Kociemba, custom color schemes, VIP support, no relaunch screens). Returns true from PremiumHelper.hasActivePurchase() so the entire app behaves as if a premium subscription is active. |  |
-
-</details>
-
-<details open>
-<summary>🌐 Universal&nbsp;&nbsp;•&nbsp;&nbsp;7 patches</summary>
-<br>
-
-| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
-|----------|----------------|-----------|
-| [Universal SharedPreferences injector](#universal-sharedpreferences-injector) | Injects SharedPreferences values into the app at runtime. Configure via the 'prefs-data' option with format: file:type:key:value,file2:type2:key2:value2. Supported types: int, boolean, string, long, float. | • SharedPreferences data |
-| [Universal billing bypass](#universal-billing-bypass) | Patches Google Play In-App Billing classes to simulate successful purchases. |  |
-| [Universal disable ad components](#universal-disable-ad-components) | Disables ad-related activities, receivers, and services in AndroidManifest.xml. |  |
-| [Universal offline mode](#universal-offline-mode) | Makes the app think it has no internet connection by patching network-checking methods. |  |
-| [Universal remove ads](#universal-remove-ads) | Scans the target APK for common ad SDK classes and patches their ad-loading methods to do nothing. |  |
-| [Universal remove license verification](#universal-remove-license-verification) | Patches Google Play License Verification Library (LVL) classes to always return licensed. |  |
-| [Universal signature bypass](#universal-signature-bypass) | Bypasses signature verification by injecting a Proxy of IPackageManager that returns the original APK signatures. Also spoofs getInstallerPackageName to return 'com.android.vending'. Provide the original signatures via the 'signatures-base64' option (from 'apksigner verify --print-certs'). Equivalent to Lucky Patcher's 'Signature verification killer' (sigkill.dex). | • Original signatures (Base64) |
 
 </details>
 
