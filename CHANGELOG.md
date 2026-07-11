@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.2...v1.7.3) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* add billing bypass with callback invocation via extension ([2e97cda](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/2e97cdad71401edb6f91ba343c389539ed9070dd))
+* add billing bypass with callback invocation via extension ([433b5da](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/433b5dad9c62cd4c256ab63daa8bc8bcdfc9f36a))
+
 ## [1.7.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.1...v1.7.2) (2026-07-11)
 
 ### 🐛 Bug Fixes
