@@ -1,3 +1,9 @@
+## [1.7.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.4...v1.7.5) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* prevent crash by ensuring BillingResult is never null ([1f763e4](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1f763e45010f50dee19c937fc5b1269c66596328))
+
 ## [1.7.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.3...v1.7.4) (2026-07-11)
 
 ### 🐛 Bug Fixes

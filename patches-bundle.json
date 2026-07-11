@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-11T19:03:55",
-  "description": "## [1.7.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.3...v1.7.4) (2026-07-11)\n\n### 🐛 Bug Fixes\n\n* use invoke-static/range to fix register overflow in billing bypass ([33b83eb](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/33b83eb10faf12acbc18e43ee8acc5b483ceb145))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.7.4/patches-1.7.4.mpp",
+  "created_at": "2026-07-11T19:18:18",
+  "description": "## [1.7.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.4...v1.7.5) (2026-07-11)\n\n### 🐛 Bug Fixes\n\n* prevent crash by ensuring BillingResult is never null ([1f763e4](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1f763e45010f50dee19c937fc5b1269c66596328))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.7.5/patches-1.7.5.mpp",
   "signature_download_url": "",
-  "version": "1.7.4"
+  "version": "1.7.5"
 }
