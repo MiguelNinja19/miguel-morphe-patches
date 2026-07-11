@@ -1,3 +1,11 @@
+## [1.7.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.6...v1.7.7) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* rewrite billing bypass extension to use typed Billing API ([60f3394](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/60f33942fd3a726b28796649a979d847e90758c6))
+* rewrite billing bypass extension to use typed Billing API ([a7bc270](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a7bc270ba1a3420a171946c1fcd5581b71676fa9))
+* rewrite billing bypass extension to use typed Billing API ([0b5ad93](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0b5ad93f30031dc21fbeec946be48c7fc89cc6ed))
+
 ## [1.7.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.5...v1.7.6) (2026-07-11)
 
 ### 🐛 Bug Fixes
