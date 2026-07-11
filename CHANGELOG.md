@@ -1,3 +1,9 @@
+## [1.7.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.7...v1.7.8) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* remove extension to prevent crash, use simple returns only (test) ([9726b38](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9726b388125106999a25045fdbf80588d56c98ce))
+
 ## [1.7.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.6...v1.7.7) (2026-07-11)
 
 ### 🐛 Bug Fixes
