@@ -1,48 +1,42 @@
 package diozz.cubex.patches.extension;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
- * Billing bypass helper — calls billing callbacks with success results
- * so the app thinks purchases succeeded.
- *
+ * Billing bypass helper — calls billing callbacks with success results.
  * Uses reflection to work with any version of Google Play Billing library.
- *
- * Based on Lucky Patcher's InApp emulation: instead of contacting Google Play,
- * we simulate successful responses by calling the app's own callback listeners.
  */
 @SuppressWarnings("unused")
 public class BillingBypass {
 
     private static final String TAG = "BillingBypass";
+    private static Object cachedBillingResultOk = null;
 
     /**
-     * Create BillingResult with responseCode=0 (OK) via reflection.
+     * Create and cache BillingResult with responseCode=0 (OK).
      */
-    private static Object createBillingResultOk() {
+    private static Object getBillingResultOk() {
+        if (cachedBillingResultOk != null) return cachedBillingResultOk;
         try {
             Class<?> brClass = Class.forName("com.android.billingclient.api.BillingResult");
             Object builder = brClass.getMethod("newBuilder").invoke(null);
             builder.getClass().getMethod("setResponseCode", int.class).invoke(builder, 0);
             builder.getClass().getMethod("setDebugMessage", String.class).invoke(builder, "");
-            return builder.getClass().getMethod("build").invoke(builder);
+            cachedBillingResultOk = builder.getClass().getMethod("build").invoke(builder);
         } catch (Exception e) {
             log("Failed to create BillingResult: " + e.getMessage());
-            return null;
         }
+        return cachedBillingResultOk;
     }
 
-    /**
-     * Handle startConnection(BillingClientStateListener).
-     * Calls onBillingSetupFinished(BillingResult.OK) on the listener.
-     *
-     * @param listener The BillingClientStateListener passed to startConnection.
-     */
     public static void handleStartConnection(Object listener) {
         try {
             if (listener == null) return;
-            Object result = createBillingResultOk();
+            Object result = getBillingResultOk();
+            if (result == null) return;
+
             Class<?> lc = Class.forName("com.android.billingclient.api.BillingClientStateListener");
             lc.getMethod("onBillingSetupFinished",
                 Class.forName("com.android.billingclient.api.BillingResult"))
@@ -53,16 +47,12 @@ public class BillingBypass {
         }
     }
 
-    /**
-     * Handle queryPurchasesAsync(params, PurchasesResponseListener).
-     * Calls onQueryPurchasesResponse(BillingResult.OK, emptyList).
-     *
-     * @param listener The PurchasesResponseListener (last parameter).
-     */
     public static void handleQueryPurchases(Object listener) {
         try {
             if (listener == null) return;
-            Object result = createBillingResultOk();
+            Object result = getBillingResultOk();
+            if (result == null) return;
+
             ArrayList<Object> empty = new ArrayList<>();
             Class<?> lc = Class.forName("com.android.billingclient.api.PurchasesResponseListener");
             lc.getMethod("onQueryPurchasesResponse",
@@ -75,22 +65,16 @@ public class BillingBypass {
         }
     }
 
-    /**
-     * Handle consumeAsync(ConsumeParams, ConsumeResponseListener).
-     * Calls onConsumeResponse(BillingResult.OK, purchaseToken).
-     *
-     * @param params   The ConsumeParams (contains getPurchaseToken()).
-     * @param listener The ConsumeResponseListener.
-     */
     public static void handleConsumeAsync(Object params, Object listener) {
         try {
             if (listener == null) return;
-            Object result = createBillingResultOk();
+            Object result = getBillingResultOk();
+            if (result == null) return;
+
             String token = "";
             if (params != null) {
                 try {
-                    token = (String) params.getClass()
-                        .getMethod("getPurchaseToken").invoke(params);
+                    token = (String) params.getClass().getMethod("getPurchaseToken").invoke(params);
                 } catch (Exception ignored) {}
             }
             Class<?> lc = Class.forName("com.android.billingclient.api.ConsumeResponseListener");
@@ -104,17 +88,12 @@ public class BillingBypass {
         }
     }
 
-    /**
-     * Handle acknowledgePurchase(params, AcknowledgePurchaseResponseListener).
-     * Calls onAcknowledgePurchaseResponse(BillingResult.OK).
-     *
-     * @param params   The AcknowledgePurchaseParams (unused but kept for signature).
-     * @param listener The AcknowledgePurchaseResponseListener.
-     */
     public static void handleAcknowledgePurchase(Object params, Object listener) {
         try {
             if (listener == null) return;
-            Object result = createBillingResultOk();
+            Object result = getBillingResultOk();
+            if (result == null) return;
+
             Class<?> lc = Class.forName("com.android.billingclient.api.AcknowledgePurchaseResponseListener");
             lc.getMethod("onAcknowledgePurchaseResponse",
                 Class.forName("com.android.billingclient.api.BillingResult"))
@@ -126,22 +105,17 @@ public class BillingBypass {
     }
 
     /**
-     * Handle launchBillingFlow(Activity, BillingFlowParams).
-     * Finds the PurchasesUpdatedListener stored inside the BillingClient instance
-     * and calls onPurchasesUpdated(BillingResult.OK, emptyList).
-     *
-     * @param billingClient The BillingClient instance (p0 = this).
-     * @return A BillingResult.OK object to return from launchBillingFlow.
+     * Handle launchBillingFlow.
+     * Returns a non-null BillingResult.OK to prevent NPE in the app.
      */
     public static Object handleLaunchBillingFlow(Object billingClient) {
         try {
-            Object result = createBillingResultOk();
+            Object result = getBillingResultOk();
             ArrayList<Object> empty = new ArrayList<>();
 
-            // PurchasesUpdatedListener is stored as a field inside BillingClient
             Object listener = findFieldByTypeName(billingClient, "PurchasesUpdatedListener");
 
-            if (listener != null) {
+            if (listener != null && result != null) {
                 Class<?> lc = Class.forName("com.android.billingclient.api.PurchasesUpdatedListener");
                 lc.getMethod("onPurchasesUpdated",
                     Class.forName("com.android.billingclient.api.BillingResult"),
@@ -149,18 +123,15 @@ public class BillingBypass {
                     .invoke(listener, result, empty);
                 log("launchBillingFlow: onPurchasesUpdated(OK, empty)");
             } else {
-                log("launchBillingFlow: PurchasesUpdatedListener not found");
+                log("launchBillingFlow: listener or result null");
             }
         } catch (Exception e) {
             log("launchBillingFlow failed: " + e.getMessage());
         }
-        return createBillingResultOk();
+        // ALWAYS return a valid BillingResult, never null
+        return getBillingResultOk();
     }
 
-    /**
-     * Search for a field whose type name contains the keyword.
-     * Searches the full class hierarchy including superclasses.
-     */
     private static Object findFieldByTypeName(Object obj, String keyword) {
         Class<?> clazz = obj.getClass();
         while (clazz != null) {
