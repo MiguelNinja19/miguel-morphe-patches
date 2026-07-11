@@ -1,130 +1,78 @@
 package diozz.cubex.patches.extension;
 
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ConsumeResponseListener;
+import com.android.billingclient.api.PurchasesResponseListener;
+import com.android.billingclient.api.PurchasesUpdatedListener;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 @SuppressWarnings("unused")
 public class BillingBypass {
 
-    private static final String TAG = "BillingBypass";
-    private static Object cachedResultOk = null;
-
-    private static Object getBillingResultOk() {
-        if (cachedResultOk != null) return cachedResultOk;
-        try {
-            Class<?> brClass = Class.forName("com.android.billingclient.api.BillingResult");
-            Object builder = brClass.getMethod("newBuilder").invoke(null);
-            builder.getClass().getMethod("setResponseCode", int.class).invoke(builder, 0);
-            builder.getClass().getMethod("setDebugMessage", String.class).invoke(builder, "");
-            cachedResultOk = builder.getClass().getMethod("build").invoke(builder);
-        } catch (Exception e) {
-            log("Failed to create BillingResult: " + e.getMessage());
-        }
-        return cachedResultOk;
+    private static BillingResult getOkResult() {
+        return BillingResult.newBuilder()
+            .setResponseCode(BillingClient.BillingResponseCode.OK)
+            .setDebugMessage("")
+            .build();
     }
 
-    public static void handleStartConnection(Object listener) {
-        try {
-            if (listener == null) return;
-            Object result = getBillingResultOk();
-            if (result == null) return;
-            Class.forName("com.android.billingclient.api.BillingClientStateListener")
-                .getMethod("onBillingSetupFinished",
-                    Class.forName("com.android.billingclient.api.BillingResult"))
-                .invoke(listener, result);
-            log("startConnection: onBillingSetupFinished(OK)");
-        } catch (Exception e) {
-            log("startConnection failed: " + e.getMessage());
+    public static void handleStartConnection(BillingClientStateListener listener) {
+        if (listener != null) {
+            listener.onBillingSetupFinished(getOkResult());
         }
     }
 
-    public static void handleQueryPurchases(Object listener) {
-        try {
-            if (listener == null) return;
-            Object result = getBillingResultOk();
-            if (result == null) return;
-            ArrayList<Object> empty = new ArrayList<>();
-            Class.forName("com.android.billingclient.api.PurchasesResponseListener")
-                .getMethod("onQueryPurchasesResponse",
-                    Class.forName("com.android.billingclient.api.BillingResult"),
-                    Class.forName("java.util.List"))
-                .invoke(listener, result, empty);
-            log("queryPurchases: onQueryPurchasesResponse(OK, empty)");
-        } catch (Exception e) {
-            log("queryPurchases failed: " + e.getMessage());
+    public static void handleQueryPurchases(PurchasesResponseListener listener) {
+        if (listener != null) {
+            listener.onQueryPurchasesResponse(getOkResult(), new ArrayList<>());
         }
     }
 
-    // SIMPLIFIED: only takes listener (p2), not params (p1)
-    public static void handleConsumeAsync(Object listener) {
-        try {
-            if (listener == null) return;
-            Object result = getBillingResultOk();
-            if (result == null) return;
-            Class.forName("com.android.billingclient.api.ConsumeResponseListener")
-                .getMethod("onConsumeResponse",
-                    Class.forName("com.android.billingclient.api.BillingResult"),
-                    String.class)
-                .invoke(listener, result, "");
-            log("consumeAsync: onConsumeResponse(OK)");
-        } catch (Exception e) {
-            log("consumeAsync failed: " + e.getMessage());
+    public static void handleConsumeAsync(ConsumeResponseListener listener) {
+        if (listener != null) {
+            listener.onConsumeResponse(getOkResult(), "");
         }
     }
 
-    // SIMPLIFIED: only takes listener (p2), not params (p1)
-    public static void handleAcknowledgePurchase(Object listener) {
-        try {
-            if (listener == null) return;
-            Object result = getBillingResultOk();
-            if (result == null) return;
-            Class.forName("com.android.billingclient.api.AcknowledgePurchaseResponseListener")
-                .getMethod("onAcknowledgePurchaseResponse",
-                    Class.forName("com.android.billingclient.api.BillingResult"))
-                .invoke(listener, result);
-            log("acknowledgePurchase: onAcknowledgePurchaseResponse(OK)");
-        } catch (Exception e) {
-            log("acknowledgePurchase failed: " + e.getMessage());
+    public static void handleAcknowledgePurchase(AcknowledgePurchaseResponseListener listener) {
+        if (listener != null) {
+            listener.onAcknowledgePurchaseResponse(getOkResult());
         }
     }
 
-    public static Object handleLaunchBillingFlow(Object billingClient) {
+    /**
+     * Handle launchBillingFlow.
+     * Finds the PurchasesUpdatedListener inside the BillingClient via reflection
+     * and calls onPurchasesUpdated with a success result.
+     */
+    public static BillingResult handleLaunchBillingFlow(BillingClient billingClient) {
         try {
-            Object result = getBillingResultOk();
-            if (result == null) return null;
-            ArrayList<Object> empty = new ArrayList<>();
-            Object listener = findFieldByTypeName(billingClient, "PurchasesUpdatedListener");
+            PurchasesUpdatedListener listener = findListenerField(billingClient);
             if (listener != null) {
-                Class.forName("com.android.billingclient.api.PurchasesUpdatedListener")
-                    .getMethod("onPurchasesUpdated",
-                        Class.forName("com.android.billingclient.api.BillingResult"),
-                        Class.forName("java.util.List"))
-                    .invoke(listener, result, empty);
-                log("launchBillingFlow: onPurchasesUpdated(OK, empty)");
+                listener.onPurchasesUpdated(getOkResult(), new ArrayList<>());
             }
-        } catch (Exception e) {
-            log("launchBillingFlow failed: " + e.getMessage());
-        }
-        return getBillingResultOk();
+        } catch (Exception ignored) {}
+        return getOkResult();
     }
 
-    private static Object findFieldByTypeName(Object obj, String keyword) {
+    private static PurchasesUpdatedListener findListenerField(Object obj) {
         Class<?> clazz = obj.getClass();
         while (clazz != null) {
             for (Field field : clazz.getDeclaredFields()) {
-                if (field.getType().getName().contains(keyword)) {
+                if (PurchasesUpdatedListener.class.isAssignableFrom(field.getType())) {
                     try {
                         field.setAccessible(true);
-                        return field.get(obj);
+                        return (PurchasesUpdatedListener) field.get(obj);
                     } catch (Exception ignored) {}
                 }
             }
             clazz = clazz.getSuperclass();
         }
         return null;
-    }
-
-    private static void log(String msg) {
-        System.out.println("[" + TAG + "] " + msg);
     }
 }
