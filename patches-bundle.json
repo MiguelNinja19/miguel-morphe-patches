@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-11T18:52:49",
-  "description": "## [1.7.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.2...v1.7.3) (2026-07-11)\n\n### 🐛 Bug Fixes\n\n* add billing bypass with callback invocation via extension ([2e97cda](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/2e97cdad71401edb6f91ba343c389539ed9070dd))\n* add billing bypass with callback invocation via extension ([433b5da](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/433b5dad9c62cd4c256ab63daa8bc8bcdfc9f36a))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.7.3/patches-1.7.3.mpp",
+  "created_at": "2026-07-11T19:03:55",
+  "description": "## [1.7.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.3...v1.7.4) (2026-07-11)\n\n### 🐛 Bug Fixes\n\n* use invoke-static/range to fix register overflow in billing bypass ([33b83eb](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/33b83eb10faf12acbc18e43ee8acc5b483ceb145))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.7.4/patches-1.7.4.mpp",
   "signature_download_url": "",
-  "version": "1.7.3"
+  "version": "1.7.4"
 }

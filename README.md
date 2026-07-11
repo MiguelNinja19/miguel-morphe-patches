@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.7.3](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.7.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
+> **[v1.7.4](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.7.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -88,7 +88,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Billing bypass](#billing-bypass) | Patches Google Play In-App Billing to simulate successful purchases. Calls billing callbacks (onBillingSetupFinished, onPurchasesUpdated, onQueryPurchasesResponse, onConsumeResponse, onAcknowledgePurchaseResponse) with success results via an extension. Based on Lucky Patcher's InApp emulation approach. |  |
+| [Billing bypass](#billing-bypass) | Patches Google Play In-App Billing to simulate successful purchases. Calls billing callbacks with success results via an extension. Based on Lucky Patcher's InApp emulation approach. |  |
 
 </details>
 

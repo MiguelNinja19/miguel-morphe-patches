@@ -1,3 +1,9 @@
+## [1.7.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.3...v1.7.4) (2026-07-11)
+
+### 🐛 Bug Fixes
+
+* use invoke-static/range to fix register overflow in billing bypass ([33b83eb](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/33b83eb10faf12acbc18e43ee8acc5b483ceb145))
+
 ## [1.7.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.2...v1.7.3) (2026-07-11)
 
 ### 🐛 Bug Fixes
