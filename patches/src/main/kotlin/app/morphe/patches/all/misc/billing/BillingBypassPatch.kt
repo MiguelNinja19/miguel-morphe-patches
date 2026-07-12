@@ -1,7 +1,6 @@
 package app.morphe.patches.all.misc.billing
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
-import app.morphe.patcher.extensions.InstructionExtensions.removeInstructions
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import java.util.logging.Logger
@@ -22,17 +21,6 @@ val billingBypassPatch = bytecodePatch(
             "Lcom/google/android/gms/iap/",
         )
 
-        val targetMethodNames = setOf(
-            "startConnection", "queryPurchasesAsync", "queryPurchasesExtraParams",
-            "consumeAsync", "acknowledgePurchase", "acknowledgePurchaseExtraParams",
-            "launchBillingFlow", "isBillingSupported", "isBillingSupportedExtraParams",
-            "consumePurchase", "consumePurchaseExtraParams",
-            "isReady", "endConnection",
-            "isFeatureSupported", "isFeatureSupportedExtraParams",
-            "queryPurchaseHistory", "queryPurchaseHistoryAsync",
-            "getPurchaseState", "getOriginalJson", "getSignature",
-        )
-
         var patchedCount = 0
 
         logger.info("Scanning for billing classes...")
@@ -46,14 +34,6 @@ val billingBypassPatch = bytecodePatch(
 
             if (!isBillingClass) return@classDefForEach
 
-            val hasBillingMethods = classDef.methods.any { method ->
-                method.name in targetMethodNames
-            }
-
-            if (!hasBillingMethods) return@classDefForEach
-
-            logger.info("Found billing class: $className")
-
             val mutableClass = mutableClassDefBy(classDef)
 
             mutableClass.methods.forEach { method ->
@@ -61,110 +41,89 @@ val billingBypassPatch = bytecodePatch(
 
                 val methodName = method.name
                 val returnType = method.returnType
-                val paramCount = method.parameterTypes.size
 
-                fun replaceMethodBody(smali: String) {
-                    val insnCount = method.implementation!!.instructions.size
-                    method.removeInstructions(0, insnCount)
-                    method.addInstructions(0, smali)
-                }
-
-                // startConnection → return void (skip, don't call callback)
+                // startConnection → return void immediately
                 if (methodName == "startConnection" && returnType == "V") {
-                    replaceMethodBody("return-void")
+                    method.addInstructions(0, "return-void")
                     patchedCount++
-                    logger.info("  ✓ $methodName() = void (skip)")
+                    logger.info("  ✓ $className->$methodName() = void")
                 }
 
-                // queryPurchasesAsync → return void (skip)
+                // queryPurchasesAsync → return void immediately
                 if ((methodName == "queryPurchasesAsync" ||
                     methodName == "queryPurchasesExtraParams") &&
                     returnType == "V"
                 ) {
-                    replaceMethodBody("return-void")
+                    method.addInstructions(0, "return-void")
                     patchedCount++
-                    logger.info("  ✓ $methodName() = void (skip)")
+                    logger.info("  ✓ $className->$methodName() = void")
                 }
 
-                // consumeAsync → return void (skip)
+                // consumeAsync → return void immediately
                 if (methodName == "consumeAsync" && returnType == "V") {
-                    replaceMethodBody("return-void")
+                    method.addInstructions(0, "return-void")
                     patchedCount++
-                    logger.info("  ✓ $methodName() = void (skip)")
+                    logger.info("  ✓ $className->$methodName() = void")
                 }
 
-                // acknowledgePurchase → return void (skip)
+                // acknowledgePurchase → return void immediately
                 if ((methodName == "acknowledgePurchase" ||
                     methodName == "acknowledgePurchaseExtraParams") &&
                     returnType == "V"
                 ) {
-                    replaceMethodBody("return-void")
+                    method.addInstructions(0, "return-void")
                     patchedCount++
-                    logger.info("  ✓ $methodName() = void (skip)")
+                    logger.info("  ✓ $className->$methodName() = void")
                 }
 
-                // launchBillingFlow → return void if void, or return 0 if int
-                if (methodName == "launchBillingFlow") {
-                    when (returnType) {
-                        "V" -> {
-                            replaceMethodBody("return-void")
-                            patchedCount++
-                            logger.info("  ✓ $methodName() = void (skip)")
-                        }
-                        "I" -> {
-                            replaceMethodBody("""
-                                const/4 v0, 0x0
-                                return v0
-                            """.trimIndent())
-                            patchedCount++
-                            logger.info("  ✓ $methodName() = 0 (OK)")
-                        }
-                        // BillingResult return type — can't create without extension
-                        // Leave it unpatched (app will try Google Play and fail gracefully)
-                    }
+                // launchBillingFlow → return void if void
+                if (methodName == "launchBillingFlow" && returnType == "V") {
+                    method.addInstructions(0, "return-void")
+                    patchedCount++
+                    logger.info("  ✓ $className->$methodName() = void")
                 }
 
-                // isBillingSupported → return 0 (OK)
+                // isBillingSupported → return 0
                 if ((methodName == "isBillingSupported" ||
                     methodName == "isBillingSupportedExtraParams") &&
                     returnType == "I"
                 ) {
-                    replaceMethodBody("""
+                    method.addInstructions(0, """
                         const/4 v0, 0x0
                         return v0
                     """.trimIndent())
                     patchedCount++
-                    logger.info("  ✓ $methodName() = 0 (OK)")
+                    logger.info("  ✓ $className->$methodName() = 0")
                 }
 
-                // consumePurchase → return 0 (success)
+                // consumePurchase → return 0
                 if ((methodName == "consumePurchase" ||
                     methodName == "consumePurchaseExtraParams") &&
                     returnType == "I"
                 ) {
-                    replaceMethodBody("""
+                    method.addInstructions(0, """
                         const/4 v0, 0x0
                         return v0
                     """.trimIndent())
                     patchedCount++
-                    logger.info("  ✓ $methodName() = 0 (success)")
+                    logger.info("  ✓ $className->$methodName() = 0")
                 }
 
                 // isReady → return true
                 if (methodName == "isReady" && returnType == "Z") {
-                    replaceMethodBody("""
+                    method.addInstructions(0, """
                         const/4 v0, 0x1
                         return v0
                     """.trimIndent())
                     patchedCount++
-                    logger.info("  ✓ $methodName() = true")
+                    logger.info("  ✓ $className->$methodName() = true")
                 }
 
                 // endConnection → return void
                 if (methodName == "endConnection" && returnType == "V") {
-                    replaceMethodBody("return-void")
+                    method.addInstructions(0, "return-void")
                     patchedCount++
-                    logger.info("  ✓ $methodName() = void (no-op)")
+                    logger.info("  ✓ $className->$methodName() = void")
                 }
 
                 // isFeatureSupported → return 0
@@ -172,12 +131,12 @@ val billingBypassPatch = bytecodePatch(
                     methodName == "isFeatureSupportedExtraParams") &&
                     returnType == "I"
                 ) {
-                    replaceMethodBody("""
+                    method.addInstructions(0, """
                         const/4 v0, 0x0
                         return v0
                     """.trimIndent())
                     patchedCount++
-                    logger.info("  ✓ $methodName() = 0 (supported)")
+                    logger.info("  ✓ $className->$methodName() = 0")
                 }
 
                 // queryPurchaseHistory → return void
@@ -185,19 +144,19 @@ val billingBypassPatch = bytecodePatch(
                     methodName == "queryPurchaseHistoryAsync") &&
                     returnType == "V"
                 ) {
-                    replaceMethodBody("return-void")
+                    method.addInstructions(0, "return-void")
                     patchedCount++
-                    logger.info("  ✓ $methodName() = void (skip)")
+                    logger.info("  ✓ $className->$methodName() = void")
                 }
 
                 // getPurchaseState → return 0 (PURCHASED)
                 if (methodName == "getPurchaseState" && returnType == "I") {
-                    replaceMethodBody("""
+                    method.addInstructions(0, """
                         const/4 v0, 0x0
                         return v0
                     """.trimIndent())
                     patchedCount++
-                    logger.info("  ✓ $methodName() = 0 (PURCHASED)")
+                    logger.info("  ✓ $className->$methodName() = 0 (PURCHASED)")
                 }
             }
         }
