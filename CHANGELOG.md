@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.0...v1.8.1) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* rewrite Polytopia patch to create fake Purchase object ([67b49af](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/67b49afd168cd671ab2101161117b74f55625daf))
+* rewrite Polytopia patch to create fake Purchase object ([4733800](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4733800614f19f6c7d8113f34c262db872db3ca2))
+
 ## [1.8.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.11...v1.8.0) (2026-07-12)
 
 ### 🐛 Bug Fixes
