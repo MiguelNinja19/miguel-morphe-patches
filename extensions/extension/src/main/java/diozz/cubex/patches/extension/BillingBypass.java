@@ -1,6 +1,10 @@
 package diozz.cubex.patches.extension;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 
@@ -11,6 +15,50 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class BillingBypass {
 
+    /**
+     * Unlock all tribes by writing to Unity PlayerPrefs via SharedPreferences.
+     * Called from onCreate — only needs p0 (Context), no extra registers.
+     */
+    public static void unlockTribes(Context context) {
+        try {
+            SharedPreferences prefs = context.getSharedPreferences(
+                "air.com.midjiwan.polytopia.v2.playerprefs", 0);
+            String tribes = "Xinxi,Imperius,Bardur,Oumaji,Kickoo,Hoodrick," +
+                "Luxidoor,Vengir,Zebasi,Aimo,Aquarion,Elyrion,Polaris,Magma," +
+                "Yadakk,Quetzali,Cymanti,Swamp,Ikarus,Urkaz";
+            prefs.edit().putString(
+                "polytopia_purchase_debug_unlocked_tribes", tribes).apply();
+            System.out.println("[BillingBypass] Unlocked 20 tribes via debug key");
+        } catch (Exception e) {
+            System.out.println("[BillingBypass] unlockTribes error: " + e);
+        }
+    }
+
+    /**
+     * Handle startConnection(BillingClientStateListener).
+     * Immediately calls onBillingSetupFinished(OK) on the listener.
+     * This makes the app think the store is connected.
+     */
+    public static void handleStartConnection(BillingClientStateListener listener) {
+        try {
+            System.out.println("[BillingBypass] startConnection intercepted");
+            if (listener != null) {
+                BillingResult ok = BillingResult.newBuilder()
+                    .setResponseCode(BillingClient.BillingResponseCode.OK)
+                    .setDebugMessage("")
+                    .build();
+                listener.onBillingSetupFinished(ok);
+                System.out.println("[BillingBypass] Called onBillingSetupFinished(OK)");
+            }
+        } catch (Exception e) {
+            System.out.println("[BillingBypass] handleStartConnection error: " + e);
+        }
+    }
+
+    /**
+     * Handle launchBillingFlow(Activity, BillingFlowParams).
+     * Extracts SKU, creates fake Purchase, calls nativeOnPurchasesUpdated.
+     */
     public static BillingResult handleLaunchBillingFlow(
             BillingClient billingClient, Object activity, Object billingFlowParams) {
         try {
@@ -21,10 +69,11 @@ public class BillingBypass {
 
             Purchase fakePurchase = createFakePurchase(sku);
             if (fakePurchase == null) {
+                System.out.println("[BillingBypass] Failed to create Purchase");
                 return getOkResult();
             }
 
-            // Find the zzbq instance inside BillingClient to get the correct zza (pointer)
+            // Find the zzbq instance inside BillingClient to get correct zza
             Object zzbqInstance = findZzbqInstance(billingClient);
             long zza = 0L;
             if (zzbqInstance != null) {
@@ -32,6 +81,7 @@ public class BillingBypass {
                     Field zzaField = zzbqInstance.getClass().getDeclaredField("zza");
                     zzaField.setAccessible(true);
                     zza = zzaField.getLong(zzbqInstance);
+                    System.out.println("[BillingBypass] Found zza=" + zza);
                 } catch (Exception ignored) {}
             }
 
@@ -44,18 +94,13 @@ public class BillingBypass {
                     int.class, String.class, Purchase[].class);
                 nativeMethod.setAccessible(true);
                 nativeMethod.invoke(null, 0, "", purchases);
-                System.out.println("[BillingBypass] nativeOnPurchasesUpdated called!");
+                System.out.println("[BillingBypass] nativeOnPurchasesUpdated(0,\"\",[purchase]) called!");
             }
         } catch (Throwable e) {
             System.out.println("[BillingBypass] Error: " + e);
             e.printStackTrace();
         }
         return getOkResult();
-    }
-
-    public static void handleBillingSetupFinished() {
-        // Let original code handle it, just log
-        System.out.println("[BillingBypass] onBillingSetupFinished intercepted");
     }
 
     private static BillingResult getOkResult() {
@@ -67,21 +112,20 @@ public class BillingBypass {
 
     private static String extractSku(Object params) {
         if (params == null) return "unknown_sku";
+        // v6+: zzk() → List → get(0) → zza() → ProductDetails → getProductId()
         try {
-            // BillingFlowParams.zzk() returns List<ProductDetailsParams>
             Method zzk = findMethodReturning(params.getClass(), List.class);
             if (zzk != null) {
                 List<?> list = (List<?>) zzk.invoke(params);
                 if (list != null && !list.isEmpty()) {
                     Object firstParam = list.get(0);
-                    // ProductDetailsParams.zza() returns ProductDetails
                     Method zza = findMethodReturning(firstParam.getClass(),
                         Class.forName("com.android.billingclient.api.ProductDetails"));
                     if (zza != null) {
-                        Object productDetails = zza.invoke(firstParam);
-                        if (productDetails != null) {
-                            Method getProductId = productDetails.getClass().getMethod("getProductId");
-                            String sku = (String) getProductId.invoke(productDetails);
+                        Object pd = zza.invoke(firstParam);
+                        if (pd != null) {
+                            Method getProductId = pd.getClass().getMethod("getProductId");
+                            String sku = (String) getProductId.invoke(pd);
                             if (sku != null && !sku.isEmpty()) return sku;
                         }
                     }
@@ -90,7 +134,7 @@ public class BillingBypass {
         } catch (Exception e) {
             System.out.println("[BillingBypass] v6 extraction failed: " + e.getMessage());
         }
-        // Try v3
+        // v3: getSku()
         try {
             Method getSku = params.getClass().getMethod("getSku");
             return (String) getSku.invoke(params);
@@ -101,7 +145,7 @@ public class BillingBypass {
     private static Purchase createFakePurchase(String sku) {
         try {
             long time = System.currentTimeMillis();
-            String fakeJson = "{"
+            String json = "{"
                 + "\"productId\":\"" + sku + "\","
                 + "\"purchaseToken\":\"lp_fake_" + time + "\","
                 + "\"packageName\":\"air.com.midjiwan.polytopia\","
@@ -109,8 +153,8 @@ public class BillingBypass {
                 + "\"purchaseTime\":" + time + ","
                 + "\"acknowledged\":true"
                 + "}";
-            System.out.println("[BillingBypass] JSON: " + fakeJson);
-            return new Purchase(fakeJson, "");
+            System.out.println("[BillingBypass] JSON: " + json);
+            return new Purchase(json, "");
         } catch (Exception e) {
             System.out.println("[BillingBypass] createFakePurchase error: " + e);
             return null;
@@ -119,12 +163,10 @@ public class BillingBypass {
 
     private static Object findZzbqInstance(Object billingClient) {
         try {
-            // BillingClientImpl.zzf is a zzs instance
             Field zzfField = billingClient.getClass().getDeclaredField("zzf");
             zzfField.setAccessible(true);
             Object zzs = zzfField.get(billingClient);
             if (zzs == null) return null;
-            // zzs.zzc is the zzb instance
             Field zzcField = zzs.getClass().getDeclaredField("zzc");
             zzcField.setAccessible(true);
             return zzcField.get(zzs);
