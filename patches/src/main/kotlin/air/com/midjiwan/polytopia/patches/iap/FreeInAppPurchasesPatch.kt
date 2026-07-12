@@ -9,9 +9,8 @@ private const val EXTENSION_CLASS = "Ldiozz/cubex/patches/extension/BillingBypas
 @Suppress("unused")
 val freeInAppPurchasesPatch = bytecodePatch(
     name = "Free in-app purchases",
-    description = "Skips Google Play Billing by intercepting startConnection " +
-        "and launchBillingFlow. Store is marked as connected immediately, " +
-        "and purchases are credited via fake Purchase objects.",
+    description = "Skips Google Play Billing by intercepting launchBillingFlow. " +
+        "Creates a fake Purchase and calls nativeOnPurchasesUpdated directly.",
     default = false,
 ) {
     compatibleWith(POLYTOPIA)
@@ -23,21 +22,9 @@ val freeInAppPurchasesPatch = bytecodePatch(
 
         val mutableClass = mutableClassDefBy(billingClientImpl)
 
-        // 1. Patch startConnection(BillingClientStateListener) to call onBillingSetupFinished(OK)
-        // This fixes the "Waiting..." issue — app thinks store is connected
-        mutableClass.methods.find {
-            it.name == "startConnection" &&
-            it.parameterTypes.size == 1 &&
-            it.implementation != null
-        }?.let { method ->
-            method.addInstructions(0, """
-                invoke-static {p1}, $EXTENSION_CLASS->handleStartConnection(Lcom/android/billingclient/api/BillingClientStateListener;)V
-                return-void
-            """.trimIndent())
-            println("✓ Patched startConnection → calls onBillingSetupFinished(OK)")
-        }
-
-        // 2. Patch launchBillingFlow to create fake Purchase
+        // Only patch launchBillingFlow — don't touch startConnection
+        // The app will try to connect to Play Store and fail, but
+        // launchBillingFlow will still be intercepted to credit purchases
         mutableClass.methods.find {
             it.name == "launchBillingFlow" && it.parameterTypes.size == 2
         }?.let { method ->
@@ -47,7 +34,7 @@ val freeInAppPurchasesPatch = bytecodePatch(
                     move-result-object v0
                     return-object v0
                 """.trimIndent())
-                println("✓ Patched launchBillingFlow → creates fake Purchase")
+                println("✓ Patched launchBillingFlow")
             }
         }
     }
