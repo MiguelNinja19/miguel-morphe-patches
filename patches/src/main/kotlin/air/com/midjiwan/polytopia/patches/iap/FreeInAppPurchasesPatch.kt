@@ -9,9 +9,8 @@ private const val EXTENSION_CLASS = "Ldiozz/cubex/patches/extension/BillingBypas
 @Suppress("unused")
 val freeInAppPurchasesPatch = bytecodePatch(
     name = "Free in-app purchases",
-    description = "Skips Google Play Billing and simulates successful " +
-        "purchases by creating a fake Purchase object and calling the " +
-        "billing callback directly via an extension.",
+    description = "Skips Google Play Billing and calls the Unity JNI bridge " +
+        "(nativeOnPurchasesUpdated) directly with responseCode=0 (OK).",
     default = true,
 ) {
     compatibleWith(POLYTOPIA)
@@ -23,8 +22,6 @@ val freeInAppPurchasesPatch = bytecodePatch(
 
         val mutableClass = mutableClassDefBy(billingClientImpl)
 
-        // launchBillingFlow(Activity, BillingFlowParams) → 3 params: p0=this, p1=activity, p2=params
-        // Pass all 3 to extension (extension ignores activity)
         mutableClass.methods.find { 
             it.name == "launchBillingFlow" && it.parameterTypes.size == 2 
         }?.let { method ->
@@ -34,7 +31,7 @@ val freeInAppPurchasesPatch = bytecodePatch(
                     move-result-object v0
                     return-object v0
                 """.trimIndent())
-                println("✓ Patched launchBillingFlow to call BillingBypass extension")
+                println("✓ Patched launchBillingFlow")
             }
         }
     }
