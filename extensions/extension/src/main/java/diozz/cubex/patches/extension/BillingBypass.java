@@ -1,14 +1,11 @@
 package diozz.cubex.patches.extension;
 
 import com.android.billingclient.api.BillingClient;
-import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
-import com.android.billingclient.api.PurchasesResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,90 +20,78 @@ public class BillingBypass {
     }
 
     /**
-     * Intercepta launchBillingFlow: extrai o SKU, cria uma Purchase falsa,
-     * e chama onPurchasesUpdated no listener para creditar a compra.
+     * Intercepta launchBillingFlow(Activity, BillingFlowParams).
+     * Recebe 3 params: this(BillingClient), Activity, BillingFlowParams.
      */
-    public static BillingResult handleLaunchBillingFlow(BillingClient billingClient, Object billingFlowParams) {
+    public static BillingResult handleLaunchBillingFlow(
+            BillingClient billingClient, Object activity, Object billingFlowParams) {
         try {
-            // 1. Extrair o SKU dos BillingFlowParams
-            String sku = extractSku(billingFlowParams);
-            System.out.println("[BillingBypass] Intercepted purchase for SKU: " + sku);
+            System.out.println("[BillingBypass] launchBillingFlow intercepted");
 
-            // 2. Criar uma Purchase falsa
-            Purchase fakePurchase = createFakePurchase(sku, billingClient);
+            // 1. Extrair o SKU
+            String sku = extractSku(billingFlowParams);
+            System.out.println("[BillingBypass] SKU: " + sku);
+
+            // 2. Criar Purchase falsa
+            Purchase fakePurchase = createFakePurchase(sku);
             if (fakePurchase == null) {
                 System.out.println("[BillingBypass] Failed to create fake Purchase");
                 return getOkResult();
             }
+            System.out.println("[BillingBypass] Fake purchase created");
 
-            // 3. Encontrar o PurchasesUpdatedListener dentro do BillingClient
+            // 3. Encontrar listener
             PurchasesUpdatedListener listener = findListener(billingClient);
             if (listener == null) {
-                System.out.println("[BillingBypass] Listener not found");
+                System.out.println("[BillingBypass] Listener not found!");
                 return getOkResult();
             }
+            System.out.println("[BillingBypass] Listener found: " + listener.getClass().getName());
 
-            // 4. Chamar onPurchasesUpdated com sucesso
+            // 4. Chamar onPurchasesUpdated
             List<Purchase> purchases = new ArrayList<>();
             purchases.add(fakePurchase);
             listener.onPurchasesUpdated(getOkResult(), purchases);
-            System.out.println("[BillingBypass] Called onPurchasesUpdated(OK, fakePurchase)");
+            System.out.println("[BillingBypass] onPurchasesUpdated called with success!");
 
-        } catch (Exception e) {
-            System.out.println("[BillingBypass] Error: " + e.getMessage());
+        } catch (Throwable e) {
+            System.out.println("[BillingBypass] Error: " + e);
+            e.printStackTrace();
         }
         return getOkResult();
     }
 
-    /**
-     * Extrai o SKU do BillingFlowParams.
-     * Tenta a API v6+ (getProductDetailsParamsList) e cai para v3/v4 (getSku).
-     */
     private static String extractSku(Object params) {
+        if (params == null) return "unknown_sku";
         try {
-            // Tenta API v6+
             Object pdpList = params.getClass().getMethod("getProductDetailsParamsList").invoke(params);
             if (pdpList instanceof List && !((List<?>) pdpList).isEmpty()) {
                 Object firstPdp = ((List<?>) pdpList).get(0);
-                Method getProductId = firstPdp.getClass().getMethod("getProductId");
-                return (String) getProductId.invoke(firstPdp);
+                return (String) firstPdp.getClass().getMethod("getProductId").invoke(firstPdp);
             }
         } catch (Exception ignored) {}
-
         try {
-            // Tenta API v3/v4
-            Method getSku = params.getClass().getMethod("getSku");
-            return (String) getSku.invoke(params);
+            return (String) params.getClass().getMethod("getSku").invoke(params);
         } catch (Exception ignored) {}
-
         return "unknown_sku";
     }
 
-    /**
-     * Cria um objeto Purchase falso usando reflection.
-     */
-    private static Purchase createFakePurchase(String sku, BillingClient billingClient) {
+    private static Purchase createFakePurchase(String sku) {
         try {
-            String packageName = billingClient.getClass().getPackage().getName();
-            // Tenta usar o package name real do app
-            try {
-                packageName = (String) billingClient.getClass().getMethod("getApplicationContext").invoke(billingClient).getClass().getPackage().getName();
-            } catch (Exception ignored) {}
-
-            String fakeJson = "{\"productId\":\"" + sku + "\",\"purchaseToken\":\"lp_fake_token_" + System.currentTimeMillis() + "\",\"packageName\":\"" + packageName + "\"}";
-            
-            // Purchase constructor: new Purchase(String jsonPurchaseDetails, String signature)
+            String fakeJson = "{\"productId\":\"" + sku + "\","
+                + "\"purchaseToken\":\"lp_fake_" + System.currentTimeMillis() + "\","
+                + "\"packageName\":\"air.com.midjiwan.polytopia\","
+                + "\"purchaseState\":0,"
+                + "\"purchaseTime\":" + System.currentTimeMillis() + "}";
+            System.out.println("[BillingBypass] Fake JSON: " + fakeJson);
             return Purchase.class.getConstructor(String.class, String.class)
                 .newInstance(fakeJson, "");
         } catch (Exception e) {
-            System.out.println("[BillingBypass] createFakePurchase error: " + e.getMessage());
+            System.out.println("[BillingBypass] createFakePurchase error: " + e);
             return null;
         }
     }
 
-    /**
-     * Encontra o PurchasesUpdatedListener dentro do BillingClient.
-     */
     private static PurchasesUpdatedListener findListener(BillingClient client) {
         Class<?> clazz = client.getClass();
         while (clazz != null) {
