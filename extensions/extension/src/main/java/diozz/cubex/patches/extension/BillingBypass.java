@@ -1,141 +1,93 @@
 package diozz.cubex.patches.extension;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 
-import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
 public class BillingBypass {
 
-    private static BillingResult getOkResult() {
-        return BillingResult.newBuilder()
-            .setResponseCode(BillingClient.BillingResponseCode.OK)
-            .setDebugMessage("")
-            .build();
+    private static String pendingSku = null;
+    private static boolean billingInitialized = false;
+
+    /**
+     * Called from launchBillingFlow to store the SKU for later.
+     */
+    public static void storeSku(Object billingFlowParams) {
+        try {
+            String sku = extractSku(billingFlowParams);
+            pendingSku = sku;
+            System.out.println("[BillingBypass] Stored SKU: " + sku);
+        } catch (Exception e) {
+            System.out.println("[BillingBypass] storeSku error: " + e);
+        }
     }
 
     /**
-     * Called during onBillingSetupFinished to ensure store is "connected".
-     * Finds and calls nativeOnBillingSetupFinished(0, "", 0) via reflection.
+     * Called from onPurchasesUpdated to intercept the result.
+     * Creates a fake Purchase with the stored SKU and calls nativeOnPurchasesUpdated(0, "", [fakePurchase]).
+     * 
+     * @param responseCode The original response code (we ignore it)
+     * @param debugMsg The original debug message (we ignore it)
+     * @return true if we handled it (caller should return void), false if no SKU was stored
      */
-    public static void handleBillingSetupFinished() {
-        runOnMainThread(() -> {
-            try {
-                Class<?> bridgeClass = findBridgeClass();
-                if (bridgeClass == null) {
-                    System.out.println("[BillingBypass] Bridge class not found");
-                    return;
-                }
-
-                Method m = bridgeClass.getDeclaredMethod(
-                    "nativeOnBillingSetupFinished",
-                    int.class, String.class, long.class);
-                m.setAccessible(true);
-                m.invoke(null, 0, "", 0L);
-                System.out.println("[BillingBypass] nativeOnBillingSetupFinished(0, \"\", 0) called");
-            } catch (Throwable e) {
-                System.out.println("[BillingBypass] Setup error: " + e);
-            }
-        });
-    }
-
-    /**
-     * Intercepta launchBillingFlow.
-     * Cria Purchase falsa e chama nativeOnPurchasesUpdated na main thread.
-     */
-    public static BillingResult handleLaunchBillingFlow(
-            BillingClient billingClient, Object activity, Object billingFlowParams) {
-        System.out.println("[BillingBypass] launchBillingFlow intercepted");
-
-        final String sku = extractSku(billingFlowParams);
-        System.out.println("[BillingBypass] SKU: " + sku);
-
-        runOnMainThread(() -> {
-            try {
-                Class<?> bridgeClass = findBridgeClass();
-                if (bridgeClass == null) {
-                    System.out.println("[BillingBypass] Bridge class not found");
-                    return;
-                }
-
-                // Criar Purchase falsa
-                Purchase fakePurchase = createFakePurchase(sku);
-                if (fakePurchase == null) {
-                    System.out.println("[BillingBypass] Failed to create fake Purchase");
-                    return;
-                }
-
-                Purchase[] purchases = new Purchase[]{fakePurchase};
-
-                // Chamar nativeOnPurchasesUpdated(0, "", [fakePurchase])
-                Method m = bridgeClass.getDeclaredMethod(
-                    "nativeOnPurchasesUpdated",
-                    int.class, String.class, Purchase[].class);
-                m.setAccessible(true);
-                m.invoke(null, 0, "", purchases);
-                System.out.println("[BillingBypass] nativeOnPurchasesUpdated(0, \"\", [fakePurchase]) called!");
-            } catch (Throwable e) {
-                System.out.println("[BillingBypass] Purchase error: " + e);
-                e.printStackTrace();
-            }
-        });
-
-        return getOkResult();
-    }
-
-    /**
-     * Procura a classe bridge que contém nativeOnPurchasesUpdated.
-     * O nome pode variar (zzbq, zzce, etc) então procuramos em todas.
-     */
-    private static Class<?> findBridgeClass() {
-        // Tentar nomes conhecidos
-        String[] knownNames = {
-            "com.android.billingclient.api.zzbq",
-            "com.android.billingclient.api.zzce",
-            "com.android.billingclient.api.zzr",
-        };
-
-        for (String name : knownNames) {
-            try {
-                Class<?> c = Class.forName(name);
-                // Verificar se tem nativeOnPurchasesUpdated
-                try {
-                    c.getDeclaredMethod("nativeOnPurchasesUpdated",
-                        int.class, String.class, Purchase[].class);
-                    System.out.println("[BillingBypass] Found bridge class: " + name);
-                    return c;
-                } catch (NoSuchMethodException ignored) {}
-            } catch (ClassNotFoundException ignored) {}
+    public static boolean interceptPurchase(int responseCode, String debugMsg) {
+        if (pendingSku == null) {
+            System.out.println("[BillingBypass] No pending SKU, letting original handle it");
+            return false;
         }
 
-        // Procurar em todas as classes do package billing
         try {
-            ClassLoader cl = BillingBypass.class.getClassLoader();
-            // Tentar classes zz* comuns
-            for (int i = 0; i < 26; i++) {
-                for (int j = 0; j < 26; j++) {
-                    String name = "com.android.billingclient.api.zz" + (char)('a' + i) + (char)('a' + j);
-                    try {
-                        Class<?> c = Class.forName(name);
-                        try {
-                            c.getDeclaredMethod("nativeOnPurchasesUpdated",
-                                int.class, String.class, Purchase[].class);
-                            System.out.println("[BillingBypass] Found bridge class: " + name);
-                            return c;
-                        } catch (NoSuchMethodException ignored) {}
-                    } catch (ClassNotFoundException ignored) {}
-                }
-            }
-        } catch (Exception ignored) {}
+            System.out.println("[BillingBypass] Intercepting purchase result: code=" + responseCode + " sku=" + pendingSku);
 
-        System.out.println("[BillingBypass] Bridge class NOT FOUND!");
-        return null;
+            // Create fake Purchase
+            Purchase fakePurchase = createFakePurchase(pendingSku);
+            if (fakePurchase == null) {
+                System.out.println("[BillingBypass] Failed to create fake Purchase");
+                pendingSku = null;
+                return false;
+            }
+
+            // Call nativeOnPurchasesUpdated(0, "", [fakePurchase]) via reflection
+            Class<?> bridgeClass = findBridgeClass();
+            if (bridgeClass == null) {
+                System.out.println("[BillingBypass] Bridge class not found");
+                pendingSku = null;
+                return false;
+            }
+
+            Purchase[] purchases = new Purchase[]{fakePurchase};
+            java.lang.reflect.Method m = bridgeClass.getDeclaredMethod(
+                "nativeOnPurchasesUpdated",
+                int.class, String.class, Purchase[].class);
+            m.setAccessible(true);
+            m.invoke(null, 0, "", purchases);
+            System.out.println("[BillingBypass] nativeOnPurchasesUpdated(0, \"\", [fakePurchase]) called!");
+
+            // Clear the pending SKU
+            pendingSku = null;
+            return true;
+        } catch (Throwable e) {
+            System.out.println("[BillingBypass] interceptPurchase error: " + e);
+            e.printStackTrace();
+            pendingSku = null;
+            return false;
+        }
+    }
+
+    /**
+     * Called from onBillingSetupFinished to force responseCode=0.
+     * The original method will call nativeOnBillingSetupFinished with the correct zza.
+     * We just need to tell the caller to use responseCode=0.
+     * 
+     * @return 0 (BILLING_RESPONSE_RESULT_OK)
+     */
+    public static int getOkResponseCode() {
+        System.out.println("[BillingBypass] Forcing billing setup responseCode=0");
+        return 0;
     }
 
     private static String extractSku(Object params) {
@@ -158,7 +110,7 @@ public class BillingBypass {
             long time = System.currentTimeMillis();
             String fakeJson = "{"
                 + "\"productId\":\"" + sku + "\","
-                + "\"orderId\":\"GPA." + time + "-","
+                + "\"orderId\":\"GPA." + time + "-" + time + "\","
                 + "\"packageName\":\"air.com.midjiwan.polytopia\","
                 + "\"purchaseTime\":" + time + ","
                 + "\"purchaseState\":0,"
@@ -175,11 +127,36 @@ public class BillingBypass {
         }
     }
 
-    private static void runOnMainThread(Runnable r) {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            r.run();
-        } else {
-            new Handler(Looper.getMainLooper()).post(r);
+    private static Class<?> findBridgeClass() {
+        String[] knownNames = {
+            "com.android.billingclient.api.zzbq",
+            "com.android.billingclient.api.zzce",
+            "com.android.billingclient.api.zzr",
+        };
+        for (String name : knownNames) {
+            try {
+                Class<?> c = Class.forName(name);
+                try {
+                    c.getDeclaredMethod("nativeOnPurchasesUpdated",
+                        int.class, String.class, Purchase[].class);
+                    return c;
+                } catch (NoSuchMethodException ignored) {}
+            } catch (ClassNotFoundException ignored) {}
         }
+        // Search zz* classes
+        for (int i = 0; i < 26; i++) {
+            for (int j = 0; j < 26; j++) {
+                String name = "com.android.billingclient.api.zz" + (char)('a' + i) + (char)('a' + j);
+                try {
+                    Class<?> c = Class.forName(name);
+                    try {
+                        c.getDeclaredMethod("nativeOnPurchasesUpdated",
+                            int.class, String.class, Purchase[].class);
+                        return c;
+                    } catch (NoSuchMethodException ignored) {}
+                } catch (ClassNotFoundException ignored) {}
+            }
+        }
+        return null;
     }
 }
