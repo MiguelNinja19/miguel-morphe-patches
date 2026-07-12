@@ -2,7 +2,7 @@ package air.com.midjiwan.polytopia.patches.iap
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
-import air.com.midjiwan.polytopia.patches.shared.Constants.POLYTOPIA
+import air.com.midjiwan.polytopia.patches.shared.POLYTOPIA
 import air.com.midjiwan.polytopia.patches.shared.UnityBillingBridgeFingerprint
 import air.com.midjiwan.polytopia.patches.shared.UnityBillingSetupFingerprint
 
