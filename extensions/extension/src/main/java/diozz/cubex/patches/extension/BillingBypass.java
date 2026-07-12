@@ -1,5 +1,8 @@
 package diozz.cubex.patches.extension;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
@@ -17,41 +20,122 @@ public class BillingBypass {
             .build();
     }
 
+    /**
+     * Called during onBillingSetupFinished to ensure store is "connected".
+     * Finds and calls nativeOnBillingSetupFinished(0, "", 0) via reflection.
+     */
+    public static void handleBillingSetupFinished() {
+        runOnMainThread(() -> {
+            try {
+                Class<?> bridgeClass = findBridgeClass();
+                if (bridgeClass == null) {
+                    System.out.println("[BillingBypass] Bridge class not found");
+                    return;
+                }
+
+                Method m = bridgeClass.getDeclaredMethod(
+                    "nativeOnBillingSetupFinished",
+                    int.class, String.class, long.class);
+                m.setAccessible(true);
+                m.invoke(null, 0, "", 0L);
+                System.out.println("[BillingBypass] nativeOnBillingSetupFinished(0, \"\", 0) called");
+            } catch (Throwable e) {
+                System.out.println("[BillingBypass] Setup error: " + e);
+            }
+        });
+    }
+
+    /**
+     * Intercepta launchBillingFlow.
+     * Cria Purchase falsa e chama nativeOnPurchasesUpdated na main thread.
+     */
     public static BillingResult handleLaunchBillingFlow(
             BillingClient billingClient, Object activity, Object billingFlowParams) {
-        try {
-            System.out.println("[BillingBypass] launchBillingFlow intercepted");
+        System.out.println("[BillingBypass] launchBillingFlow intercepted");
 
-            // 1. Extrair o SKU dos BillingFlowParams
-            String sku = extractSku(billingFlowParams);
-            System.out.println("[BillingBypass] SKU: " + sku);
+        final String sku = extractSku(billingFlowParams);
+        System.out.println("[BillingBypass] SKU: " + sku);
 
-            // 2. Criar Purchase falsa com o SKU
-            Purchase fakePurchase = createFakePurchase(sku);
-            if (fakePurchase == null) {
-                System.out.println("[BillingBypass] Failed to create fake Purchase");
-                return getOkResult();
+        runOnMainThread(() -> {
+            try {
+                Class<?> bridgeClass = findBridgeClass();
+                if (bridgeClass == null) {
+                    System.out.println("[BillingBypass] Bridge class not found");
+                    return;
+                }
+
+                // Criar Purchase falsa
+                Purchase fakePurchase = createFakePurchase(sku);
+                if (fakePurchase == null) {
+                    System.out.println("[BillingBypass] Failed to create fake Purchase");
+                    return;
+                }
+
+                Purchase[] purchases = new Purchase[]{fakePurchase};
+
+                // Chamar nativeOnPurchasesUpdated(0, "", [fakePurchase])
+                Method m = bridgeClass.getDeclaredMethod(
+                    "nativeOnPurchasesUpdated",
+                    int.class, String.class, Purchase[].class);
+                m.setAccessible(true);
+                m.invoke(null, 0, "", purchases);
+                System.out.println("[BillingBypass] nativeOnPurchasesUpdated(0, \"\", [fakePurchase]) called!");
+            } catch (Throwable e) {
+                System.out.println("[BillingBypass] Purchase error: " + e);
+                e.printStackTrace();
             }
-            System.out.println("[BillingBypass] Fake purchase created for: " + sku);
+        });
 
-            // 3. Chamar nativeOnPurchasesUpdated com a Purchase falsa
-            // nativeOnPurchasesUpdated(int responseCode, String debugMsg, Purchase[] purchases)
-            Class<?> zzbqClass = Class.forName("com.android.billingclient.api.zzbq");
-            Method nativeMethod = zzbqClass.getDeclaredMethod(
-                "nativeOnPurchasesUpdated",
-                int.class, String.class, Purchase[].class);
-            nativeMethod.setAccessible(true);
-
-            // Criar array com a Purchase falsa
-            Purchase[] purchases = new Purchase[]{fakePurchase};
-            nativeMethod.invoke(null, 0, "", purchases);
-            System.out.println("[BillingBypass] nativeOnPurchasesUpdated(0, \"\", [fakePurchase]) called!");
-
-        } catch (Throwable e) {
-            System.out.println("[BillingBypass] Error: " + e);
-            e.printStackTrace();
-        }
         return getOkResult();
+    }
+
+    /**
+     * Procura a classe bridge que contém nativeOnPurchasesUpdated.
+     * O nome pode variar (zzbq, zzce, etc) então procuramos em todas.
+     */
+    private static Class<?> findBridgeClass() {
+        // Tentar nomes conhecidos
+        String[] knownNames = {
+            "com.android.billingclient.api.zzbq",
+            "com.android.billingclient.api.zzce",
+            "com.android.billingclient.api.zzr",
+        };
+
+        for (String name : knownNames) {
+            try {
+                Class<?> c = Class.forName(name);
+                // Verificar se tem nativeOnPurchasesUpdated
+                try {
+                    c.getDeclaredMethod("nativeOnPurchasesUpdated",
+                        int.class, String.class, Purchase[].class);
+                    System.out.println("[BillingBypass] Found bridge class: " + name);
+                    return c;
+                } catch (NoSuchMethodException ignored) {}
+            } catch (ClassNotFoundException ignored) {}
+        }
+
+        // Procurar em todas as classes do package billing
+        try {
+            ClassLoader cl = BillingBypass.class.getClassLoader();
+            // Tentar classes zz* comuns
+            for (int i = 0; i < 26; i++) {
+                for (int j = 0; j < 26; j++) {
+                    String name = "com.android.billingclient.api.zz" + (char)('a' + i) + (char)('a' + j);
+                    try {
+                        Class<?> c = Class.forName(name);
+                        try {
+                            c.getDeclaredMethod("nativeOnPurchasesUpdated",
+                                int.class, String.class, Purchase[].class);
+                            System.out.println("[BillingBypass] Found bridge class: " + name);
+                            return c;
+                        } catch (NoSuchMethodException ignored) {}
+                    } catch (ClassNotFoundException ignored) {}
+                }
+            }
+        } catch (Exception ignored) {}
+
+        System.out.println("[BillingBypass] Bridge class NOT FOUND!");
+        return null;
     }
 
     private static String extractSku(Object params) {
@@ -71,17 +155,31 @@ public class BillingBypass {
 
     private static Purchase createFakePurchase(String sku) {
         try {
-            String fakeJson = "{\"productId\":\"" + sku + "\","
-                + "\"purchaseToken\":\"lp_fake_" + System.currentTimeMillis() + "\","
+            long time = System.currentTimeMillis();
+            String fakeJson = "{"
+                + "\"productId\":\"" + sku + "\","
+                + "\"orderId\":\"GPA." + time + "-","
                 + "\"packageName\":\"air.com.midjiwan.polytopia\","
+                + "\"purchaseTime\":" + time + ","
                 + "\"purchaseState\":0,"
-                + "\"purchaseTime\":" + System.currentTimeMillis() + "}";
+                + "\"developerPayload\":\"\","
+                + "\"purchaseToken\":\"lp_fake_" + time + "\","
+                + "\"acknowledged\":true"
+                + "}";
             System.out.println("[BillingBypass] Fake JSON: " + fakeJson);
             return Purchase.class.getConstructor(String.class, String.class)
                 .newInstance(fakeJson, "");
         } catch (Exception e) {
             System.out.println("[BillingBypass] createFakePurchase error: " + e);
             return null;
+        }
+    }
+
+    private static void runOnMainThread(Runnable r) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            r.run();
+        } else {
+            new Handler(Looper.getMainLooper()).post(r);
         }
     }
 }
