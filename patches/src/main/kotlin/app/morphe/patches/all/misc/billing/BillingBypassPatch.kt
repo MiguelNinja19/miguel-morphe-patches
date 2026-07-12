@@ -3,7 +3,7 @@ package app.morphe.patches.all.misc.billing
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
-import com.android.tools.smali.dexlib2.iface.Method
+import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import java.util.logging.Logger
 
@@ -26,40 +26,31 @@ val billingBypassPatch = bytecodePatch(
             "Lcom/google/android/gms/iap/",
         )
 
-        // Success method name patterns to search for
         val successMethodPatterns = listOf(
             "nativeOnSuccess", "onPurchaseSuccess", "onIAPSuccess",
             "onBillingSuccess", "onSuccess", "purchaseSuccess",
             "deliverItem", "unlockItem", "creditPurchase",
-            "onPurchasesUpdated", "handlePurchase", "processPurchase",
+            "handlePurchase", "processPurchase",
             "giveItem", "addPurchase", "grantPurchase",
-        )
-
-        // Method names that are app-level purchase wrappers
-        val purchaseWrapperNames = setOf(
-            "launchPurchaseFlow", "purchase", "buyItem", "buy",
-            "startPurchase", "makePurchase", "initiatePurchase",
         )
 
         var foundSmartBypass = false
         var successMethodClass = ""
         var successMethodName = ""
-        var successMethodParams = ""
+        var successMethodParamTypes: List<CharSequence> = emptyList()
+        var successMethodIsStatic = false
         var wrapperClassName = ""
         var wrapperMethodName = ""
 
         logger.info("Scanning for billing success methods...")
 
-        // Phase 1: Find classes that call launchBillingFlow
-        // and have a success-like method
+        // Phase 1: Find classes that call launchBillingFlow and have a success method
         classDefForEach { classDef ->
             if (foundSmartBypass) return@classDefForEach
 
             val className = classDef.type
 
-            // Skip billing library classes — we want app classes
             if (billingPrefixes.any { className.startsWith(it) }) return@classDefForEach
-            // Skip Android/Java framework
             if (className.startsWith("Landroid/") ||
                 className.startsWith("Ljava/") ||
                 className.startsWith("Lkotlin/")
@@ -68,7 +59,7 @@ val billingBypassPatch = bytecodePatch(
             // Check if this class calls launchBillingFlow
             val callsLaunchBillingFlow = classDef.methods.any { method ->
                 method.implementation?.instructions?.any { insn ->
-                    if (insn is com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction) {
+                    if (insn is ReferenceInstruction) {
                         val ref = insn.reference
                         if (ref is MethodReference) {
                             ref.name == "launchBillingFlow"
@@ -81,7 +72,7 @@ val billingBypassPatch = bytecodePatch(
 
             logger.info("Found billing wrapper class: $className")
 
-            // In this class, find a method that takes a String and has a success-like name
+            // Find success method
             val successMethod = classDef.methods.find { method ->
                 val name = method.name
                 val matchedPattern = successMethodPatterns.any { pattern ->
@@ -90,11 +81,9 @@ val billingBypassPatch = bytecodePatch(
                 }
                 if (!matchedPattern) return@find false
 
-                // Check if it takes at least 1 parameter (usually String sku)
                 val params = method.parameterTypes
                 if (params.isEmpty()) return@find false
 
-                // First param should be String or similar
                 val firstParam = params[0].toString()
                 firstParam == "Ljava/lang/String;" ||
                 firstParam == "Ljava/lang/Object;" ||
@@ -105,13 +94,20 @@ val billingBypassPatch = bytecodePatch(
                 foundSmartBypass = true
                 successMethodClass = className
                 successMethodName = successMethod.name
-                successMethodParams = successMethod.parameterTypes.joinToString("")
-                logger.info("Found success method: $className->${successMethod.name}($successMethodParams)")
+                successMethodParamTypes = successMethod.parameterTypes
+                successMethodIsStatic = successMethod.accessFlags.and(0x8) != 0
+                logger.info("Found success method: $className->${successMethod.name}(${successMethod.parameterTypes.joinToString()})")
+                logger.info("  static=$successMethodIsStatic, params=${successMethodParamTypes.size}")
             }
 
-            // Also find the wrapper method (the one that takes String and calls launchBillingFlow)
+            // Find wrapper method
             val wrapperMethod = classDef.methods.find { method ->
-                method.name in purchaseWrapperNames &&
+                method.implementation?.instructions?.any { insn ->
+                    if (insn is ReferenceInstruction) {
+                        val ref = insn.reference
+                        ref is MethodReference && ref.name == "launchBillingFlow"
+                    } else false
+                } ?: false &&
                 method.parameterTypes.isNotEmpty() &&
                 method.parameterTypes[0].toString() == "Ljava/lang/String;"
             }
@@ -120,27 +116,10 @@ val billingBypassPatch = bytecodePatch(
                 wrapperClassName = className
                 wrapperMethodName = wrapperMethod.name
                 logger.info("Found wrapper method: $className->${wrapperMethod.name}")
-            } else if (successMethod != null) {
-                // If no named wrapper, use any method that calls launchBillingFlow and takes String
-                val fallbackWrapper = classDef.methods.find { method ->
-                    method.implementation?.instructions?.any { insn ->
-                        if (insn is com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction) {
-                            val ref = insn.reference
-                            ref is MethodReference && ref.name == "launchBillingFlow"
-                        } else false
-                    } ?: false &&
-                    method.parameterTypes.isNotEmpty() &&
-                    method.parameterTypes[0].toString() == "Ljava/lang/String;"
-                }
-                if (fallbackWrapper != null) {
-                    wrapperClassName = className
-                    wrapperMethodName = fallbackWrapper.name
-                    logger.info("Found fallback wrapper: $className->${fallbackWrapper.name}")
-                }
             }
         }
 
-        // Phase 2: Apply smart bypass if found
+        // Phase 2: Apply smart bypass
         if (foundSmartBypass && wrapperClassName.isNotEmpty()) {
             logger.info("Applying SMART billing bypass...")
 
@@ -152,62 +131,57 @@ val billingBypassPatch = bytecodePatch(
             }
 
             if (wrapperMethod != null && wrapperMethod.implementation != null) {
-                // Determine the success method signature
-                val successMethod = mutableClassDefBy(successMethodClass).methods.find {
-                    it.name == successMethodName
-                }
+                val paramCount = successMethodParamTypes.size
+                val isStatic = successMethodIsStatic
 
-                if (successMethod != null) {
-                    val paramCount = successMethod.parameterTypes.size
-                    val isStatic = successMethod.accessFlags.and(0x8) != 0 // ACC_STATIC
+                // Build the parameter type string for the smali signature
+                val paramSig = successMethodParamTypes.joinToString("") { it.toString() }
 
-                    // Build smali to call the success method
-                    // p0 = this (if not static), p1 = sku (String)
-                    val smali = if (isStatic) {
-                        if (paramCount == 1) {
-                            // static method(String)
-                            """
-                                invoke-static {p1}, $successMethodClass->$successMethodName(Ljava/lang/String;)V
-                            """.trimIndent()
-                        } else if (paramCount == 2) {
-                            // static method(String, boolean) — like nativeOnSuccess(sku, true)
-                            """
-                                const/4 v0, 0x1
-                                invoke-static/range {p1 .. p1}, $successMethodClass->$successMethodName(Ljava/lang/String;Z)V
-                            """.trimIndent()
-                        } else {
-                            // static method(String, ...) — just pass sku and zeros
-                            """
-                                invoke-static/range {p1 .. p1}, $successMethodClass->$successMethodName(Ljava/lang/String;)V
-                            """.trimIndent()
-                        }
-                    } else {
-                        // instance method — use p0 (this)
-                        if (paramCount == 1) {
-                            """
-                                invoke-virtual {p0, p1}, $successMethodClass->$successMethodName(Ljava/lang/String;)V
-                            """.trimIndent()
-                        } else if (paramCount == 2) {
-                            """
-                                const/4 v0, 0x1
-                                invoke-virtual/range {p0 .. p1}, $successMethodClass->$successMethodName(Ljava/lang/String;Z)V
-                            """.trimIndent()
-                        } else {
-                            """
-                                invoke-virtual {p0, p1}, $successMethodClass->$successMethodName(Ljava/lang/String;)V
-                            """.trimIndent()
-                        }
+                // Build smali — match the working AOS5 patch pattern exactly
+                val smali = when {
+                    isStatic && paramCount == 2 -> {
+                        // static nativeOnSuccess(String, boolean)
+                        // Match AOS5: const/4 v0, 0x1; invoke-static {p1, v0}
+                        """
+                            const/4 v0, 0x1
+                            invoke-static {p1, v0}, $successMethodClass->$successMethodName($paramSig)V
+                        """.trimIndent()
                     }
-
-                    wrapperMethod.addInstructions(0, smali)
-                    logger.info("✓ Injected success call: $successMethodName at start of $wrapperMethodName")
-                    logger.info("Billing bypass complete (SMART mode)")
-                    return@execute
+                    isStatic && paramCount == 1 -> {
+                        // static onSuccess(String)
+                        """
+                            invoke-static {p1}, $successMethodClass->$successMethodName($paramSig)V
+                        """.trimIndent()
+                    }
+                    !isStatic && paramCount == 2 -> {
+                        // instance method(String, boolean)
+                        """
+                            const/4 v0, 0x1
+                            invoke-virtual {p0, p1, v0}, $successMethodClass->$successMethodName($paramSig)V
+                        """.trimIndent()
+                    }
+                    !isStatic && paramCount == 1 -> {
+                        // instance method(String)
+                        """
+                            invoke-virtual {p0, p1}, $successMethodClass->$successMethodName($paramSig)V
+                        """.trimIndent()
+                    }
+                    else -> {
+                        // Fallback: just pass p1
+                        """
+                            invoke-static {p1}, $successMethodClass->$successMethodName($paramSig)V
+                        """.trimIndent()
+                    }
                 }
+
+                wrapperMethod.addInstructions(0, smali)
+                logger.info("✓ Injected: $smali")
+                logger.info("Billing bypass complete (SMART mode)")
+                return@execute
             }
         }
 
-        // Phase 3: Fallback — patch billing library methods only
+        // Phase 3: Fallback
         logger.info("No success method found. Applying fallback billing bypass...")
 
         var patchedCount = 0
@@ -215,11 +189,7 @@ val billingBypassPatch = bytecodePatch(
         classDefForEach { classDef ->
             val className = classDef.type
 
-            val isBillingClass = billingPrefixes.any { prefix ->
-                className.startsWith(prefix)
-            }
-
-            if (!isBillingClass) return@classDefForEach
+            if (!billingPrefixes.any { className.startsWith(it) }) return@classDefForEach
 
             val mutableClass = mutableClassDefBy(classDef)
 
@@ -238,7 +208,6 @@ val billingBypassPatch = bytecodePatch(
                         return v0
                     """.trimIndent())
                     patchedCount++
-                    logger.info("  ✓ $className->$methodName() = 0 (OK)")
                 }
 
                 if (methodName == "isReady" && returnType == "Z") {
@@ -247,7 +216,6 @@ val billingBypassPatch = bytecodePatch(
                         return v0
                     """.trimIndent())
                     patchedCount++
-                    logger.info("  ✓ $className->$methodName() = true")
                 }
 
                 if ((methodName == "isFeatureSupported" ||
@@ -259,7 +227,6 @@ val billingBypassPatch = bytecodePatch(
                         return v0
                     """.trimIndent())
                     patchedCount++
-                    logger.info("  ✓ $className->$methodName() = 0 (supported)")
                 }
 
                 if (methodName == "getPurchaseState" && returnType == "I") {
@@ -268,19 +235,14 @@ val billingBypassPatch = bytecodePatch(
                         return v0
                     """.trimIndent())
                     patchedCount++
-                    logger.info("  ✓ $className->$methodName() = 0 (PURCHASED)")
                 }
             }
         }
 
         if (patchedCount == 0) {
-            throw PatchException(
-                "No Google Play Billing classes found in this app."
-            )
+            throw PatchException("No Google Play Billing classes found in this app.")
         }
 
-        logger.info("Billing bypass complete (fallback mode): $patchedCount methods patched")
-        logger.info("NOTE: Could not find a success method to credit purchases.")
-        logger.info("For free purchases, use an app-specific patch.")
+        logger.info("Billing bypass complete (fallback): $patchedCount methods patched")
     }
 }
