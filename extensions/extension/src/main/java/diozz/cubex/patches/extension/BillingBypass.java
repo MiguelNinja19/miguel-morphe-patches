@@ -4,6 +4,7 @@ import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -15,38 +16,46 @@ public class BillingBypass {
         try {
             System.out.println("[BillingBypass] launchBillingFlow intercepted");
 
-            // 1. Extract SKU from BillingFlowParams
             String sku = extractSku(billingFlowParams);
             System.out.println("[BillingBypass] SKU: " + sku);
 
-            // 2. Create fake Purchase with the SKU
             Purchase fakePurchase = createFakePurchase(sku);
             if (fakePurchase == null) {
-                System.out.println("[BillingBypass] Failed to create fake Purchase");
                 return getOkResult();
             }
 
-            // 3. Find bridge class with nativeOnPurchasesUpdated
+            // Find the zzbq instance inside BillingClient to get the correct zza (pointer)
+            Object zzbqInstance = findZzbqInstance(billingClient);
+            long zza = 0L;
+            if (zzbqInstance != null) {
+                try {
+                    Field zzaField = zzbqInstance.getClass().getDeclaredField("zza");
+                    zzaField.setAccessible(true);
+                    zza = zzaField.getLong(zzbqInstance);
+                } catch (Exception ignored) {}
+            }
+
+            // Call nativeOnPurchasesUpdated(0, "", [fakePurchase])
             Class<?> bridgeClass = findBridgeClass();
-            if (bridgeClass == null) {
-                System.out.println("[BillingBypass] Bridge class not found");
-                return getOkResult();
+            if (bridgeClass != null) {
+                Purchase[] purchases = new Purchase[]{fakePurchase};
+                Method nativeMethod = bridgeClass.getDeclaredMethod(
+                    "nativeOnPurchasesUpdated",
+                    int.class, String.class, Purchase[].class);
+                nativeMethod.setAccessible(true);
+                nativeMethod.invoke(null, 0, "", purchases);
+                System.out.println("[BillingBypass] nativeOnPurchasesUpdated called!");
             }
-
-            // 4. Call nativeOnPurchasesUpdated(0, "", [fakePurchase])
-            Purchase[] purchases = new Purchase[]{fakePurchase};
-            Method nativeMethod = bridgeClass.getDeclaredMethod(
-                "nativeOnPurchasesUpdated",
-                int.class, String.class, Purchase[].class);
-            nativeMethod.setAccessible(true);
-            nativeMethod.invoke(null, 0, "", purchases);
-            System.out.println("[BillingBypass] nativeOnPurchasesUpdated called!");
-
         } catch (Throwable e) {
             System.out.println("[BillingBypass] Error: " + e);
             e.printStackTrace();
         }
         return getOkResult();
+    }
+
+    public static void handleBillingSetupFinished() {
+        // Let original code handle it, just log
+        System.out.println("[BillingBypass] onBillingSetupFinished intercepted");
     }
 
     private static BillingResult getOkResult() {
@@ -58,18 +67,18 @@ public class BillingBypass {
 
     private static String extractSku(Object params) {
         if (params == null) return "unknown_sku";
-
-        // Try v6+: getProductDetailsParamsList → get(0) → zza() → getProductId()
         try {
-            Method getList = findMethodReturning(params.getClass(), List.class);
-            if (getList != null) {
-                List<?> list = (List<?>) getList.invoke(params);
+            // BillingFlowParams.zzk() returns List<ProductDetailsParams>
+            Method zzk = findMethodReturning(params.getClass(), List.class);
+            if (zzk != null) {
+                List<?> list = (List<?>) zzk.invoke(params);
                 if (list != null && !list.isEmpty()) {
                     Object firstParam = list.get(0);
-                    Method getDetails = findMethodReturning(firstParam.getClass(),
+                    // ProductDetailsParams.zza() returns ProductDetails
+                    Method zza = findMethodReturning(firstParam.getClass(),
                         Class.forName("com.android.billingclient.api.ProductDetails"));
-                    if (getDetails != null) {
-                        Object productDetails = getDetails.invoke(firstParam);
+                    if (zza != null) {
+                        Object productDetails = zza.invoke(firstParam);
                         if (productDetails != null) {
                             Method getProductId = productDetails.getClass().getMethod("getProductId");
                             String sku = (String) getProductId.invoke(productDetails);
@@ -79,16 +88,13 @@ public class BillingBypass {
                 }
             }
         } catch (Exception e) {
-            System.out.println("[BillingBypass] v6+ extraction failed: " + e.getMessage());
+            System.out.println("[BillingBypass] v6 extraction failed: " + e.getMessage());
         }
-
-        // Try v3: getSku()
+        // Try v3
         try {
             Method getSku = params.getClass().getMethod("getSku");
-            String sku = (String) getSku.invoke(params);
-            if (sku != null && !sku.isEmpty()) return sku;
+            return (String) getSku.invoke(params);
         } catch (Exception ignored) {}
-
         return "unknown_sku";
     }
 
@@ -111,15 +117,28 @@ public class BillingBypass {
         }
     }
 
+    private static Object findZzbqInstance(Object billingClient) {
+        try {
+            // BillingClientImpl.zzf is a zzs instance
+            Field zzfField = billingClient.getClass().getDeclaredField("zzf");
+            zzfField.setAccessible(true);
+            Object zzs = zzfField.get(billingClient);
+            if (zzs == null) return null;
+            // zzs.zzc is the zzb instance
+            Field zzcField = zzs.getClass().getDeclaredField("zzc");
+            zzcField.setAccessible(true);
+            return zzcField.get(zzs);
+        } catch (Exception e) {
+            System.out.println("[BillingBypass] findZzbqInstance failed: " + e.getMessage());
+            return null;
+        }
+    }
+
     private static Class<?> findBridgeClass() {
-        String[] knownNames = {
-            "com.android.billingclient.api.zzbq",
-            "com.android.billingclient.api.zzce",
-            "com.android.billingclient.api.zzr",
-        };
-        for (String name : knownNames) {
+        String[] names = {"zzbq", "zzce", "zzr"};
+        for (String n : names) {
             try {
-                Class<?> c = Class.forName(name);
+                Class<?> c = Class.forName("com.android.billingclient.api." + n);
                 try {
                     c.getDeclaredMethod("nativeOnPurchasesUpdated",
                         int.class, String.class, Purchase[].class);
@@ -127,12 +146,11 @@ public class BillingBypass {
                 } catch (NoSuchMethodException ignored) {}
             } catch (ClassNotFoundException ignored) {}
         }
-        // Search all zz* classes
         for (int i = 0; i < 26; i++) {
             for (int j = 0; j < 26; j++) {
-                String name = "com.android.billingclient.api.zz" + (char)('a' + i) + (char)('a' + j);
+                String n = "com.android.billingclient.api.zz" + (char)('a'+i) + (char)('a'+j);
                 try {
-                    Class<?> c = Class.forName(name);
+                    Class<?> c = Class.forName(n);
                     try {
                         c.getDeclaredMethod("nativeOnPurchasesUpdated",
                             int.class, String.class, Purchase[].class);
@@ -145,16 +163,13 @@ public class BillingBypass {
     }
 
     private static Method findMethodReturning(Class<?> clazz, Class<?> returnType) {
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (method.getReturnType().equals(returnType) && method.getParameterTypes().length == 0) {
-                method.setAccessible(true);
-                return method;
+        for (Method m : clazz.getDeclaredMethods()) {
+            if (m.getReturnType().equals(returnType) && m.getParameterTypes().length == 0) {
+                m.setAccessible(true);
+                return m;
             }
         }
-        Class<?> superClass = clazz.getSuperclass();
-        if (superClass != null) {
-            return findMethodReturning(superClass, returnType);
-        }
+        if (clazz.getSuperclass() != null) return findMethodReturning(clazz.getSuperclass(), returnType);
         return null;
     }
 }
