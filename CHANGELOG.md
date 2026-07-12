@@ -1,3 +1,11 @@
+## [1.9.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.2...v1.9.3) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* inject tribe unlock after super.onCreate and remove startConnection patch ([c4a5733](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/c4a573319a3bd22a71339f5e40e6c3de108b77b0))
+* inject tribe unlock after super.onCreate and remove startConnection patch ([23ab05a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/23ab05a21f0f9567826c6d937a398b80159ff893))
+* inject tribe unlock after super.onCreate and remove startConnection patch ([f8cadec](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/f8cadec4f56997c2103f2ddbb974bde0d1d26a0a))
+
 ## [1.9.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.1...v1.9.2) (2026-07-12)
 
 ### 🐛 Bug Fixes

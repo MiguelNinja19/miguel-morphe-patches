@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.9.2](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.9.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
+> **[v1.9.3](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.9.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -46,8 +46,8 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing by intercepting startConnection and launchBillingFlow. Store is marked as connected immediately, and purchases are credited via fake Purchase objects. |  |
-| [Unlock all tribes](#unlock-all-tribes) | Unlocks all 20 tribes by setting the debug flag in Unity PlayerPrefs via extension. |  |
+| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing by intercepting launchBillingFlow. Creates a fake Purchase and calls nativeOnPurchasesUpdated directly. |  |
+| [Unlock all tribes](#unlock-all-tribes) | Unlocks all 20 tribes by setting the debug flag in Unity PlayerPrefs via SharedPreferences. |  |
 
 </details>
 
