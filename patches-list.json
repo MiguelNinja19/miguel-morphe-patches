@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -45,7 +45,7 @@
     },
     {
       "name": "Free in-app purchases",
-      "description": "Skips Google Play Billing and calls the Unity JNI bridge (nativeOnPurchasesUpdated) directly with responseCode=0 (OK).",
+      "description": "Intercepts purchase callbacks to simulate successful purchases. Stores the SKU when launchBillingFlow is called, then intercepts onPurchasesUpdated to call nativeOnPurchasesUpdated with a fake Purchase.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [

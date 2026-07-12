@@ -1,3 +1,12 @@
+## [1.8.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.5...v1.8.6) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* ensure store is connected and run on main thread ([37b468f](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/37b468f94bc5a6410f96f91ab51bb60ab8bd40d4))
+* ensure store is connected and run on main thread ([ee42de3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ee42de358b8d6296c93ccc0a9bc66d933953d0c6))
+* intercept onPurchasesUpdated instead of launchBillingFlow ([e65a7ac](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e65a7ac86cd2001c7f3a6168c315bced8e19e554))
+* intercept onPurchasesUpdated instead of launchBillingFlow ([e72dee2](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e72dee26058cd1303c8f82a1b5d9388635e2871c))
+
 ## [1.8.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.4...v1.8.5) (2026-07-12)
 
 ### 🐛 Bug Fixes

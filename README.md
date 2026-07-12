@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.8.5](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.8.5)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;9 patches total
+> **[v1.8.6](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.8.6)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;9 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -46,7 +46,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing and calls the Unity JNI bridge (nativeOnPurchasesUpdated) directly with responseCode=0 (OK). |  |
+| [Free in-app purchases](#free-in-app-purchases) | Intercepts purchase callbacks to simulate successful purchases. Stores the SKU when launchBillingFlow is called, then intercepts onPurchasesUpdated to call nativeOnPurchasesUpdated with a fake Purchase. |  |
 
 </details>
 
