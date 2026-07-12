@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -45,7 +45,7 @@
     },
     {
       "name": "Free in-app purchases",
-      "description": "Skips Google Play Billing by creating a fake Purchase and calling nativeOnPurchasesUpdated directly via extension.",
+      "description": "Skips Google Play Billing by intercepting startConnection and launchBillingFlow. Store is marked as connected immediately, and purchases are credited via fake Purchase objects.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -243,7 +243,7 @@
     },
     {
       "name": "Unlock all tribes",
-      "description": "Unlocks all 20 tribes by setting the debug flag in Unity PlayerPrefs via SharedPreferences.",
+      "description": "Unlocks all 20 tribes by setting the debug flag in Unity PlayerPrefs via extension.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [

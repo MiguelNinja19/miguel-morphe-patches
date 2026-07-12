@@ -1,3 +1,11 @@
+## [1.9.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.1...v1.9.2) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* use extension for tribe unlock and patch startConnection for billing ([fa0e327](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fa0e3270d6e866f50823ea045a2c9450fb318bf6))
+* use extension for tribe unlock and patch startConnection for billing ([34a714b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/34a714b8b574d0033b048138db8a388d7bd247fb))
+* use extension for tribe unlock and patch startConnection for billing ([a766765](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a76676570da0625ae557b91ff275cd782d66178f))
+
 ## [1.9.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.0...v1.9.1) (2026-07-12)
 
 ### 🐛 Bug Fixes
