@@ -1,3 +1,10 @@
+## [1.8.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.3...v1.8.4) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* call nativeOnPurchasesUpdated directly via reflection ([b799b37](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b799b378d4a531107c9147c3929c887fe4a1cba5))
+* call nativeOnPurchasesUpdated directly via reflection ([9372b55](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9372b55e611a5d5fe4accbccdaa88c64b112883b))
+
 ## [1.8.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.2...v1.8.3) (2026-07-12)
 
 ### 🐛 Bug Fixes
