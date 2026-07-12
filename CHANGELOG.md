@@ -1,3 +1,9 @@
+## [1.7.11](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.10...v1.7.11) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* pass both registers to success method VerifyErrorto fix  ([bf8e4f6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/bf8e4f61d4fa5ac42e53f392d63493006e0bd7ea))
+
 ## [1.7.10](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.9...v1.7.10) (2026-07-12)
 
 ### 🐛 Bug Fixes
