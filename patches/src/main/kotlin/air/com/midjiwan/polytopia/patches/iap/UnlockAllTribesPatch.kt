@@ -4,14 +4,17 @@ import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import air.com.midjiwan.polytopia.patches.shared.POLYTOPIA
 
+private const val EXTENSION_CLASS = "Ldiozz/cubex/patches/extension/BillingBypass;"
+
 @Suppress("unused")
 val unlockAllTribesPatch = bytecodePatch(
     name = "Unlock all tribes",
     description = "Unlocks all 20 tribes by setting the debug flag in " +
-        "Unity PlayerPrefs via SharedPreferences.",
+        "Unity PlayerPrefs via extension.",
     default = true,
 ) {
     compatibleWith(POLYTOPIA)
+    extendWith("extensions/extension.mpe")
 
     execute {
         val activityClass = classDefByOrNull { classDef ->
@@ -27,26 +30,12 @@ val unlockAllTribesPatch = bytecodePatch(
             it.implementation != null
         } ?: throw Exception("onCreate not found")
 
-        val allTribes = "Xinxi,Imperius,Bardur,Oumaji,Kickoo,Hoodrick," +
-            "Luxidoor,Vengir,Zebasi,Aimo,Aquarion,Elyrion,Polaris,Magma," +
-            "Yadakk,Quetzali,Cymanti,Swamp,Ikarus,Urkaz"
-
-        // Inject AFTER super.onCreate(bundle) to avoid register conflicts
-        // At index 1 (after super.onCreate), p0=this, p1=bundle are safe to use
-        // We use p1 as temp because bundle is no longer needed after super.onCreate
+        // Inject AFTER super.onCreate (index 1) to avoid register issues
+        // Extension does all the work, only needs p0 (Context)
         onCreateMethod.addInstructions(1, """
-            const-string p1, "air.com.midjiwan.polytopia.v2.playerprefs"
-            const/4 v0, 0x0
-            invoke-virtual {p0, p1, v0}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
-            move-result-object v0
-            invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences${'$'}Editor;
-            move-result-object v0
-            const-string p1, "polytopia_purchase_debug_unlocked_tribes"
-            const-string v1, "$allTribes"
-            invoke-interface {v0, p1, v1}, Landroid/content/SharedPreferences${'$'}Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences${'$'}Editor;
-            invoke-interface {v0}, Landroid/content/SharedPreferences${'$'}Editor;->apply()V
+            invoke-static {p0}, $EXTENSION_CLASS->unlockTribes(Landroid/content/Context;)V
         """.trimIndent())
 
-        println("✓ Injected debug unlock for 20 tribes")
+        println("✓ Injected tribe unlock via extension")
     }
 }
