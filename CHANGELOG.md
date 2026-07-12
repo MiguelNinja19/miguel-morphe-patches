@@ -1,3 +1,11 @@
+## [1.9.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.3...v1.9.4) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* use extension for tribe unlock and force store connection ([ff37175](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ff3717525f73302a556b44538538cc7ef26fb34b))
+* use extension for tribe unlock and force store connection ([a9c979b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a9c979b8a270d444b58e1b23e330b4092dbd3ad7))
+* use extension for tribe unlock and force store connection ([d5defdd](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d5defdd979c600d5a0c03b3a87840911f89bcbdf))
+
 ## [1.9.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.2...v1.9.3) (2026-07-12)
 
 ### 🐛 Bug Fixes
