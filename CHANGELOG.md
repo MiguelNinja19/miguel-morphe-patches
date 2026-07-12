@@ -1,3 +1,9 @@
+## [1.7.10](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.9...v1.7.10) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* smart billing bypass that finds and calls app's success method ([99baf72](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/99baf727eb13b67ac282ad3e318ce436361a4aef))
+
 ## [1.7.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.8...v1.7.9) (2026-07-12)
 
 ### 🐛 Bug Fixes

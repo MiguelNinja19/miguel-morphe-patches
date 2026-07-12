@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.7.9](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.7.9)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
+> **[v1.7.10](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.7.10)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -88,7 +88,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Billing bypass](#billing-bypass) | Patches Google Play In-App Billing to simulate successful purchases without contacting Google Play. |  |
+| [Billing bypass](#billing-bypass) | Attempts to credit purchases by finding the app's own success callback method and calling it directly. Scans for methods like nativeOnSuccess, onPurchaseSuccess, onIAPSuccess, etc. If no success method is found, patches billing to return success without crediting. |  |
 
 </details>
 
