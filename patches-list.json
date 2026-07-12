@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -45,7 +45,7 @@
     },
     {
       "name": "Free in-app purchases",
-      "description": "Skips Google Play Billing by intercepting launchBillingFlow, extracting the SKU, creating a fake Purchase object, and calling nativeOnPurchasesUpdated(0, \"\", [fakePurchase]) directly. The Play Store UI never opens.",
+      "description": "Skips Google Play Billing by creating a fake Purchase and calling nativeOnPurchasesUpdated directly via extension.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -243,7 +243,7 @@
     },
     {
       "name": "Unlock all tribes",
-      "description": "Unlocks all 20 tribes by setting the debug unlock flag in Unity SharedPreferences. Polytopia has a built-in debug class (EverythingUnlockedPlatformPurchaseManager) that checks the key 'polytopia_purchase_debug_unlocked_tribes'. Setting it to include all tribe names unlocks them without billing.",
+      "description": "Unlocks all 20 tribes by setting the debug flag in Unity PlayerPrefs via SharedPreferences.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [

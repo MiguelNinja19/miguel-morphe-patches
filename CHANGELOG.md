@@ -1,3 +1,11 @@
+## [1.9.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.0...v1.9.1) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* use p-registers for tribe unlock and fix billing bridge instance ([ca6f1ec](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ca6f1ec77f66b93567eae7a82c35433c09995ff7))
+* use p-registers for tribe unlock and fix billing bridge instance ([a25301c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a25301cdf6766a5665e3398cf6140b56fc7a714a))
+* use p-registers for tribe unlock and fix billing bridge instance ([e4e084a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e4e084a3b62c49ba1ef32399642b1c1bd974b226))
+
 ## [1.9.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.8...v1.9.0) (2026-07-12)
 
 ### ✨ New Features

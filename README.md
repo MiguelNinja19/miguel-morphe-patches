@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.9.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.9.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
+> **[v1.9.1](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.9.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -46,8 +46,8 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing by intercepting launchBillingFlow, extracting the SKU, creating a fake Purchase object, and calling nativeOnPurchasesUpdated(0, "", [fakePurchase]) directly. The Play Store UI never opens. |  |
-| [Unlock all tribes](#unlock-all-tribes) | Unlocks all 20 tribes by setting the debug unlock flag in Unity SharedPreferences. Polytopia has a built-in debug class (EverythingUnlockedPlatformPurchaseManager) that checks the key 'polytopia_purchase_debug_unlocked_tribes'. Setting it to include all tribe names unlocks them without billing. |  |
+| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing by creating a fake Purchase and calling nativeOnPurchasesUpdated directly via extension. |  |
+| [Unlock all tribes](#unlock-all-tribes) | Unlocks all 20 tribes by setting the debug flag in Unity PlayerPrefs via SharedPreferences. |  |
 
 </details>
 
