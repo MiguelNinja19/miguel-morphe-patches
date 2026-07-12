@@ -9,16 +9,15 @@ private const val EXTENSION_CLASS = "Ldiozz/cubex/patches/extension/BillingBypas
 @Suppress("unused")
 val freeInAppPurchasesPatch = bytecodePatch(
     name = "Free in-app purchases",
-    description = "Skips Google Play Billing by intercepting launchBillingFlow, " +
-        "extracting the SKU, creating a fake Purchase object, and calling " +
-        "nativeOnPurchasesUpdated(0, \"\", [fakePurchase]) directly. " +
-        "The Play Store UI never opens.",
+    description = "Skips Google Play Billing by creating a fake Purchase " +
+        "and calling nativeOnPurchasesUpdated directly via extension.",
     default = false,
 ) {
     compatibleWith(POLYTOPIA)
     extendWith("extensions/extension.mpe")
 
     execute {
+        // Patch launchBillingFlow to call extension
         val billingClientImpl = classDefBy("Lcom/android/billingclient/api/BillingClientImpl;")
             ?: throw Exception("BillingClientImpl not found")
 
@@ -33,7 +32,26 @@ val freeInAppPurchasesPatch = bytecodePatch(
                     move-result-object v0
                     return-object v0
                 """.trimIndent())
-                println("✓ Patched launchBillingFlow to create fake Purchase")
+                println("✓ Patched launchBillingFlow")
+            }
+        }
+
+        // Also patch onBillingSetupFinished to force success
+        val bridgeClass = classDefByOrNull { classDef ->
+            classDef.type.startsWith("Lcom/android/billingclient/api/zz") &&
+            classDef.methods.any { it.name == "nativeOnPurchasesUpdated" }
+        }
+
+        if (bridgeClass != null) {
+            val mutableBridge = mutableClassDefBy(bridgeClass)
+
+            mutableBridge.methods.find {
+                it.name == "onBillingSetupFinished" && it.implementation != null
+            }?.let { method ->
+                method.addInstructions(0, """
+                    invoke-static {}, $EXTENSION_CLASS->handleBillingSetupFinished()V
+                """.trimIndent())
+                println("✓ Patched onBillingSetupFinished")
             }
         }
     }
