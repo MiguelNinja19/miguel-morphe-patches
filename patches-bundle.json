@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-12T13:18:37",
-  "description": "## [1.8.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.0...v1.8.1) (2026-07-12)\n\n### 🐛 Bug Fixes\n\n* rewrite Polytopia patch to create fake Purchase object ([67b49af](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/67b49afd168cd671ab2101161117b74f55625daf))\n* rewrite Polytopia patch to create fake Purchase object ([4733800](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4733800614f19f6c7d8113f34c262db872db3ca2))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.8.1/patches-1.8.1.mpp",
+  "created_at": "2026-07-12T13:30:26",
+  "description": "## [1.8.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.1...v1.8.2) (2026-07-12)\n\n### 🐛 Bug Fixes\n\n* use invoke-static/range to fix register overflow in Polytopia ([9841ead](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9841eada434a901ef9e9a5627251ed11d04a7554))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.8.2/patches-1.8.2.mpp",
   "signature_download_url": "",
-  "version": "1.8.1"
+  "version": "1.8.2"
 }

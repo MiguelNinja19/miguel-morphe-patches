@@ -1,3 +1,9 @@
+## [1.8.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.1...v1.8.2) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* use invoke-static/range to fix register overflow in Polytopia ([9841ead](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9841eada434a901ef9e9a5627251ed11d04a7554))
+
 ## [1.8.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.0...v1.8.1) (2026-07-12)
 
 ### 🐛 Bug Fixes
