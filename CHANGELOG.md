@@ -1,3 +1,11 @@
+## [1.8.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.7...v1.8.8) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* extract SKU dynamically and create real Purchase object ([8a713c9](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8a713c9fb275caca966b2edc09d3e54611189cb1))
+* extract SKU dynamically and create real Purchase object ([3f5fc96](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/3f5fc9672e3b9df6c6d16ead63c0ed695b7dac0f))
+* extract SKU dynamically and create real Purchase object ([07dca56](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/07dca5665f7663d8c623779a967280b14acba8a3))
+
 ## [1.8.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.6...v1.8.7) (2026-07-12)
 
 ### 🐛 Bug Fixes

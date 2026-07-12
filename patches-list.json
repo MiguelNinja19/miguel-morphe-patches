@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.8.7",
+  "version": "1.8.8",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -41,6 +41,39 @@
       "default": false,
       "dependencies": [],
       "compatiblePackages": null,
+      "options": []
+    },
+    {
+      "name": "Free in-app purchases",
+      "description": "Skips Google Play Billing by intercepting launchBillingFlow, extracting the SKU, creating a fake Purchase object, and calling nativeOnPurchasesUpdated(0, \"\", [fakePurchase]) directly. The Play Store UI never opens.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "air.com.midjiwan.polytopia",
+          "name": "The Battle of Polytopia",
+          "description": null,
+          "apkFileType": "APKS",
+          "appIconColor": "#3B5998",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "2.17.2.16299",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
       "options": []
     },
     {
@@ -191,39 +224,6 @@
           "targets": [
             {
               "version": "2.041",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            },
-            {
-              "version": null,
-              "versionCodes": null,
-              "isExperimental": true,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
-      "name": "Unlock all tribes",
-      "description": "Unlocks all tribes by setting the debug unlock flag in SharedPreferences. Polytopia has a built-in debug mode (EverythingUnlockedPlatformPurchaseManager) that checks the 'polytopia_purchase_debug_unlocked_tribes' key. Setting it to include all tribe names unlocks them without billing.",
-      "default": true,
-      "dependencies": [],
-      "compatiblePackages": [
-        {
-          "packageName": "air.com.midjiwan.polytopia",
-          "name": "The Battle of Polytopia",
-          "description": null,
-          "apkFileType": "APKS",
-          "appIconColor": "#3B5998",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "2.17.2.16299",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,
