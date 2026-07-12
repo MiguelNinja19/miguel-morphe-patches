@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-12T16:46:37",
-  "description": "## [1.8.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.7...v1.8.8) (2026-07-12)\n\n### 🐛 Bug Fixes\n\n* extract SKU dynamically and create real Purchase object ([8a713c9](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8a713c9fb275caca966b2edc09d3e54611189cb1))\n* extract SKU dynamically and create real Purchase object ([3f5fc96](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/3f5fc9672e3b9df6c6d16ead63c0ed695b7dac0f))\n* extract SKU dynamically and create real Purchase object ([07dca56](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/07dca5665f7663d8c623779a967280b14acba8a3))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.8.8/patches-1.8.8.mpp",
+  "created_at": "2026-07-12T17:05:19",
+  "description": "## [1.9.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.8...v1.9.0) (2026-07-12)\n\n### ✨ New Features\n\n* add Polytopia tribe unlock and update universal billing bypass ([c4d70df](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/c4d70df428d578479040a33bcb94a6055e69d834))\n* add Polytopia tribe unlock and update universal billing bypass ([297d1c0](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/297d1c0bd4bae837cecb99235bdb5e1c15725eaf))\n* add Polytopia tribe unlock and update universal billing bypass ([ceae171](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ceae171553446d9c8120a2b39b1d92f430f4f714))\n* add Polytopia tribe unlock and update universal billing bypass ([29c8d10](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/29c8d109df2fd3a4f142438aa3e28ee4d5e16aa8))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.9.0/patches-1.9.0.mpp",
   "signature_download_url": "",
-  "version": "1.8.8"
+  "version": "1.9.0"
 }

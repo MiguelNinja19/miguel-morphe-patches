@@ -1,3 +1,12 @@
+## [1.9.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.8...v1.9.0) (2026-07-12)
+
+### ✨ New Features
+
+* add Polytopia tribe unlock and update universal billing bypass ([c4d70df](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/c4d70df428d578479040a33bcb94a6055e69d834))
+* add Polytopia tribe unlock and update universal billing bypass ([297d1c0](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/297d1c0bd4bae837cecb99235bdb5e1c15725eaf))
+* add Polytopia tribe unlock and update universal billing bypass ([ceae171](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ceae171553446d9c8120a2b39b1d92f430f4f714))
+* add Polytopia tribe unlock and update universal billing bypass ([29c8d10](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/29c8d109df2fd3a4f142438aa3e28ee4d5e16aa8))
+
 ## [1.8.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.7...v1.8.8) (2026-07-12)
 
 ### 🐛 Bug Fixes

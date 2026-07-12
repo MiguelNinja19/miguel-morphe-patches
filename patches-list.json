@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.8.8",
+  "version": "1.9.0",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -37,7 +37,7 @@
     },
     {
       "name": "Billing bypass",
-      "description": "Attempts to credit purchases by finding the app's own success callback method and calling it directly. Scans for methods like nativeOnSuccess, onPurchaseSuccess, onIAPSuccess, etc. Also supports Unity IL2CPP games by finding nativeOnPurchasesUpdated JNI bridge methods. If no success method is found, patches billing to return success without crediting.",
+      "description": "Attempts to credit purchases by finding the app's own success callback method and calling it directly. Scans for methods like nativeOnSuccess, onPurchaseSuccess, onIAPSuccess, etc. Also supports Unity IL2CPP games by finding nativeOnPurchasesUpdated JNI bridge methods and creating fake Purchase objects. If no success method is found, patches billing to return success without crediting.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": null,
@@ -46,7 +46,7 @@
     {
       "name": "Free in-app purchases",
       "description": "Skips Google Play Billing by intercepting launchBillingFlow, extracting the SKU, creating a fake Purchase object, and calling nativeOnPurchasesUpdated(0, \"\", [fakePurchase]) directly. The Play Store UI never opens.",
-      "default": true,
+      "default": false,
       "dependencies": [],
       "compatiblePackages": [
         {
@@ -224,6 +224,39 @@
           "targets": [
             {
               "version": "2.041",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Unlock all tribes",
+      "description": "Unlocks all 20 tribes by setting the debug unlock flag in Unity SharedPreferences. Polytopia has a built-in debug class (EverythingUnlockedPlatformPurchaseManager) that checks the key 'polytopia_purchase_debug_unlocked_tribes'. Setting it to include all tribe names unlocks them without billing.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "air.com.midjiwan.polytopia",
+          "name": "The Battle of Polytopia",
+          "description": null,
+          "apkFileType": "APKS",
+          "appIconColor": "#3B5998",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "2.17.2.16299",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,
