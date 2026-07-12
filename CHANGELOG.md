@@ -1,3 +1,9 @@
+## [1.8.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.6...v1.8.7) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* unlock all tribes via debug SharedPreferences key ([ca9aa03](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ca9aa03a6725125ecc3c311faa76a690999cb290))
+
 ## [1.8.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.5...v1.8.6) (2026-07-12)
 
 ### 🐛 Bug Fixes
