@@ -1,3 +1,9 @@
+## [1.7.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.8...v1.7.9) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* stop crash by using addInstructions instead of removeInstructions ([4266c13](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4266c137eda1d7f8159ba1ab4a324177bf4f26f1))
+
 ## [1.7.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.7...v1.7.8) (2026-07-11)
 
 ### 🐛 Bug Fixes
