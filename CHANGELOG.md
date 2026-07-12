@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.2...v1.8.3) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* pass correct parameters to billing bypass extension ([35eb639](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/35eb63927d3c67d73ee37aefd8e6039260905c62))
+* pass correct parameters to billing bypass extension ([d7a7b30](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d7a7b305fccf0c012018ed4afb2638ba94db63f4))
+
 ## [1.8.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.1...v1.8.2) (2026-07-12)
 
 ### 🐛 Bug Fixes
