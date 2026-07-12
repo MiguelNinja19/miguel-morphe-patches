@@ -13,7 +13,7 @@ val freeInAppPurchasesPatch = bytecodePatch(
         "extracting the SKU, creating a fake Purchase object, and calling " +
         "nativeOnPurchasesUpdated(0, \"\", [fakePurchase]) directly. " +
         "The Play Store UI never opens.",
-    default = true,
+    default = false,
 ) {
     compatibleWith(POLYTOPIA)
     extendWith("extensions/extension.mpe")
