@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.7.11](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.7.11)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
+> **[v1.8.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.8.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;9 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -32,6 +32,21 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 |----------|----------------|-----------|
 | [Auto reward ads](#auto-reward-ads) | When a rewarded ad is closed, the game always thinks you watched the entire ad. You get the reward even if you skip or close the ad immediately. |  |
 | [Unlimited gems, rubies & unlock all](#unlimited-gems-rubies-unlock-all) | Sets gems, rubies (diamonds), keys and tickets to 9999999. Unlocks VIP (removes ads + VIP rewards + Ninja Assassin VIP character), all assassin characters (2-44), including all Legendary characters (Scarecrow, Dracula, Thor, Wolverine, Myers, Santa, Grinch, Nutcracker, Cricket Player), and all special knives. |  |
+
+</details>
+
+<details open>
+<summary>📦 The Battle of Polytopia&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
+<br>
+
+**🎯 Supported versions:**
+
+| 2.17.2.16299 |
+| :---: |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing and simulates successful purchases by calling the Unity JNI bridge (nativeOnPurchasesUpdated) directly with responseCode=0 (OK). |  |
 
 </details>
 
@@ -88,7 +103,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Billing bypass](#billing-bypass) | Attempts to credit purchases by finding the app's own success callback method and calling it directly. Scans for methods like nativeOnSuccess, onPurchaseSuccess, onIAPSuccess, etc. If no success method is found, patches billing to return success without crediting. |  |
+| [Billing bypass](#billing-bypass) | Attempts to credit purchases by finding the app's own success callback method and calling it directly. Scans for methods like nativeOnSuccess, onPurchaseSuccess, onIAPSuccess, etc. Also supports Unity IL2CPP games by finding nativeOnPurchasesUpdated JNI bridge methods. If no success method is found, patches billing to return success without crediting. |  |
 
 </details>
 

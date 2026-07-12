@@ -1,3 +1,16 @@
+## [1.8.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.11...v1.8.0) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* correct import for POLYTOPIA in FreeInAppPurchasesPatch ([ce93f94](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ce93f9490cbd325d291d2c6ef974dacfd4554c1c))
+
+### ✨ New Features
+
+* add Polytopia patch and Unity IL2CPP support to universal billing ([f80ae6b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/f80ae6b10133fb890e072fd60eafa47f1287768d))
+* add Polytopia patch and Unity IL2CPP support to universal billing ([d4b2f72](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d4b2f72eb16433f8c2eefd15b242bebe4d7b0d63))
+* add Polytopia patch and Unity IL2CPP support to universal billing ([5547501](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/5547501e4f8f822ffc3f3e2e09bd77df92ad776d))
+* add Polytopia patch and Unity IL2CPP support to universal billing ([084d48d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/084d48dc699c589be2bcd66ef2bcc02647adf803))
+
 ## [1.7.11](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.7.10...v1.7.11) (2026-07-12)
 
 ### 🐛 Bug Fixes
