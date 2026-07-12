@@ -1,3 +1,9 @@
+## [1.8.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.4...v1.8.5) (2026-07-12)
+
+### 🐛 Bug Fixes
+
+* create fake Purchase object with SKU for Polytopia billing ([0900a01](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0900a0166dab0d5677a0b5206c27dd7512ae1186))
+
 ## [1.8.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.3...v1.8.4) (2026-07-12)
 
 ### 🐛 Bug Fixes

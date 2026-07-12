@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-12T14:10:49",
-  "description": "## [1.8.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.3...v1.8.4) (2026-07-12)\n\n### 🐛 Bug Fixes\n\n* call nativeOnPurchasesUpdated directly via reflection ([b799b37](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b799b378d4a531107c9147c3929c887fe4a1cba5))\n* call nativeOnPurchasesUpdated directly via reflection ([9372b55](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9372b55e611a5d5fe4accbccdaa88c64b112883b))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.8.4/patches-1.8.4.mpp",
+  "created_at": "2026-07-12T14:25:16",
+  "description": "## [1.8.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.8.4...v1.8.5) (2026-07-12)\n\n### 🐛 Bug Fixes\n\n* create fake Purchase object with SKU for Polytopia billing ([0900a01](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0900a0166dab0d5677a0b5206c27dd7512ae1186))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.8.5/patches-1.8.5.mpp",
   "signature_download_url": "",
-  "version": "1.8.4"
+  "version": "1.8.5"
 }
