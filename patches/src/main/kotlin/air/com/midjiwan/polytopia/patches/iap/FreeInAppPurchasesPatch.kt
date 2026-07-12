@@ -23,12 +23,14 @@ val freeInAppPurchasesPatch = bytecodePatch(
 
         val mutableClass = mutableClassDefBy(billingClientImpl)
 
+        // launchBillingFlow(Activity, BillingFlowParams) → 3 params: p0=this, p1=activity, p2=params
+        // Pass all 3 to extension (extension ignores activity)
         mutableClass.methods.find { 
             it.name == "launchBillingFlow" && it.parameterTypes.size == 2 
         }?.let { method ->
             if (method.implementation != null) {
                 method.addInstructions(0, """
-                    invoke-static/range {p0 .. p1}, $EXTENSION_CLASS->handleLaunchBillingFlow(Lcom/android/billingclient/api/BillingClient;Ljava/lang/Object;)Lcom/android/billingclient/api/BillingResult;
+                    invoke-static/range {p0 .. p2}, $EXTENSION_CLASS->handleLaunchBillingFlow(Lcom/android/billingclient/api/BillingClient;Ljava/lang/Object;Ljava/lang/Object;)Lcom/android/billingclient/api/BillingResult;
                     move-result-object v0
                     return-object v0
                 """.trimIndent())
