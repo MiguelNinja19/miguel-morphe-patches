@@ -3,20 +3,17 @@
  *
  * HOW IT WORKS (following morphe-ai billing-bypass patterns):
  *
- * Polytopia uses Google Play Billing via the Unity IL2CPP bridge
- * class zzbq. The morphe-ai billing-bypass-patterns guide recommends
- * two approaches for Google Play Billing:
+ *   HOOK 1: zzbq.onBillingSetupFinished -> force responseCode=0
+ *   HOOK 2: Purchase.isAcknowledged() -> return true
+ *   HOOK 3: Purchase.getPurchaseState() -> return 1 (PURCHASED)
+ *   HOOK 4: zzbq.onPurchasesUpdated -> force responseCode=0 (safety net)
+ *   HOOK 5: BillingClientImpl.launchBillingFlow -> fake purchase
  *
- *   1. Override BillingResult to always return OK (responseCode=0)
- *   2. Override Purchase validation methods (isAcknowledged, getPurchaseState)
- *
- * This patch does BOTH, plus a third safety net:
- *
- * HOOK 1: zzbq.onBillingSetupFinished -> force responseCode=0
- * HOOK 2: Purchase.isAcknowledged() -> returnEarly(true)
- * HOOK 3: Purchase.getPurchaseState() -> return 1 (PURCHASED)
- * HOOK 4: zzbq.onPurchasesUpdated -> force responseCode=0 (safety net)
- * HOOK 5: BillingClientImpl.launchBillingFlow -> fake purchase
+ * IMPORTANT (register safety):
+ *   launchBillingFlow has .locals 28, so p2 = v30 (above v15 limit).
+ *   invoke-virtual/invoke-static only accept v0-v15. We MUST move p2
+ *   to a low register (v0) before using it. Same for return-object
+ *   with BillingResult.Builder chain.
  *
  * Pure smali, no extension DEX.
  */
@@ -50,18 +47,13 @@ val freeInAppPurchasesPatch = bytecodePatch(
         // ============================================================
         // HOOK 1: zzbq.onBillingSetupFinished -> force success
         // ============================================================
+        // .locals 3, so p0=v3, p1=v4. All < 15, safe for invoke-static.
+        // ============================================================
         UnityBillingSetupFingerprint.method.addInstructions(0, """
-            # p0 = this (zzbq)
-            # p1 = BillingResult (ignored - we force success)
-
-            # Get this.zza (the native pointer)
             iget-wide v0, p0, Lcom/android/billingclient/api/zzbq;->zza:J
-
-            # Call nativeOnBillingSetupFinished(0, "", zza)
             const/4 v2, 0x0
             const-string v3, ""
             invoke-static {v2, v3, v0, v1}, Lcom/android/billingclient/api/zzbq;->nativeOnBillingSetupFinished(ILjava/lang/String;J)V
-
             return-void
         """.trimIndent())
 
@@ -87,29 +79,27 @@ val freeInAppPurchasesPatch = bytecodePatch(
         // ============================================================
         // HOOK 4: zzbq.onPurchasesUpdated -> force success
         // ============================================================
+        // .locals 1, so p0=v1, p1=v2, p2=v3. All < 15, safe.
+        // We use v0 (local) + p2 (List) for the array conversion.
+        // ============================================================
         UnityPurchasesUpdatedFingerprint.method.addInstructions(0, """
-            # p0 = this (zzbq)
-            # p1 = BillingResult (ignored)
-            # p2 = List<Purchase>
-
-            # If list is null, use empty array
             if-nez p2, :has_purchases
             const/4 v0, 0x0
-            new-array v1, v0, [Lcom/android/billingclient/api/Purchase;
-            const-string v2, ""
-            invoke-static {v0, v2, v1}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
+            new-array v0, v0, [Lcom/android/billingclient/api/Purchase;
+            const-string v1, ""
+            invoke-static {v0, v1, v0}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
             return-void
 
             :has_purchases
             invoke-interface {p2}, Ljava/util/List;->size()I
             move-result v0
-            new-array v1, v0, [Lcom/android/billingclient/api/Purchase;
-            invoke-interface {p2, v1}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
-            move-result-object v1
-            check-cast v1, [Lcom/android/billingclient/api/Purchase;
-            const/4 v2, 0x0
-            const-string v3, ""
-            invoke-static {v2, v3, v1}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
+            new-array v0, v0, [Lcom/android/billingclient/api/Purchase;
+            invoke-interface {p2, v0}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
+            move-result-object v0
+            check-cast v0, [Lcom/android/billingclient/api/Purchase;
+            const/4 v1, 0x0
+            const-string v2, ""
+            invoke-static {v1, v2, v0}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
             return-void
         """.trimIndent())
 
@@ -117,13 +107,22 @@ val freeInAppPurchasesPatch = bytecodePatch(
         // ============================================================
         // HOOK 5: BillingClientImpl.launchBillingFlow -> fake purchase
         // ============================================================
-        // NOTE: ${'$'} is used to escape $ in Kotlin triple-quoted strings.
-        // In smali, $ is a literal character (inner class separator).
+        // CRITICAL: This method has .locals 28, so:
+        //   p0 = v28 (this)
+        //   p1 = v29 (Activity)
+        //   p2 = v30 (BillingFlowParams)  <-- ABOVE v15!
+        //
+        // invoke-virtual/invoke-static only accept v0-v15. So we MUST
+        // move p2 to v0 at the start, then use v0 everywhere.
+        //
+        // We also use v0-v6 (all < 15) for the rest of the logic.
         // ============================================================
         LaunchBillingFlowFingerprint.method.addInstructions(0, """
-            # --- Step 1: Extract SKU from BillingFlowParams (p2) ---
+            # Move p2 (v30) to v0 so we can use it in invoke-virtual
+            move-object/from16 v0, p2
 
-            invoke-virtual {p2}, Lcom/android/billingclient/api/BillingFlowParams;->zzk()Ljava/util/List;
+            # --- Step 1: Extract SKU from BillingFlowParams ---
+            invoke-virtual {v0}, Lcom/android/billingclient/api/BillingFlowParams;->zzk()Ljava/util/List;
             move-result-object v0
             if-eqz v0, :return_success
 
