@@ -3,8 +3,7 @@
  *
  * HOW IT WORKS (native hex patch on libil2cpp.so):
  *
- * Instead of trying to activate debug mode or bypass billing, this patch
- * directly patches the NATIVE ARM64 code in libil2cpp.so to make the
+ * Directly patches the NATIVE ARM64 code in libil2cpp.so to make the
  * methods IsTribeUnlocked() and IsSkinUnlocked() always return true.
  *
  * This is the "Hex Patch on Native Library" pattern from the morphe-ai
@@ -25,12 +24,15 @@
  *
  * This makes ALL tribes and skins appear as unlocked in the tribe picker.
  * The user can select and play with any tribe without purchasing.
+ *
+ * API: Morphe rawResourcePatch + get() to read the .so file, then
+ * replace the byte pattern and writeBytes() back. The .so file is
+ * available as a raw resource in the APK split.
  */
 
 package air.com.midjiwan.polytopia.patches.iap
 
 import app.morphe.patcher.patch.rawResourcePatch
-import app.morphe.patcher.patch.hexPatch
 import air.com.midjiwan.polytopia.patches.shared.POLYTOPIA
 
 @Suppress("unused")
@@ -46,21 +48,73 @@ val unlockAllTribesPatch = rawResourcePatch(
 ) {
     compatibleWith(POLYTOPIA)
 
-    dependsOn(hexPatch(block = {
+    execute {
+        // ============================================================
+        // Patch libil2cpp.so: IsTribeUnlocked + IsSkinUnlocked → true
+        // ============================================================
+        // ARM64 opcodes:
+        //   mov w0, #1 = 20 00 80 52  (set return value to 1/true)
+        //   ret         = C0 03 5F D6  (return immediately)
+        //
+        // Each function starts with the same 8-byte prologue:
+        //   FE 57 BE A9 F4 4F 01 A9
+        // but the next 16 bytes are unique per function.
+        //
+        // We search for the 24-byte pattern (prologue + 16 unique bytes)
+        // and replace the first 8 bytes with mov+ret.
+        // ============================================================
+
         val libPath = "lib/arm64-v8a/libil2cpp.so"
+        val libFile = get(libPath)
+        val libBytes = libFile.readBytes()
 
-        // PurchaseManager.IsTribeUnlocked(TribeType)Z → return true
-        // File offset: 0x04551B80 (virtual: 0x04555B80)
-        // Pattern: 24 bytes (unique — 1 occurrence in 95MB binary)
-        // Replace: mov w0, #1 + ret + 16 bytes original
-        "FE 57 BE A9 F4 4F 01 A9 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 66 57 39" asPatternTo
-        "20 00 80 52 C0 03 5F D6 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 66 57 39" inFile libPath
+        // ARM64 patch: mov w0, #1 + ret
+        val patch = byteArrayOf(
+            0x20, 0x00, 0x80.toByte(), 0x52,  // mov w0, #1
+            0xC0.toByte(), 0x03, 0x5F, 0xD6.toByte()   // ret
+        )
 
-        // PurchaseManager.IsSkinUnlocked(SkinType)Z → return true
-        // File offset: 0x04551BF8 (virtual: 0x04555BF8)
-        // Pattern: 24 bytes (unique — 1 occurrence)
-        // Replace: mov w0, #1 + ret + 16 bytes original
-        "FE 57 BE A9 F4 4F 01 A9 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 6A 57 39" asPatternTo
-        "20 00 80 52 C0 03 5F D6 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 6A 57 39" inFile libPath
-    }))
+        // PurchaseManager.IsTribeUnlocked(TribeType)Z
+        // Pattern (24 bytes, unique - 1 occurrence in 95MB):
+        //   FE 57 BE A9 F4 4F 01 A9 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 66 57 39
+        val tribePattern = byteArrayOf(
+            0xFE.toByte(), 0x57, 0xBE.toByte(), 0xA9.toByte(),
+            0xF4.toByte(), 0x4F, 0x01, 0xA9.toByte(),
+            0x75, 0xB1, 0x00, 0xB0.toByte(),
+            0xF3.toByte(), 0x03, 0x01, 0x2A.toByte(),
+            0xF4.toByte(), 0x03, 0x00, 0xAA.toByte(),
+            0xA8.toByte(), 0x66, 0x57, 0x39
+        )
+
+        // PurchaseManager.IsSkinUnlocked(SkinType)Z
+        // Pattern (24 bytes, unique - 1 occurrence):
+        //   FE 57 BE A9 F4 4F 01 A9 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 6A 57 39
+        val skinPattern = byteArrayOf(
+            0xFE.toByte(), 0x57, 0xBE.toByte(), 0xA9.toByte(),
+            0xF4.toByte(), 0x4F, 0x01, 0xA9.toByte(),
+            0x75, 0xB1, 0x00, 0xB0.toByte(),
+            0xF3.toByte(), 0x03, 0x01, 0x2A.toByte(),
+            0xF4.toByte(), 0x03, 0x00, 0xAA.toByte(),
+            0xA8.toByte(), 0x6A, 0x57, 0x39
+        )
+
+        // Patch IsTribeUnlocked
+        val tribeIdx = libBytes.indexOfSlice(tribePattern)
+        if (tribeIdx >= 0) {
+            for (i in patch.indices) {
+                libBytes[tribeIdx + i] = patch[i]
+            }
+        }
+
+        // Patch IsSkinUnlocked
+        val skinIdx = libBytes.indexOfSlice(skinPattern)
+        if (skinIdx >= 0) {
+            for (i in patch.indices) {
+                libBytes[skinIdx + i] = patch[i]
+            }
+        }
+
+        // Write patched bytes back
+        libFile.writeBytes(libBytes)
+    }
 }
