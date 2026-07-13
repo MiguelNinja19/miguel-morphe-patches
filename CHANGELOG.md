@@ -1,3 +1,10 @@
+## [1.9.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.6...v1.9.7) (2026-07-13)
+
+### 🐛 Bug Fixes
+
+* move IAP fake purchase logic to Java extension ([60a64f6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/60a64f63a0fab79dc0195a1382da91aeb8d5f292))
+* move IAP fake purchase logic to Java extension ([ccf8b40](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ccf8b4075ef1c2fb97e614528a1ec95719b616f3))
+
 ## [1.9.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.5...v1.9.6) (2026-07-13)
 
 ### 🐛 Bug Fixes
