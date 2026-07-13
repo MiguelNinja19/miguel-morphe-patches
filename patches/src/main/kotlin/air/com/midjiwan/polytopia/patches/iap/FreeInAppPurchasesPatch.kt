@@ -13,31 +13,10 @@
  * This patch does BOTH, plus a third safety net:
  *
  * HOOK 1: zzbq.onBillingSetupFinished -> force responseCode=0
- *   Uses addInstructions at index 0 to call nativeOnBillingSetupFinished
- *   with success code. Original code becomes dead code.
- *   (Cannot use returnEarly() here because we need to CALL the native
- *    method with specific args, not just return.)
- *
  * HOOK 2: Purchase.isAcknowledged() -> returnEarly(true)
- *   Uses the morphe-ai returnEarly(true) API. The C# code checks
- *   isAcknowledged() to verify a purchase is valid. Forcing true makes
- *   every purchase look acknowledged.
- *
  * HOOK 3: Purchase.getPurchaseState() -> return 1 (PURCHASED)
- *   Uses addInstructions with const/4 + return. Forces state to 1
- *   (PurchaseState.PURCHASED) so the C# code thinks every purchase
- *   completed successfully.
- *
- * HOOK 4: BillingClientImpl.launchBillingFlow -> fake purchase
- *   The big gun. Extracts the SKU from BillingFlowParams, builds a
- *   fake Purchase JSON, creates a Purchase object, and calls
- *   nativeOnPurchasesUpdated(0, "", [fakePurchase]) directly.
- *   This credits the purchase without ever contacting Google Play.
- *
- * Pattern reference:
- *   - morphe-ai/patterns/billing-bypass-patterns.md (Google Play Billing)
- *   - morphe-ai/patcher-apis.md (returnEarly, addInstructions)
- *   - morphe-ai/patch-examples.md (Pattern 3: Return Value Override)
+ * HOOK 4: zzbq.onPurchasesUpdated -> force responseCode=0 (safety net)
+ * HOOK 5: BillingClientImpl.launchBillingFlow -> fake purchase
  *
  * Pure smali, no extension DEX.
  */
@@ -71,13 +50,6 @@ val freeInAppPurchasesPatch = bytecodePatch(
         // ============================================================
         // HOOK 1: zzbq.onBillingSetupFinished -> force success
         // ============================================================
-        // Pattern: Google Play Billing — override BillingResult.
-        // We replace the method body to call nativeOnBillingSetupFinished
-        // with responseCode=0 (success) and the original native pointer.
-        //
-        // Cannot use returnEarly() because we need to CALL the native
-        // method with specific args.
-        // ============================================================
         UnityBillingSetupFingerprint.method.addInstructions(0, """
             # p0 = this (zzbq)
             # p1 = BillingResult (ignored - we force success)
@@ -95,11 +67,7 @@ val freeInAppPurchasesPatch = bytecodePatch(
 
 
         // ============================================================
-        // HOOK 2: Purchase.isAcknowledged() -> returnEarly(true)
-        // ============================================================
-        // Pattern: morphe-ai returnEarly(true) — simplest way to patch.
-        // The C# code calls isAcknowledged() to check if a purchase is
-        // valid. Forcing true makes every purchase look acknowledged.
+        // HOOK 2: Purchase.isAcknowledged() -> return true
         // ============================================================
         PurchaseIsAcknowledgedFingerprint.method.addInstructions(0, """
             const/4 v0, 0x1
@@ -110,10 +78,6 @@ val freeInAppPurchasesPatch = bytecodePatch(
         // ============================================================
         // HOOK 3: Purchase.getPurchaseState() -> return 1 (PURCHASED)
         // ============================================================
-        // Pattern: morphe-ai addInstructions + const/4 + return.
-        // PurchaseState: 0=UNSPECIFIED, 1=PURCHASED, 2=PENDING.
-        // Forcing 1 makes the C# code think every purchase completed.
-        // ============================================================
         PurchaseGetStateFingerprint.method.addInstructions(0, """
             const/4 v0, 0x1
             return v0
@@ -122,11 +86,6 @@ val freeInAppPurchasesPatch = bytecodePatch(
 
         // ============================================================
         // HOOK 4: zzbq.onPurchasesUpdated -> force success
-        // ============================================================
-        // Pattern: Google Play Billing — override BillingResult.
-        // If the game calls onPurchasesUpdated from somewhere else
-        // (e.g. queryPurchasesAsync), force responseCode=0 and pass
-        // through the purchases array.
         // ============================================================
         UnityPurchasesUpdatedFingerprint.method.addInstructions(0, """
             # p0 = this (zzbq)
@@ -158,24 +117,8 @@ val freeInAppPurchasesPatch = bytecodePatch(
         // ============================================================
         // HOOK 5: BillingClientImpl.launchBillingFlow -> fake purchase
         // ============================================================
-        // The big gun. Pattern: method injection with complex smali.
-        //
-        // Flow:
-        //   p0 = this (BillingClientImpl)
-        //   p1 = Activity
-        //   p2 = BillingFlowParams (contains the SKU)
-        //
-        //   1. Extract SKU: BillingFlowParams.zzk() -> List
-        //      -> ProductDetailsParams.zza() -> ProductDetails
-        //      -> getProductId() -> String SKU
-        //   2. Build Purchase JSON via String.format
-        //   3. new Purchase(json, "")
-        //   4. new Purchase[1] with the fake purchase
-        //   5. zzbq.nativeOnPurchasesUpdated(0, "", array)
-        //   6. Return BillingResult with responseCode=0 (success)
-        //
-        // Original code (Play Store call) becomes dead code because
-        // we return early.
+        // NOTE: ${'$'} is used to escape $ in Kotlin triple-quoted strings.
+        // In smali, $ is a literal character (inner class separator).
         // ============================================================
         LaunchBillingFlowFingerprint.method.addInstructions(0, """
             # --- Step 1: Extract SKU from BillingFlowParams (p2) ---
@@ -191,9 +134,9 @@ val freeInAppPurchasesPatch = bytecodePatch(
             const/4 v1, 0x0
             invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
             move-result-object v0
-            check-cast v0, Lcom/android/billingclient/api/BillingFlowParams$ProductDetailsParams;
+            check-cast v0, Lcom/android/billingclient/api/BillingFlowParams${'$'}ProductDetailsParams;
 
-            invoke-virtual {v0}, Lcom/android/billingclient/api/BillingFlowParams$ProductDetailsParams;->zza()Lcom/android/billingclient/api/ProductDetails;
+            invoke-virtual {v0}, Lcom/android/billingclient/api/BillingFlowParams${'$'}ProductDetailsParams;->zza()Lcom/android/billingclient/api/ProductDetails;
             move-result-object v0
             if-eqz v0, :return_success
 
@@ -203,4 +146,43 @@ val freeInAppPurchasesPatch = bytecodePatch(
 
             # --- Step 2: Build Purchase JSON via String.format ---
 
-            const-string v1, "{\"productId\":\"%s\",\"purchaseToken\":\"polytopia_mod\",\"packageName\":\"air.com.midjiwan.polytopia\",\"purchaseState\":1,\"purchaseTime\":
+            const-string v1, "{\"productId\":\"%s\",\"purchaseToken\":\"polytopia_mod\",\"packageName\":\"air.com.midjiwan.polytopia\",\"purchaseState\":1,\"purchaseTime\":1700000000000,\"acknowledged\":true}"
+            const/4 v2, 0x1
+            new-array v3, v2, [Ljava/lang/Object;
+            const/4 v4, 0x0
+            aput-object v0, v3, v4
+            invoke-static {v1, v3}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+            move-result-object v0
+
+            # --- Step 3: Create Purchase object ---
+
+            const-string v1, ""
+            new-instance v2, Lcom/android/billingclient/api/Purchase;
+            invoke-direct {v2, v0, v1}, Lcom/android/billingclient/api/Purchase;-><init>(Ljava/lang/String;Ljava/lang/String;)V
+
+            # --- Step 4: Create Purchase[] array ---
+
+            const/4 v3, 0x1
+            new-array v4, v3, [Lcom/android/billingclient/api/Purchase;
+            const/4 v5, 0x0
+            aput-object v2, v4, v5
+
+            # --- Step 5: Call nativeOnPurchasesUpdated(0, "", array) ---
+
+            const/4 v5, 0x0
+            const-string v6, ""
+            invoke-static {v5, v6, v4}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
+
+            # --- Step 6: Return success BillingResult ---
+
+            :return_success
+            invoke-static {}, Lcom/android/billingclient/api/BillingResult;->newBuilder()Lcom/android/billingclient/api/BillingResult${'$'}Builder;
+            move-result-object v0
+            const/4 v1, 0x0
+            invoke-virtual {v0, v1}, Lcom/android/billingclient/api/BillingResult${'$'}Builder;->setResponseCode(I)Lcom/android/billingclient/api/BillingResult${'$'}Builder;
+            invoke-virtual {v0}, Lcom/android/billingclient/api/BillingResult${'$'}Builder;->build()Lcom/android/billingclient/api/BillingResult;
+            move-result-object v0
+            return-object v0
+        """.trimIndent())
+    }
+}
