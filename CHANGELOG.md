@@ -1,3 +1,11 @@
+## [1.9.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.7...v1.9.8) (2026-07-13)
+
+### 🐛 Bug Fixes
+
+* **polytopia:** re-add MainActivityOnCreateFingerprint to Fingerprints.kt ([5e83a48](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/5e83a48a186511feca5f03fb7a15924653452187))
+* **polytopia:** simplify IAP patch to follow morphe-ai billing-bypass pattern ([fee271c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fee271cbefe0f73904536a914aa2db0c3fb19a41))
+* **polytopia:** simplify IAP patch to follow morphe-ai billing-bypass pattern ([9253c7d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9253c7d3fef4a2bdcee20271af7d69b71bb317b9))
+
 ## [1.9.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.6...v1.9.7) (2026-07-13)
 
 ### 🐛 Bug Fixes
