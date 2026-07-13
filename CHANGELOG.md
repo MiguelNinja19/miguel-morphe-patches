@@ -1,3 +1,10 @@
+## [1.9.10](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.9...v1.9.10) (2026-07-13)
+
+### 🐛 Bug Fixes
+
+* **billing:** fix parameterTypes type mismatch + add per-method logs ([929f8b0](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/929f8b0f556ad76f2f0e6063c1af3998b3300a74))
+* **billing:** rewrite universal billing bypass with 4 phases and compact logs ([2e75f7d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/2e75f7d8fa4c08838f9e8daca6149d478fcba1f1))
+
 ## [1.9.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.8...v1.9.9) (2026-07-13)
 
 ### 🐛 Bug Fixes

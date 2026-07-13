@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.9.9](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.9.9)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
+> **[v1.9.10](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.9.10)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -104,7 +104,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Billing bypass](#billing-bypass) | Attempts to credit purchases by finding the app's own success callback method and calling it directly. Scans for methods like nativeOnSuccess, onPurchaseSuccess, onIAPSuccess, etc. Also supports Unity IL2CPP games by finding nativeOnPurchasesUpdated JNI bridge methods and creating fake Purchase objects. If no success method is found, patches billing to return success without crediting. |  |
+| [Billing bypass](#billing-bypass) | Attempts to credit purchases by scanning the app for billing code and applying the appropriate bypass. Runs 4 phases: (1) Cocos2d-x helper — finds app-level success methods. (2) Google Play Billing — patches Purchase.isAcknowledged and getPurchaseState. (3) Unity billing — patches zzbq bridge callbacks (onBillingSetupFinished, onPurchasesUpdated). (4) Fallback — patches billing to return success without crediting. |  |
 
 </details>
 
