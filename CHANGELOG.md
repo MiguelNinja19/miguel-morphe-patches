@@ -1,3 +1,14 @@
+## [1.9.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.4...v1.9.5) (2026-07-13)
+
+### 🐛 Bug Fixes
+
+* **polytopia:** add unlock all tribes and free IAP patches ([a6cce19](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a6cce19edd1e724f426c3bf11451d5f0fe0273d7))
+* **polytopia:** add unlock all tribes and free IAP patches ([7cb6faf](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7cb6faf1bb37b913e5dd78deea40d2dade1c5d36))
+* **polytopia:** add unlock all tribes and free IAP patches ([bddd7d7](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/bddd7d724e94deec252c055570e6cb208c46edc1))
+* **polytopia:** add unlock all tribes and free IAP patches ([77f1d9e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/77f1d9e08a5968ca73782cd8232e94093014d4f4))
+* **polytopia:** correct imports and escape $ in smali inner class references ([4bb8e4d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4bb8e4d8bf679b281b7c34a024d38d29a130b55c))
+* **polytopia:** correct imports and escape $ in smali inner class references ([15ee78c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/15ee78c37f705d50e8f5905c8f099368148dffda))
+
 ## [1.9.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.3...v1.9.4) (2026-07-12)
 
 ### 🐛 Bug Fixes
