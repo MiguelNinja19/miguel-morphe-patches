@@ -1,3 +1,11 @@
+## [1.9.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.5...v1.9.6) (2026-07-13)
+
+### 🐛 Bug Fixes
+
+* **polytopia:** resolve register crashes in both patches ([8b5f1ec](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8b5f1ec316a0ee4385c99c2ba5bea2b588a63383))
+* **polytopia:** resolve register crashes in both patches ([bbf38a8](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/bbf38a82370249e7a9b328c352fe2287669a2150))
+* **polytopia:** resolve register crashes in both patches ([fcab7a4](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fcab7a48860db1c5dbfc0ee491f9889b935ac352))
+
 ## [1.9.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.4...v1.9.5) (2026-07-13)
 
 ### 🐛 Bug Fixes
