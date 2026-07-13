@@ -5,33 +5,6 @@ import app.morphe.patcher.methodCall
 import com.android.tools.smali.dexlib2.AccessFlags
 
 /**
- * Fingerprint for the MAIN entry point of the Polytopia app.
- *
- * MessagingUnityPlayerActivity is declared in AndroidManifest.xml with
- * LAUNCHER intent-filter. Its onCreate runs BEFORE the Unity engine
- * starts, so it's the perfect hook point to write the debug config file
- * before Config.Load() runs in C#.
- *
- * Smali signature:
- *   .method protected onCreate(Landroid/os/Bundle;)V
- *     invoke-super {p0, p1}, Lcom/unity3d/player/UnityPlayerActivity;->onCreate(Landroid/os/Bundle;)V
- */
-object MainActivityOnCreateFingerprint : Fingerprint(
-    definingClass = "Lcom/google/firebase/MessagingUnityPlayerActivity;",
-    accessFlags = listOf(AccessFlags.PROTECTED),
-    returnType = "V",
-    parameters = listOf("Landroid/os/Bundle;"),
-    filters = listOf(
-        methodCall(
-            definingClass = "Lcom/unity3d/player/UnityPlayerActivity;",
-            name = "onCreate",
-            parameters = listOf("Landroid/os/Bundle;"),
-            returnType = "V",
-        ),
-    )
-)
-
-/**
  * Fingerprint for zzbq.onBillingSetupFinished(BillingResult).
  *
  * zzbq is the Unity IL2CPP billing bridge class. It implements multiple
@@ -99,38 +72,6 @@ object UnityPurchasesUpdatedFingerprint : Fingerprint(
 )
 
 /**
- * Fingerprint for BillingClientImpl.launchBillingFlow.
- *
- * This is the entry point when the user taps "Buy" on a tribe/skin.
- * We hook this to intercept the SKU, create a fake Purchase, and call
- * nativeOnPurchasesUpdated directly — bypassing Google Play entirely.
- *
- * Smali signature:
- *   .method public launchBillingFlow(Landroid/app/Activity;Lcom/android/billingclient/api/BillingFlowParams;)Lcom/android/billingclient/api/BillingResult;
- *     invoke-virtual {v1}, Lcom/android/billingclient/api/zzs;->zzd()Lcom/android/billingclient/api/PurchasesUpdatedListener;
- *     ... (1698 instructions, very complex) ...
- *
- * Because this method is HUGE (1698 instructions, .locals 28), we use a
- * filter that matches an early unique method call. The zzs.zzd call is the
- * first thing it does after the null-check on zzf (the listener).
- */
-object LaunchBillingFlowFingerprint : Fingerprint(
-    definingClass = "Lcom/android/billingclient/api/BillingClientImpl;",
-    accessFlags = listOf(AccessFlags.PUBLIC),
-    returnType = "Lcom/android/billingclient/api/BillingResult;",
-    parameters = listOf(
-        "Landroid/app/Activity;",
-        "Lcom/android/billingclient/api/BillingFlowParams;"
-    ),
-    filters = listOf(
-        methodCall(
-            definingClass = "Lcom/android/billingclient/api/zzs;",
-            name = "zzd",
-        ),
-    )
-)
-
-/**
  * Fingerprint for Purchase.isAcknowledged().
  *
  * Returns true if the purchase has been acknowledged. We hook this to
@@ -138,8 +79,13 @@ object LaunchBillingFlowFingerprint : Fingerprint(
  *
  * Smali signature:
  *   .method public isAcknowledged()Z
+ *     .locals 3
  *     const-string v1, "acknowledged"
  *     invoke-virtual {v0, v1, v2}, Lorg/json/JSONObject;->optBoolean(Ljava/lang/String;Z)Z
+ *
+ * This follows the morphe-ai billing-bypass-patterns.md Google Play
+ * Billing pattern: "Find: Purchase.isAcknowledged, Override: return
+ * success/acknowledged"
  */
 object PurchaseIsAcknowledgedFingerprint : Fingerprint(
     definingClass = "Lcom/android/billingclient/api/Purchase;",
@@ -162,6 +108,7 @@ object PurchaseIsAcknowledgedFingerprint : Fingerprint(
  *
  * Smali signature:
  *   .method public getPurchaseState()I
+ *     .locals 3
  *     const-string v1, "purchaseState"
  *     invoke-virtual {v0, v1, v2}, Lorg/json/JSONObject;->optInt(Ljava/lang/String;I)I
  */
