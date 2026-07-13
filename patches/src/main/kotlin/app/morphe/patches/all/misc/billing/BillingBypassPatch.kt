@@ -28,6 +28,8 @@ val billingBypassPatch = bytecodePatch(
             "Lcom/google/android/gms/iap/",
         )
 
+        val patchedMethods = mutableListOf<String>()
+
         logger.info("Billing bypass: starting 4-phase scan")
 
         // ================================================================
@@ -83,7 +85,8 @@ val billingBypassPatch = bytecodePatch(
                 foundSmartBypass = true
                 successMethodClass = className
                 successMethodName = successMethod.name
-                successMethodParamTypes = successMethod.parameterTypes
+                // FIX: parameterTypes returns List<CharSequence>, convert to List<String>
+                successMethodParamTypes = successMethod.parameterTypes.map { it.toString() }
                 successMethodIsStatic = successMethod.accessFlags.and(0x8) != 0
             }
 
@@ -115,7 +118,7 @@ val billingBypassPatch = bytecodePatch(
             if (wrapperMethod != null && wrapperMethod.implementation != null) {
                 val paramCount = successMethodParamTypes.size
                 val isStatic = successMethodIsStatic
-                val paramSig = successMethodParamTypes.joinToString("") { it.toString() }
+                val paramSig = successMethodParamTypes.joinToString("")
 
                 val smali = when {
                     isStatic && paramCount == 2 -> "const/4 v0, 0x1\ninvoke-static {p1, v0}, $successMethodClass->$successMethodName($paramSig)V"
@@ -126,7 +129,10 @@ val billingBypassPatch = bytecodePatch(
                 }
 
                 wrapperMethod.addInstructions(0, smali)
-                logger.info("Billing bypass COMPLETE (Phase 1: Cocos2d-x helper) - 1 method patched")
+                patchedMethods.add("$successMethodClass->$successMethodName (wrapper: $wrapperClassName->$wrapperMethodName)")
+                logger.info("Billing bypass COMPLETE (Phase 1: Cocos2d-x helper)")
+                logger.info("Patched ${patchedMethods.size} method(s):")
+                patchedMethods.forEach { logger.info("  - $it") }
                 return@execute
             }
         }
@@ -136,7 +142,6 @@ val billingBypassPatch = bytecodePatch(
         // ================================================================
         // Phase 2: Google Play Billing — Purchase methods
         // ================================================================
-        val patchedMethods = mutableListOf<String>()
         val purchaseClass = classDefByOrNull("Lcom/android/billingclient/api/Purchase;")
 
         if (purchaseClass != null) {
@@ -147,6 +152,7 @@ val billingBypassPatch = bytecodePatch(
                 if (method.implementation != null) {
                     method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
                     patchedMethods.add("Purchase.isAcknowledged -> true")
+                    logger.info("  patched: Purchase.isAcknowledged -> true")
                 }
             }
 
@@ -154,6 +160,7 @@ val billingBypassPatch = bytecodePatch(
                 if (method.implementation != null) {
                     method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
                     patchedMethods.add("Purchase.getPurchaseState -> 1 (PURCHASED)")
+                    logger.info("  patched: Purchase.getPurchaseState -> 1 (PURCHASED)")
                 }
             }
         } else {
@@ -191,6 +198,7 @@ val billingBypassPatch = bytecodePatch(
                         return-void
                     """.trimIndent())
                     patchedMethods.add("$className.onBillingSetupFinished -> force success")
+                    logger.info("  patched: $className.onBillingSetupFinished -> force success")
                 }
             }
 
@@ -205,6 +213,7 @@ val billingBypassPatch = bytecodePatch(
                         nop
                     """.trimIndent())
                     patchedMethods.add("$className.onPurchasesUpdated -> swallow errors")
+                    logger.info("  patched: $className.onPurchasesUpdated -> swallow errors")
                 }
             }
         }
@@ -227,7 +236,6 @@ val billingBypassPatch = bytecodePatch(
         // Phase 4: Fallback
         // ================================================================
         logger.info("Phase 4 (Fallback): patching generic billing methods")
-        var fallbackCount = 0
 
         classDefForEach { classDef ->
             val className = classDef.type
@@ -242,17 +250,17 @@ val billingBypassPatch = bytecodePatch(
                 if ((methodName == "isBillingSupported" || methodName == "isBillingSupportedExtraParams") && returnType == "I") {
                     method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")
                     patchedMethods.add("$className.$methodName -> 0")
-                    fallbackCount++
+                    logger.info("  patched: $className.$methodName -> 0")
                 }
                 if (methodName == "isReady" && returnType == "Z") {
                     method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
                     patchedMethods.add("$className.isReady -> true")
-                    fallbackCount++
+                    logger.info("  patched: $className.isReady -> true")
                 }
                 if (methodName == "getPurchaseState" && returnType == "I") {
                     method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")
                     patchedMethods.add("$className.getPurchaseState -> 0")
-                    fallbackCount++
+                    logger.info("  patched: $className.getPurchaseState -> 0")
                 }
             }
         }
