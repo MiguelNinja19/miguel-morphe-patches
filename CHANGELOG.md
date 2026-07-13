@@ -1,3 +1,13 @@
+## [1.9.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.8...v1.9.9) (2026-07-13)
+
+### 🐛 Bug Fixes
+
+* **polytopia:** fix Kotlin compilation errors in hex patch ([1e61d06](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1e61d0608bd3de4218a75bb9b0d0935b5e86482f))
+* **polytopia:** hex patch libil2cpp.so for unlock + fix IAP error ([2abd10c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/2abd10c1fcf6d721356ab99088715056eefc7564)), closes [#1](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/1)
+* **polytopia:** hex patch libil2cpp.so for unlock + fix IAP error ([8ae3879](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8ae3879e90e6dd2fc1dc8e1a8c918ea880b2ffde)), closes [#1](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/1)
+* **polytopia:** hex patch libil2cpp.so for unlock + fix IAP error ([936c52f](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/936c52fea8c47bad1b36db005e70127b5d42466d)), closes [#1](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/1)
+* **polytopia:** use native Morphe API for hex patch instead of morphe-ai wrappers ([1551b4a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1551b4aebd2e8bd52ab836ae7800fd7ca7b22b13))
+
 ## [1.9.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.7...v1.9.8) (2026-07-13)
 
 ### 🐛 Bug Fixes
