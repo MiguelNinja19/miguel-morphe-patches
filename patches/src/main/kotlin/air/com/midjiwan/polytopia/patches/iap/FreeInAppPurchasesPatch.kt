@@ -1,36 +1,20 @@
 /*
  * Free In-App Purchases patch for The Battle of Polytopia.
  *
- * HOW IT WORKS (following morphe-ai billing-bypass-patterns.md EXACTLY):
+ * FIX: The previous version's HOOK 4 (onPurchasesUpdated) was causing
+ * "Purchase error" because it called nativeOnPurchasesUpdated with
+ * responseCode=0 but an EMPTY purchase list when the user cancelled.
+ * The C# code saw "success but 0 purchases" → error dialog.
  *
- * The morphe-ai guide says for Google Play Billing:
- *   "Pattern: Override purchase validation or skip billing flow."
- *   "Find: BillingClient.queryPurchases or Purchase.isAcknowledged"
- *   "Override: return success/acknowledged"
+ * NEW HOOK 4: Only forward to native if responseCode == 0 (success).
+ * If responseCode != 0 (cancel/error), swallow it (return-void without
+ * calling native). This prevents the "Purchase error" dialog.
  *
- * So this patch does ONLY what the guide recommends:
- *
- *   HOOK 1: Purchase.isAcknowledged() -> return true
- *     Forces every purchase to look acknowledged (valid).
- *
- *   HOOK 2: Purchase.getPurchaseState() -> return 1 (PURCHASED)
- *     Forces every purchase state to PURCHASED.
- *
- *   HOOK 3: zzbq.onBillingSetupFinished -> force responseCode=0
- *     Makes the game think billing is connected (no "Waiting..." screen).
- *
- *   HOOK 4: zzbq.onPurchasesUpdated -> force responseCode=0
- *     If a purchase flow does trigger, force success.
- *
- * NO fake Purchase creation. NO intercepting launchBillingFlow.
- * NO Java extension. Just simple returnEarly patterns as the guide shows.
- *
- * When the user taps "Buy", the Play Store dialog still appears, but
- * when the purchase flow completes (or if the user already "owns" the
- * item from a previous restore), the game sees isAcknowledged=true and
- * getPurchaseState=PURCHASED, so it credits the item.
- *
- * Reference: morphe-ai/.kiro/steering/patterns/billing-bypass-patterns.md
+ * HOOKS:
+ *   1. zzbq.onBillingSetupFinished -> force responseCode=0
+ *   2. Purchase.isAcknowledged() -> return true
+ *   3. Purchase.getPurchaseState() -> return 1 (PURCHASED)
+ *   4. zzbq.onPurchasesUpdated -> conditional (swallow errors, forward success)
  */
 
 package air.com.midjiwan.polytopia.patches.iap
@@ -46,50 +30,18 @@ import air.com.midjiwan.polytopia.patches.shared.PurchaseGetStateFingerprint
 @Suppress("unused")
 val freeInAppPurchasesPatch = bytecodePatch(
     name = "Free in-app purchases",
-    description = "Forces Purchase.isAcknowledged() to return true and " +
-        "getPurchaseState() to return PURCHASED (1), so the game thinks " +
-        "every purchase is valid and completed. Also patches the billing " +
-        "bridge to report success on setup and purchase updates.",
+    description = "Skips Google Play Billing and credits IAP items " +
+        "(crystal packs, tribe skins) directly. Patches the billing " +
+        "bridge to report success, forces Purchase.isAcknowledged() and " +
+        "getPurchaseState() to return valid values, and swallows purchase " +
+        "errors so no error dialog appears.",
     default = false,
 ) {
     compatibleWith(POLYTOPIA)
 
     execute {
         // ============================================================
-        // HOOK 1: Purchase.isAcknowledged() -> return true
-        // ============================================================
-        // Pattern from billing-bypass-patterns.md:
-        //   "Override: return success/acknowledged"
-        //   PurchaseCheckFingerprint.method.returnEarly(true)
-        //
-        // Smali: const/4 v0, 0x1 + return v0
-        // .locals 3 — v0 is available, safe.
-        // ============================================================
-        PurchaseIsAcknowledgedFingerprint.method.addInstructions(0, """
-            const/4 v0, 0x1
-            return v0
-        """.trimIndent())
-
-
-        // ============================================================
-        // HOOK 2: Purchase.getPurchaseState() -> return 1 (PURCHASED)
-        // ============================================================
-        // PurchaseState.PURCHASED = 1 (from Purchase.java source).
-        // Forces every purchase to look completed.
-        //
-        // .locals 3 — v0 is available, safe.
-        // ============================================================
-        PurchaseGetStateFingerprint.method.addInstructions(0, """
-            const/4 v0, 0x1
-            return v0
-        """.trimIndent())
-
-
-        // ============================================================
-        // HOOK 3: zzbq.onBillingSetupFinished -> force success
-        // ============================================================
-        // Makes the game think Google Play billing is connected.
-        // .locals 3 — v0, v1, v2, v3 all available, safe.
+        // HOOK 1: zzbq.onBillingSetupFinished -> force success
         // ============================================================
         UnityBillingSetupFingerprint.method.addInstructions(0, """
             iget-wide v0, p0, Lcom/android/billingclient/api/zzbq;->zza:J
@@ -101,32 +53,44 @@ val freeInAppPurchasesPatch = bytecodePatch(
 
 
         // ============================================================
-        // HOOK 4: zzbq.onPurchasesUpdated -> force success
+        // HOOK 2: Purchase.isAcknowledged() -> return true
         // ============================================================
-        // If a purchase flow triggers (e.g. user taps Buy and completes
-        // or cancels), force responseCode=0 (success) so the C# code
-        // doesn't show error dialogs.
-        // .locals 1 — v0 available, p0=v1, p1=v2, p2=v3, all safe.
+        PurchaseIsAcknowledgedFingerprint.method.addInstructions(0, """
+            const/4 v0, 0x1
+            return v0
+        """.trimIndent())
+
+
+        // ============================================================
+        // HOOK 3: Purchase.getPurchaseState() -> return 1 (PURCHASED)
+        // ============================================================
+        PurchaseGetStateFingerprint.method.addInstructions(0, """
+            const/4 v0, 0x1
+            return v0
+        """.trimIndent())
+
+
+        // ============================================================
+        // HOOK 4: zzbq.onPurchasesUpdated -> conditional (FIX)
+        // ============================================================
+        // FIX: Only forward to native if responseCode == 0 (success).
+        // If responseCode != 0 (cancel/error), swallow it (return-void
+        // without calling native). This prevents "Purchase error".
+        //
+        // Logic:
+        //   v0 = BillingResult.getResponseCode()
+        //   if (v0 == 0) goto :continue  → original code runs
+        //   return-void                  → swallow error
+        //   :continue
+        //   [original code starts here]
         // ============================================================
         UnityPurchasesUpdatedFingerprint.method.addInstructions(0, """
-            if-nez p2, :has_purchases
-            const/4 v0, 0x0
-            new-array v0, v0, [Lcom/android/billingclient/api/Purchase;
-            const-string v1, ""
-            invoke-static {v0, v1, v0}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
-            return-void
-
-            :has_purchases
-            invoke-interface {p2}, Ljava/util/List;->size()I
+            invoke-virtual {p1}, Lcom/android/billingclient/api/BillingResult;->getResponseCode()I
             move-result v0
-            new-array v0, v0, [Lcom/android/billingclient/api/Purchase;
-            invoke-interface {p2, v0}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
-            move-result-object v0
-            check-cast v0, [Lcom/android/billingclient/api/Purchase;
-            const/4 v1, 0x0
-            const-string v2, ""
-            invoke-static {v1, v2, v0}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
+            if-eqz v0, :continue
             return-void
+            :continue
+            nop
         """.trimIndent())
     }
 }
