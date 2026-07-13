@@ -24,10 +24,6 @@
  *
  * This makes ALL tribes and skins appear as unlocked in the tribe picker.
  * The user can select and play with any tribe without purchasing.
- *
- * API: Morphe rawResourcePatch + get() to read the .so file, then
- * replace the byte pattern and writeBytes() back. The .so file is
- * available as a raw resource in the APK split.
  */
 
 package air.com.midjiwan.polytopia.patches.iap
@@ -69,37 +65,38 @@ val unlockAllTribesPatch = rawResourcePatch(
         val libBytes = libFile.readBytes()
 
         // ARM64 patch: mov w0, #1 + ret
+        // All bytes explicitly converted to Byte to avoid Int mismatch
         val patch = byteArrayOf(
-            0x20, 0x00, 0x80.toByte(), 0x52,  // mov w0, #1
-            0xC0.toByte(), 0x03, 0x5F, 0xD6.toByte()   // ret
+            0x20.toByte(), 0x00.toByte(), 0x80.toByte(), 0x52.toByte(),  // mov w0, #1
+            0xC0.toByte(), 0x03.toByte(), 0x5F.toByte(), 0xD6.toByte()   // ret
         )
 
         // PurchaseManager.IsTribeUnlocked(TribeType)Z
         // Pattern (24 bytes, unique - 1 occurrence in 95MB):
         //   FE 57 BE A9 F4 4F 01 A9 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 66 57 39
         val tribePattern = byteArrayOf(
-            0xFE.toByte(), 0x57, 0xBE.toByte(), 0xA9.toByte(),
-            0xF4.toByte(), 0x4F, 0x01, 0xA9.toByte(),
-            0x75, 0xB1, 0x00, 0xB0.toByte(),
-            0xF3.toByte(), 0x03, 0x01, 0x2A.toByte(),
-            0xF4.toByte(), 0x03, 0x00, 0xAA.toByte(),
-            0xA8.toByte(), 0x66, 0x57, 0x39
+            0xFE.toByte(), 0x57.toByte(), 0xBE.toByte(), 0xA9.toByte(),
+            0xF4.toByte(), 0x4F.toByte(), 0x01.toByte(), 0xA9.toByte(),
+            0x75.toByte(), 0xB1.toByte(), 0x00.toByte(), 0xB0.toByte(),
+            0xF3.toByte(), 0x03.toByte(), 0x01.toByte(), 0x2A.toByte(),
+            0xF4.toByte(), 0x03.toByte(), 0x00.toByte(), 0xAA.toByte(),
+            0xA8.toByte(), 0x66.toByte(), 0x57.toByte(), 0x39.toByte()
         )
 
         // PurchaseManager.IsSkinUnlocked(SkinType)Z
         // Pattern (24 bytes, unique - 1 occurrence):
         //   FE 57 BE A9 F4 4F 01 A9 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 6A 57 39
         val skinPattern = byteArrayOf(
-            0xFE.toByte(), 0x57, 0xBE.toByte(), 0xA9.toByte(),
-            0xF4.toByte(), 0x4F, 0x01, 0xA9.toByte(),
-            0x75, 0xB1, 0x00, 0xB0.toByte(),
-            0xF3.toByte(), 0x03, 0x01, 0x2A.toByte(),
-            0xF4.toByte(), 0x03, 0x00, 0xAA.toByte(),
-            0xA8.toByte(), 0x6A, 0x57, 0x39
+            0xFE.toByte(), 0x57.toByte(), 0xBE.toByte(), 0xA9.toByte(),
+            0xF4.toByte(), 0x4F.toByte(), 0x01.toByte(), 0xA9.toByte(),
+            0x75.toByte(), 0xB1.toByte(), 0x00.toByte(), 0xB0.toByte(),
+            0xF3.toByte(), 0x03.toByte(), 0x01.toByte(), 0x2A.toByte(),
+            0xF4.toByte(), 0x03.toByte(), 0x00.toByte(), 0xAA.toByte(),
+            0xA8.toByte(), 0x6A.toByte(), 0x57.toByte(), 0x39.toByte()
         )
 
         // Patch IsTribeUnlocked
-        val tribeIdx = libBytes.indexOfSlice(tribePattern)
+        val tribeIdx = findPattern(libBytes, tribePattern)
         if (tribeIdx >= 0) {
             for (i in patch.indices) {
                 libBytes[tribeIdx + i] = patch[i]
@@ -107,7 +104,7 @@ val unlockAllTribesPatch = rawResourcePatch(
         }
 
         // Patch IsSkinUnlocked
-        val skinIdx = libBytes.indexOfSlice(skinPattern)
+        val skinIdx = findPattern(libBytes, skinPattern)
         if (skinIdx >= 0) {
             for (i in patch.indices) {
                 libBytes[skinIdx + i] = patch[i]
@@ -117,4 +114,26 @@ val unlockAllTribesPatch = rawResourcePatch(
         // Write patched bytes back
         libFile.writeBytes(libBytes)
     }
+}
+
+/**
+ * Find the first occurrence of a byte pattern in a byte array.
+ * Returns the starting index, or -1 if not found.
+ *
+ * (Kotlin's ByteArray doesn't have indexOfSlice, so we implement it.)
+ */
+private fun findPattern(haystack: ByteArray, needle: ByteArray): Int {
+    if (needle.isEmpty() || haystack.size < needle.size) return -1
+    val lastStart = haystack.size - needle.size
+    for (i in 0..lastStart) {
+        var found = true
+        for (j in needle.indices) {
+            if (haystack[i + j] != needle[j]) {
+                found = false
+                break
+            }
+        }
+        if (found) return i
+    }
+    return -1
 }
