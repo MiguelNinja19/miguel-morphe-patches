@@ -9,18 +9,29 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import java.util.logging.Logger
 
 /**
+ * Find the first occurrence of a byte pattern in a byte array.
+ * Top-level function so both patches can access it.
+ */
+private fun findPattern(haystack: ByteArray, needle: ByteArray): Int {
+    if (needle.isEmpty() || haystack.size < needle.size) return -1
+    val lastStart = haystack.size - needle.size
+    for (i in 0..lastStart) {
+        var found = true
+        for (j in needle.indices) {
+            if (haystack[i + j] != needle[j]) {
+                found = false
+                break
+            }
+        }
+        if (found) return i
+    }
+    return -1
+}
+
+/**
  * Hex patches libil2cpp.so for Unity IL2CPP games.
  * Separated into a rawResourcePatch because bytecodePatch's get() API
  * doesn't support file access for binary patching.
- *
- * Patches 4 common Unity IL2CPP billing methods (from Polytopia dump):
- * - ShowPurchaseErrorPopup -> ret (suppress error dialog)
- * - OnProductPurchasedCallback -> ret (skip failure handling)
- * - IsProductUnlocked -> return true (bypass validation)
- * - OnPurchaseProduct -> ret (skip purchase flow)
- *
- * Each 32-byte pattern is unique (1 occurrence in 95MB binary).
- * May match other Unity games with similar billing code.
  */
 @Suppress("unused")
 val unityIl2CppHexPatch = rawResourcePatch(
@@ -405,8 +416,4 @@ val billingBypassPatch = bytecodePatch(
         }
 
         if (patchedMethods.isEmpty()) {
-            throw PatchException("No Google Play Billing classes found in this app.")
-        }
-
-        logger.info("Billing bypass COMPLETE (Phase 4: Fallback)")
-        logger.info("WARNING: Purchases NOT c
+            throw PatchException("No Google Play Billing classes
