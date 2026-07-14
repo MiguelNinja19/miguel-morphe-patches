@@ -3,33 +3,35 @@
  *
  * HOW IT WORKS (native hex patch on libil2cpp.so):
  *
- * Directly patches the NATIVE ARM64 code in libil2cpp.so to make the
- * methods IsTribeUnlocked() and IsSkinUnlocked() always return true.
+ * Patches 4 functions in the native IL2CPP library to make all tribes
+ * and skins appear as unlocked:
  *
- * This is the "Hex Patch on Native Library" pattern from the morphe-ai
- * hoodles-patch-catalog.md. It's the cleanest approach because:
- * - No billing bypass needed
- * - No debug mode needed
- * - No Purchase fake creation
- * - No Java extension
- * - Works at the C# (IL2CPP) level directly
+ * HOOK 1: ShowPurchaseErrorPopup → return-void (ret)
+ *   Prevents the "Purchase error" dialog from appearing.
  *
- * The patch replaces the first 8 bytes of each function with:
- *   mov w0, #1   (20 00 80 52)  — set return value to true
- *   ret          (C0 03 5F D6)  — return immediately
+ * HOOK 2: OnProductPurchasedCallback → return-void (ret)
+ *   Skips the failure handling that would show the error popup.
  *
- * Functions patched (found via Il2CppInspectorRedux dump):
- *   PurchaseManager.IsTribeUnlocked(TribeType) → return true
- *   PurchaseManager.IsSkinUnlocked(SkinType) → return true
+ * HOOK 3: UnityPlatformPurchaseManager.IsProductUnlocked → return true
+ *   Makes the game think every product is already unlocked.
+ *   This is the KEY hook — bypasses the game's own validation.
  *
- * This makes ALL tribes and skins appear as unlocked in the tribe picker.
- * The user can select and play with any tribe without purchasing.
+ * HOOK 4: UnityPlatformPurchaseManager.OnPurchaseProduct → return-void
+ *   Skips the purchase flow entirely. Combined with HOOK 3, the game
+ *   sees the product as unlocked without attempting purchase.
+ *
+ * Pattern from morphe-ai hoodles-patch-catalog.md:
+ *   "Hex Patch on Native Library" — patch ARM64 code directly.
+ *
+ * Found via Il2CppInspectorRedux dump (metadata v39 supported).
+ * Each 32-byte pattern is unique (1 occurrence in 95MB binary).
  */
 
 package air.com.midjiwan.polytopia.patches.iap
 
 import app.morphe.patcher.patch.rawResourcePatch
 import air.com.midjiwan.polytopia.patches.shared.POLYTOPIA
+import java.util.logging.Logger
 
 @Suppress("unused")
 val unlockAllTribesPatch = rawResourcePatch(
@@ -38,90 +40,116 @@ val unlockAllTribesPatch = rawResourcePatch(
         "Kickoo, Hoodrick, Luxidoor, Vengir, Zebasi, Aimo, Aquarion, " +
         "Elyrion, Polaris, Magma, Yadakk, Quetzali, Cymanti, Swamp, " +
         "Ikarus, Urkaz) and all skins by patching the native IL2CPP " +
-        "library (libil2cpp.so). Makes IsTribeUnlocked() and " +
-        "IsSkinUnlocked() always return true via ARM64 hex patching.",
+        "library (libil2cpp.so). Makes IsProductUnlocked return true, " +
+        "skips the purchase flow, and suppresses the 'Purchase error' " +
+        "dialog. Pure ARM64 hex patching, no smali, no extension.",
     default = true,
 ) {
     compatibleWith(POLYTOPIA)
 
     execute {
-        // ============================================================
-        // Patch libil2cpp.so: IsTribeUnlocked + IsSkinUnlocked → true
-        // ============================================================
-        // ARM64 opcodes:
-        //   mov w0, #1 = 20 00 80 52  (set return value to 1/true)
-        //   ret         = C0 03 5F D6  (return immediately)
-        //
-        // Each function starts with the same 8-byte prologue:
-        //   FE 57 BE A9 F4 4F 01 A9
-        // but the next 16 bytes are unique per function.
-        //
-        // We search for the 24-byte pattern (prologue + 16 unique bytes)
-        // and replace the first 8 bytes with mov+ret.
-        // ============================================================
+        val logger = Logger.getLogger("UnlockTribes")
 
         val libPath = "lib/arm64-v8a/libil2cpp.so"
         val libFile = get(libPath)
         val libBytes = libFile.readBytes()
 
-        // ARM64 patch: mov w0, #1 + ret
-        // All bytes explicitly converted to Byte to avoid Int mismatch
-        val patch = byteArrayOf(
-            0x20.toByte(), 0x00.toByte(), 0x80.toByte(), 0x52.toByte(),  // mov w0, #1
-            0xC0.toByte(), 0x03.toByte(), 0x5F.toByte(), 0xD6.toByte()   // ret
+        // ARM64 opcodes
+        // return-void = ret = C0 03 5F D6 (+ nop to fill 8 bytes)
+        // return true = mov w0, #1 (20 00 80 52) + ret (C0 03 5F D6)
+        val returnVoid = byteArrayOf(
+            0xC0.toByte(), 0x03.toByte(), 0x5F.toByte(), 0xD6.toByte(),
+            0x1F.toByte(), 0x20.toByte(), 0x03.toByte(), 0xD5.toByte()
+        )
+        val returnTrue = byteArrayOf(
+            0x20.toByte(), 0x00.toByte(), 0x80.toByte(), 0x52.toByte(),
+            0xC0.toByte(), 0x03.toByte(), 0x5F.toByte(), 0xD6.toByte()
         )
 
-        // PurchaseManager.IsTribeUnlocked(TribeType)Z
-        // Pattern (24 bytes, unique - 1 occurrence in 95MB):
-        //   FE 57 BE A9 F4 4F 01 A9 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 66 57 39
-        val tribePattern = byteArrayOf(
-            0xFE.toByte(), 0x57.toByte(), 0xBE.toByte(), 0xA9.toByte(),
-            0xF4.toByte(), 0x4F.toByte(), 0x01.toByte(), 0xA9.toByte(),
-            0x75.toByte(), 0xB1.toByte(), 0x00.toByte(), 0xB0.toByte(),
-            0xF3.toByte(), 0x03.toByte(), 0x01.toByte(), 0x2A.toByte(),
-            0xF4.toByte(), 0x03.toByte(), 0x00.toByte(), 0xAA.toByte(),
-            0xA8.toByte(), 0x66.toByte(), 0x57.toByte(), 0x39.toByte()
+        val patches = listOf(
+            Triple(
+                byteArrayOf(
+                    0xFE.toByte(), 0x5F.toByte(), 0xBD.toByte(), 0xA9.toByte(),
+                    0xF6.toByte(), 0x57.toByte(), 0x01.toByte(), 0xA9.toByte(),
+                    0xF4.toByte(), 0x4F.toByte(), 0x02.toByte(), 0xA9.toByte(),
+                    0x74.toByte(), 0xB1.toByte(), 0x00.toByte(), 0x90.toByte(),
+                    0xF3.toByte(), 0x03.toByte(), 0x00.toByte(), 0x2A.toByte(),
+                    0x88.toByte(), 0x96.toByte(), 0x57.toByte(), 0x39.toByte(),
+                    0xA8.toByte(), 0x05.toByte(), 0x00.toByte(), 0x37.toByte(),
+                    0x80.toByte(), 0x94.toByte(), 0x00.toByte(), 0x90.toByte()
+                ),
+                returnVoid,
+                "ShowPurchaseErrorPopup -> ret (suppress error dialog)"
+            ),
+            Triple(
+                byteArrayOf(
+                    0xFF.toByte(), 0x83.toByte(), 0x01.toByte(), 0xD1.toByte(),
+                    0xFE.toByte(), 0x6F.toByte(), 0x01.toByte(), 0xA9.toByte(),
+                    0xFA.toByte(), 0x67.toByte(), 0x02.toByte(), 0xA9.toByte(),
+                    0xF8.toByte(), 0x5F.toByte(), 0x03.toByte(), 0xA9.toByte(),
+                    0xF6.toByte(), 0x57.toByte(), 0x04.toByte(), 0xA9.toByte(),
+                    0xF4.toByte(), 0x4F.toByte(), 0x05.toByte(), 0xA9.toByte(),
+                    0x77.toByte(), 0xB1.toByte(), 0x00.toByte(), 0x90.toByte(),
+                    0xF3.toByte(), 0x03.toByte(), 0x03.toByte(), 0x2A.toByte()
+                ),
+                returnVoid,
+                "OnProductPurchasedCallback -> ret (skip failure handling)"
+            ),
+            Triple(
+                byteArrayOf(
+                    0xFF.toByte(), 0x03.toByte(), 0x02.toByte(), 0xD1.toByte(),
+                    0xFD.toByte(), 0x7B.toByte(), 0x02.toByte(), 0xA9.toByte(),
+                    0xFC.toByte(), 0x6F.toByte(), 0x03.toByte(), 0xA9.toByte(),
+                    0xFA.toByte(), 0x67.toByte(), 0x04.toByte(), 0xA9.toByte(),
+                    0xF8.toByte(), 0x5F.toByte(), 0x05.toByte(), 0xA9.toByte(),
+                    0xF6.toByte(), 0x57.toByte(), 0x06.toByte(), 0xA9.toByte(),
+                    0xF4.toByte(), 0x4F.toByte(), 0x07.toByte(), 0xA9.toByte(),
+                    0x54.toByte(), 0xB1.toByte(), 0x00.toByte(), 0x90.toByte()
+                ),
+                returnTrue,
+                "UnityPlatformPurchaseManager.IsProductUnlocked -> return true"
+            ),
+            Triple(
+                byteArrayOf(
+                    0xFE.toByte(), 0x5F.toByte(), 0xBD.toByte(), 0xA9.toByte(),
+                    0xF6.toByte(), 0x57.toByte(), 0x01.toByte(), 0xA9.toByte(),
+                    0xF4.toByte(), 0x4F.toByte(), 0x02.toByte(), 0xA9.toByte(),
+                    0x57.toByte(), 0xB1.toByte(), 0x00.toByte(), 0x90.toByte(),
+                    0x76.toByte(), 0x94.toByte(), 0x00.toByte(), 0x90.toByte(),
+                    0xF5.toByte(), 0x03.toByte(), 0x02.toByte(), 0xAA.toByte(),
+                    0xE8.toByte(), 0xEE.toByte(), 0x57.toByte(), 0x39.toByte(),
+                    0xD6.toByte(), 0x3A.toByte(), 0x45.toByte(), 0xF9.toByte()
+                ),
+                returnVoid,
+                "UnityPlatformPurchaseManager.OnPurchaseProduct -> ret (skip purchase)"
+            )
         )
 
-        // PurchaseManager.IsSkinUnlocked(SkinType)Z
-        // Pattern (24 bytes, unique - 1 occurrence):
-        //   FE 57 BE A9 F4 4F 01 A9 75 B1 00 B0 F3 03 01 2A F4 03 00 AA A8 6A 57 39
-        val skinPattern = byteArrayOf(
-            0xFE.toByte(), 0x57.toByte(), 0xBE.toByte(), 0xA9.toByte(),
-            0xF4.toByte(), 0x4F.toByte(), 0x01.toByte(), 0xA9.toByte(),
-            0x75.toByte(), 0xB1.toByte(), 0x00.toByte(), 0xB0.toByte(),
-            0xF3.toByte(), 0x03.toByte(), 0x01.toByte(), 0x2A.toByte(),
-            0xF4.toByte(), 0x03.toByte(), 0x00.toByte(), 0xAA.toByte(),
-            0xA8.toByte(), 0x6A.toByte(), 0x57.toByte(), 0x39.toByte()
-        )
+        logger.info("Unlock tribes: patching libil2cpp.so with ${patches.size} hex patches")
 
-        // Patch IsTribeUnlocked
-        val tribeIdx = findPattern(libBytes, tribePattern)
-        if (tribeIdx >= 0) {
-            for (i in patch.indices) {
-                libBytes[tribeIdx + i] = patch[i]
+        var patchedCount = 0
+        for ((pattern, replacement, description) in patches) {
+            val idx = findPattern(libBytes, pattern)
+            if (idx >= 0) {
+                for (i in replacement.indices) {
+                    libBytes[idx + i] = replacement[i]
+                }
+                patchedCount++
+                logger.info("  patched: $description")
+            } else {
+                logger.info("  NOT FOUND: $description")
             }
         }
 
-        // Patch IsSkinUnlocked
-        val skinIdx = findPattern(libBytes, skinPattern)
-        if (skinIdx >= 0) {
-            for (i in patch.indices) {
-                libBytes[skinIdx + i] = patch[i]
-            }
+        if (patchedCount > 0) {
+            libFile.writeBytes(libBytes)
+            logger.info("Unlock tribes COMPLETE: $patchedCount/${patches.size} patches applied")
+        } else {
+            logger.info("Unlock tribes FAILED: no patterns matched")
         }
-
-        // Write patched bytes back
-        libFile.writeBytes(libBytes)
     }
 }
 
-/**
- * Find the first occurrence of a byte pattern in a byte array.
- * Returns the starting index, or -1 if not found.
- *
- * (Kotlin's ByteArray doesn't have indexOfSlice, so we implement it.)
- */
 private fun findPattern(haystack: ByteArray, needle: ByteArray): Int {
     if (needle.isEmpty() || haystack.size < needle.size) return -1
     val lastStart = haystack.size - needle.size
