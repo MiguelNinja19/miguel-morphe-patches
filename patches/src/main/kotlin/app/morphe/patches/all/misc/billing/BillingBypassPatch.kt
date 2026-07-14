@@ -32,25 +32,20 @@ val unityIl2CppHexPatch = rawResourcePatch(
 ) {
     execute {
         val logger = Logger.getLogger("Il2CppHex")
-
         val libPath = try {
             val f = get("lib/arm64-v8a/libil2cpp.so")
             if (f != null && f.exists()) "lib/arm64-v8a/libil2cpp.so" else null
-        } catch (e: Exception) {
-            null
-        }
+        } catch (e: Exception) { null }
 
         if (libPath == null) {
             logger.info("IL2CPP hex patch: no libil2cpp.so found, skipping")
             return@execute
         }
-
         logger.info("IL2CPP hex patch: found " + libPath)
 
         try {
             val libFile = get(libPath)
             val libBytes = libFile.readBytes()
-
             val returnVoid = byteArrayOf(
                 0xC0.toByte(), 0x03.toByte(), 0x5F.toByte(), 0xD6.toByte(),
                 0x1F.toByte(), 0x20.toByte(), 0x03.toByte(), 0xD5.toByte()
@@ -147,26 +142,20 @@ val unityIl2CppHexPatch = rawResourcePatch(
 val billingBypassPatch = bytecodePatch(
     name = "Billing bypass",
     description = "Attempts to credit purchases by scanning the app for " +
-        "billing code and applying the appropriate bypass. Runs 4 phases: " +
-        "(1) Cocos2d-x helper, (2) Google Play Billing, (3) Unity billing, " +
-        "(4) Fallback. Also depends on Unity IL2CPP hex patch which " +
-        "patches libil2cpp.so for Unity games.",
+        "billing code and applying the appropriate bypass. Runs 4 phases.",
     default = false,
 ) {
     dependsOn(unityIl2CppHexPatch)
 
     execute {
         val logger = Logger.getLogger("BillingBypass")
-
         val billingPrefixes = setOf(
             "Lcom/android/billingclient/api/",
             "Lcom/android/vending/billing/",
             "Lcom/google/android/gms/iap/",
         )
-
         val patchedMethods = mutableListOf<String>()
-
-        logger.info("Billing bypass: starting 4-phase scan (IL2CPP hex patch already applied)")
+        logger.info("Billing bypass: starting 4-phase scan")
 
         // Phase 1: Cocos2d-x Helper
         val successMethodPatterns = listOf(
@@ -241,81 +230,50 @@ val billingBypassPatch = bytecodePatch(
 
         if (foundSmartBypass && wrapperClassName.isNotEmpty()) {
             logger.info("Phase 1 (Cocos2d-x helper): found " + successMethodClass + "->" + successMethodName)
-
             val mutableClass = mutableClassDefBy(wrapperClassName)
             val wrapperMethod = mutableClass.methods.find {
                 it.name == wrapperMethodName && it.parameterTypes.isNotEmpty() &&
                 it.parameterTypes[0].toString() == "Ljava/lang/String;"
             }
-
             if (wrapperMethod != null && wrapperMethod.implementation != null) {
                 val paramCount = successMethodParamTypes.size
                 val isStatic = successMethodIsStatic
                 val paramSig = successMethodParamTypes.joinToString("")
-
-                val smaliBuilder = StringBuilder()
+                val sb = StringBuilder()
                 if (isStatic && paramCount == 2) {
-                    smaliBuilder.append("const/4 v0, 0x1\n")
-                    smaliBuilder.append("invoke-static {p1, v0}, ")
-                    smaliBuilder.append(successMethodClass)
-                    smaliBuilder.append("->")
-                    smaliBuilder.append(successMethodName)
-                    smaliBuilder.append("(")
-                    smaliBuilder.append(paramSig)
-                    smaliBuilder.append(")V")
+                    sb.append("const/4 v0, 0x1\n")
+                    sb.append("invoke-static {p1, v0}, ")
                 } else if (isStatic && paramCount == 1) {
-                    smaliBuilder.append("invoke-static {p1}, ")
-                    smaliBuilder.append(successMethodClass)
-                    smaliBuilder.append("->")
-                    smaliBuilder.append(successMethodName)
-                    smaliBuilder.append("(")
-                    smaliBuilder.append(paramSig)
-                    smaliBuilder.append(")V")
+                    sb.append("invoke-static {p1}, ")
                 } else if (!isStatic && paramCount == 2) {
-                    smaliBuilder.append("const/4 v0, 0x1\n")
-                    smaliBuilder.append("invoke-virtual {p0, p1, v0}, ")
-                    smaliBuilder.append(successMethodClass)
-                    smaliBuilder.append("->")
-                    smaliBuilder.append(successMethodName)
-                    smaliBuilder.append("(")
-                    smaliBuilder.append(paramSig)
-                    smaliBuilder.append(")V")
+                    sb.append("const/4 v0, 0x1\n")
+                    sb.append("invoke-virtual {p0, p1, v0}, ")
                 } else if (!isStatic && paramCount == 1) {
-                    smaliBuilder.append("invoke-virtual {p0, p1}, ")
-                    smaliBuilder.append(successMethodClass)
-                    smaliBuilder.append("->")
-                    smaliBuilder.append(successMethodName)
-                    smaliBuilder.append("(")
-                    smaliBuilder.append(paramSig)
-                    smaliBuilder.append(")V")
+                    sb.append("invoke-virtual {p0, p1}, ")
                 } else {
-                    smaliBuilder.append("invoke-static {p1}, ")
-                    smaliBuilder.append(successMethodClass)
-                    smaliBuilder.append("->")
-                    smaliBuilder.append(successMethodName)
-                    smaliBuilder.append("(")
-                    smaliBuilder.append(paramSig)
-                    smaliBuilder.append(")V")
+                    sb.append("invoke-static {p1}, ")
                 }
-
-                wrapperMethod.addInstructions(0, smaliBuilder.toString())
-                patchedMethods.add(successMethodClass + "->" + successMethodName + " (wrapper: " + wrapperClassName + "->" + wrapperMethodName + ")")
-                logger.info("Billing bypass COMPLETE (Phase 1: Cocos2d-x helper)")
+                sb.append(successMethodClass)
+                sb.append("->")
+                sb.append(successMethodName)
+                sb.append("(")
+                sb.append(paramSig)
+                sb.append(")V")
+                wrapperMethod.addInstructions(0, sb.toString())
+                patchedMethods.add(successMethodClass + "->" + successMethodName)
+                logger.info("Billing bypass COMPLETE (Phase 1)")
                 logger.info("Patched " + patchedMethods.size + " method(s):")
                 patchedMethods.forEach { logger.info("  - " + it) }
                 return@execute
             }
         }
-
-        logger.info("Phase 1 (Cocos2d-x helper): no success method found")
+        logger.info("Phase 1: no success method found")
 
         // Phase 2: Google Play Billing
         val purchaseClass = classDefByOrNull("Lcom/android/billingclient/api/Purchase;")
-
         if (purchaseClass != null) {
             logger.info("Phase 2 (Google Play Billing): found Purchase class")
             val mutablePurchase = mutableClassDefBy(purchaseClass)
-
             mutablePurchase.methods.find { it.name == "isAcknowledged" && it.returnType == "Z" }?.let { method ->
                 if (method.implementation != null) {
                     method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
@@ -323,29 +281,25 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  patched: Purchase.isAcknowledged -> true")
                 }
             }
-
             mutablePurchase.methods.find { it.name == "getPurchaseState" && it.returnType == "I" }?.let { method ->
                 if (method.implementation != null) {
                     method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
-                    patchedMethods.add("Purchase.getPurchaseState -> 1 (PURCHASED)")
-                    logger.info("  patched: Purchase.getPurchaseState -> 1 (PURCHASED)")
+                    patchedMethods.add("Purchase.getPurchaseState -> 1")
+                    logger.info("  patched: Purchase.getPurchaseState -> 1")
                 }
             }
         } else {
-            logger.info("Phase 2 (Google Play Billing): no Purchase class found")
+            logger.info("Phase 2: no Purchase class found")
         }
 
         // Phase 3: Unity Billing
         var foundBridge = false
-
         classDefForEach { classDef ->
             val className = classDef.type
             if (!className.startsWith("Lcom/android/billingclient/api/zz")) return@classDefForEach
             if (!classDef.methods.any { it.name == "nativeOnPurchasesUpdated" }) return@classDefForEach
-
             foundBridge = true
             logger.info("Phase 3 (Unity billing): found bridge " + className)
-
             val mutableBridge = mutableClassDefBy(classDef)
 
             mutableBridge.methods.find {
@@ -356,19 +310,19 @@ val billingBypassPatch = bytecodePatch(
                 if (method.implementation != null) {
                     val nativeField = classDef.fields.find { it.type == "J" }
                     val fieldName = nativeField?.name ?: "zza"
-                    val smaliBuilder = StringBuilder()
-                    smaliBuilder.append("iget-wide v0, p0, ")
-                    smaliBuilder.append(className)
-                    smaliBuilder.append("->")
-                    smaliBuilder.append(fieldName)
-                    smaliBuilder.append(":J\n")
-                    smaliBuilder.append("const/4 v2, 0x0\n")
-                    smaliBuilder.append("const-string v3, \"\"\n")
-                    smaliBuilder.append("invoke-static {v2, v3, v0, v1}, ")
-                    smaliBuilder.append(className)
-                    smaliBuilder.append("->nativeOnBillingSetupFinished(ILjava/lang/String;J)V\n")
-                    smaliBuilder.append("return-void")
-                    method.addInstructions(0, smaliBuilder.toString())
+                    val sb = StringBuilder()
+                    sb.append("iget-wide v0, p0, ")
+                    sb.append(className)
+                    sb.append("->")
+                    sb.append(fieldName)
+                    sb.append(":J\n")
+                    sb.append("const/4 v2, 0x0\n")
+                    sb.append("const-string v3, \"\"\n")
+                    sb.append("invoke-static {v2, v3, v0, v1}, ")
+                    sb.append(className)
+                    sb.append("->nativeOnBillingSetupFinished(ILjava/lang/String;J)V\n")
+                    sb.append("return-void")
+                    method.addInstructions(0, sb.toString())
                     patchedMethods.add(className + ".onBillingSetupFinished -> force success")
                     logger.info("  patched: " + className + ".onBillingSetupFinished -> force success")
                 }
@@ -376,22 +330,21 @@ val billingBypassPatch = bytecodePatch(
 
             mutableBridge.methods.find { it.name == "onPurchasesUpdated" && it.parameterTypes.size == 2 }?.let { method ->
                 if (method.implementation != null) {
-                    val smaliBuilder = StringBuilder()
-                    smaliBuilder.append("invoke-virtual {p1}, Lcom/android/billingclient/api/BillingResult;->getResponseCode()I\n")
-                    smaliBuilder.append("move-result v0\n")
-                    smaliBuilder.append("if-eqz v0, :continue\n")
-                    smaliBuilder.append("return-void\n")
-                    smaliBuilder.append(":continue\n")
-                    smaliBuilder.append("nop")
-                    method.addInstructions(0, smaliBuilder.toString())
+                    val sb = StringBuilder()
+                    sb.append("invoke-virtual {p1}, Lcom/android/billingclient/api/BillingResult;->getResponseCode()I\n")
+                    sb.append("move-result v0\n")
+                    sb.append("if-eqz v0, :continue\n")
+                    sb.append("return-void\n")
+                    sb.append(":continue\n")
+                    sb.append("nop")
+                    method.addInstructions(0, sb.toString())
                     patchedMethods.add(className + ".onPurchasesUpdated -> swallow errors")
                     logger.info("  patched: " + className + ".onPurchasesUpdated -> swallow errors")
                 }
             }
         }
-
         if (!foundBridge) {
-            logger.info("Phase 3 (Unity billing): no zzbq bridge found")
+            logger.info("Phase 3: no zzbq bridge found")
         }
 
         if (patchedMethods.isNotEmpty()) {
@@ -400,14 +353,11 @@ val billingBypassPatch = bytecodePatch(
             patchedMethods.forEach { logger.info("  - " + it) }
             return@execute
         }
-
-        // Phase 4: Fallback
+                // Phase 4: Fallback
         logger.info("Phase 4 (Fallback): patching generic billing methods")
-
         classDefForEach { classDef ->
             val className = classDef.type
             if (!billingPrefixes.any { className.startsWith(it) }) return@classDefForEach
-
             val mutableClass = mutableClassDefBy(classDef)
             mutableClass.methods.forEach { method ->
                 if (method.implementation == null) return@forEach
@@ -419,4 +369,26 @@ val billingBypassPatch = bytecodePatch(
                     patchedMethods.add(className + "." + methodName + " -> 0")
                     logger.info("  patched: " + className + "." + methodName + " -> 0")
                 }
+                if (methodName == "isReady" && returnType == "Z") {
+                    method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
+                    patchedMethods.add(className + ".isReady -> true")
+                    logger.info("  patched: " + className + ".isReady -> true")
+                }
+                if (methodName == "getPurchaseState" && returnType == "I") {
+                    method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")
+                    patchedMethods.add(className + ".getPurchaseState -> 0")
+                    logger.info("  patched: " + className + ".getPurchaseState -> 0")
+                }
             }
+        }
+
+        if (patchedMethods.isEmpty()) {
+            throw PatchException("No Google Play Billing classes found in this app.")
+        }
+
+        logger.info("Billing bypass COMPLETE (Phase 4: Fallback)")
+        logger.info("WARNING: Purchases NOT credited. Only billing errors suppressed.")
+        logger.info("Patched " + patchedMethods.size + " method(s):")
+        patchedMethods.forEach { logger.info("  - " + it) }
+    }
+}
