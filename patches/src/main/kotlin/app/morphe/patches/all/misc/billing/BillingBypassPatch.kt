@@ -419,4 +419,4 @@ val billingBypassPatch = bytecodePatch(
                     patchedMethods.add(className + "." + methodName + " -> 0")
                     logger.info("  patched: " + className + "." + methodName + " -> 0")
                 }
-  
+            }
