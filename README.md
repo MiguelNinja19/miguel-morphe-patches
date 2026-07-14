@@ -7,7 +7,7 @@ Multiple apps supported — see the patch list below.
 
 Tap this link on your Android device:
 
-[Add Miguel's Patches to Morphe](https://morphe.software/add-source?github=MiguelNinja19/miguel-morphe-patches)
+[➕Add Miguel's Patches to Morphe](https://morphe.software/add-source?github=MiguelNinja19/miguel-morphe-patches)
 
 Or open Morphe Manager → **Sources → Add** and paste:
 
