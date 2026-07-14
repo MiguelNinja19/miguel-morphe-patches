@@ -1,3 +1,9 @@
+## [1.9.11](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.10...v1.9.11) (2026-07-14)
+
+### 🐛 Bug Fixes
+
+* **polytopia:** native hex patch on libil2cpp.so for free IAP ([247e3c8](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/247e3c8c9eeade977ab396f5417df22371269a7f)), closes [#1](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/1)
+
 ## [1.9.10](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.9...v1.9.10) (2026-07-13)
 
 ### 🐛 Bug Fixes

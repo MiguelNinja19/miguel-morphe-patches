@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.9.10",
+  "version": "1.9.11",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -45,7 +45,7 @@
     },
     {
       "name": "Free in-app purchases",
-      "description": "Skips Google Play Billing and credits IAP items (crystal packs, tribe skins) directly. Patches the billing bridge to report success, forces Purchase.isAcknowledged() and getPurchaseState() to return valid values, and swallows purchase errors so no error dialog appears.",
+      "description": "Bypasses Polytopia's purchase validation by patching the native IL2CPP library (libil2cpp.so). Makes IsProductUnlocked return true, skips the purchase flow, and suppresses the 'Purchase error' dialog. Pure hex patching, no smali, no extension.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
