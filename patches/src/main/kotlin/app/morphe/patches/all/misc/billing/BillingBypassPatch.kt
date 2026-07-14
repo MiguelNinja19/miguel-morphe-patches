@@ -348,13 +348,12 @@ val billingBypassPatch = bytecodePatch(
                 if (method.implementation != null) {
                     val nativeField = classDef.fields.find { it.type == "J" }
                     val fieldName = nativeField?.name ?: "zza"
-                    method.addInstructions(0, """
-                        iget-wide v0, p0, ${className}->${fieldName}:J
-                        const/4 v2, 0x0
-                        const-string v3, ""
-                        invoke-static {v2, v3, v0, v1}, ${className}->nativeOnBillingSetupFinished(ILjava/lang/String;J)V
-                        return-void
-                    """.trimIndent())
+                    val smali = "iget-wide v0, p0, " + className + "->" + fieldName + ":J\n" +
+                        "const/4 v2, 0x0\n" +
+                        "const-string v3, \"\"\n" +
+                        "invoke-static {v2, v3, v0, v1}, " + className + "->nativeOnBillingSetupFinished(ILjava/lang/String;J)V\n" +
+                        "return-void"
+                    method.addInstructions(0, smali)
                     patchedMethods.add(className + ".onBillingSetupFinished -> force success")
                     logger.info("  patched: " + className + ".onBillingSetupFinished -> force success")
                 }
@@ -362,14 +361,13 @@ val billingBypassPatch = bytecodePatch(
 
             mutableBridge.methods.find { it.name == "onPurchasesUpdated" && it.parameterTypes.size == 2 }?.let { method ->
                 if (method.implementation != null) {
-                    method.addInstructions(0, """
-                        invoke-virtual {p1}, Lcom/android/billingclient/api/BillingResult;->getResponseCode()I
-                        move-result v0
-                        if-eqz v0, :continue
-                        return-void
-                        :continue
-                        nop
-                    """.trimIndent())
+                    val smali = "invoke-virtual {p1}, Lcom/android/billingclient/api/BillingResult;->getResponseCode()I\n" +
+                        "move-result v0\n" +
+                        "if-eqz v0, :continue\n" +
+                        "return-void\n" +
+                        ":continue\n" +
+                        "nop"
+                    method.addInstructions(0, smali)
                     patchedMethods.add(className + ".onPurchasesUpdated -> swallow errors")
                     logger.info("  patched: " + className + ".onPurchasesUpdated -> swallow errors")
                 }
@@ -412,4 +410,4 @@ val billingBypassPatch = bytecodePatch(
                     logger.info("  patched: " + className + "." + methodName + " -> 0")
                 }
                 if (methodName == "isReady" && returnType == "Z") {
-                    method.addInstructions(0
+                    met
