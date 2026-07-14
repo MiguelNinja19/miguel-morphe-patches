@@ -32,6 +32,15 @@ private fun findPattern(haystack: ByteArray, needle: ByteArray): Int {
  * Hex patches libil2cpp.so for Unity IL2CPP games.
  * Separated into a rawResourcePatch because bytecodePatch's get() API
  * doesn't support file access for binary patching.
+ *
+ * Patches 4 common Unity IL2CPP billing methods (from Polytopia dump):
+ * - ShowPurchaseErrorPopup -> ret (suppress error dialog)
+ * - OnProductPurchasedCallback -> ret (skip failure handling)
+ * - IsProductUnlocked -> return true (bypass validation)
+ * - OnPurchaseProduct -> ret (skip purchase flow)
+ *
+ * Each 32-byte pattern is unique (1 occurrence in 95MB binary).
+ * May match other Unity games with similar billing code.
  */
 @Suppress("unused")
 val unityIl2CppHexPatch = rawResourcePatch(
@@ -56,7 +65,7 @@ val unityIl2CppHexPatch = rawResourcePatch(
             return@execute
         }
 
-        logger.info("IL2CPP hex patch: found $libPath")
+        logger.info("IL2CPP hex patch: found " + libPath)
 
         try {
             val libFile = get(libPath)
@@ -138,18 +147,18 @@ val unityIl2CppHexPatch = rawResourcePatch(
                         libBytes[idx + i] = replacement[i]
                     }
                     patchedCount++
-                    logger.info("  patched: $description")
+                    logger.info("  patched: " + description)
                 }
             }
 
             if (patchedCount > 0) {
                 libFile.writeBytes(libBytes)
-                logger.info("IL2CPP hex patch COMPLETE: $patchedCount/${hexPatches.size} patches applied")
+                logger.info("IL2CPP hex patch COMPLETE: " + patchedCount + "/" + hexPatches.size + " patches applied")
             } else {
                 logger.info("IL2CPP hex patch: no known patterns matched")
             }
         } catch (e: Exception) {
-            logger.info("IL2CPP hex patch failed: ${e.message}")
+            logger.info("IL2CPP hex patch failed: " + e.message)
         }
     }
 }
@@ -256,7 +265,7 @@ val billingBypassPatch = bytecodePatch(
         }
 
         if (foundSmartBypass && wrapperClassName.isNotEmpty()) {
-            logger.info("Phase 1 (Cocos2d-x helper): found $successMethodClass->$successMethodName")
+            logger.info("Phase 1 (Cocos2d-x helper): found " + successMethodClass + "->" + successMethodName)
 
             val mutableClass = mutableClassDefBy(wrapperClassName)
             val wrapperMethod = mutableClass.methods.find {
@@ -270,18 +279,18 @@ val billingBypassPatch = bytecodePatch(
                 val paramSig = successMethodParamTypes.joinToString("")
 
                 val smali = when {
-                    isStatic && paramCount == 2 -> "const/4 v0, 0x1\ninvoke-static {p1, v0}, $successMethodClass->$successMethodName($paramSig)V"
-                    isStatic && paramCount == 1 -> "invoke-static {p1}, $successMethodClass->$successMethodName($paramSig)V"
-                    !isStatic && paramCount == 2 -> "const/4 v0, 0x1\ninvoke-virtual {p0, p1, v0}, $successMethodClass->$successMethodName($paramSig)V"
-                    !isStatic && paramCount == 1 -> "invoke-virtual {p0, p1}, $successMethodClass->$successMethodName($paramSig)V"
-                    else -> "invoke-static {p1}, $successMethodClass->$successMethodName($paramSig)V"
+                    isStatic && paramCount == 2 -> "const/4 v0, 0x1\ninvoke-static {p1, v0}, " + successMethodClass + "->" + successMethodName + "(" + paramSig + ")V"
+                    isStatic && paramCount == 1 -> "invoke-static {p1}, " + successMethodClass + "->" + successMethodName + "(" + paramSig + ")V"
+                    !isStatic && paramCount == 2 -> "const/4 v0, 0x1\ninvoke-virtual {p0, p1, v0}, " + successMethodClass + "->" + successMethodName + "(" + paramSig + ")V"
+                    !isStatic && paramCount == 1 -> "invoke-virtual {p0, p1}, " + successMethodClass + "->" + successMethodName + "(" + paramSig + ")V"
+                    else -> "invoke-static {p1}, " + successMethodClass + "->" + successMethodName + "(" + paramSig + ")V"
                 }
 
                 wrapperMethod.addInstructions(0, smali)
-                patchedMethods.add("$successMethodClass->$successMethodName (wrapper: $wrapperClassName->$wrapperMethodName)")
+                patchedMethods.add(successMethodClass + "->" + successMethodName + " (wrapper: " + wrapperClassName + "->" + wrapperMethodName + ")")
                 logger.info("Billing bypass COMPLETE (Phase 1: Cocos2d-x helper)")
-                logger.info("Patched ${patchedMethods.size} method(s):")
-                patchedMethods.forEach { logger.info("  - $it") }
+                logger.info("Patched " + patchedMethods.size + " method(s):")
+                patchedMethods.forEach { logger.info("  - " + it) }
                 return@execute
             }
         }
@@ -327,7 +336,7 @@ val billingBypassPatch = bytecodePatch(
             if (!classDef.methods.any { it.name == "nativeOnPurchasesUpdated" }) return@classDefForEach
 
             foundBridge = true
-            logger.info("Phase 3 (Unity billing): found bridge $className")
+            logger.info("Phase 3 (Unity billing): found bridge " + className)
 
             val mutableBridge = mutableClassDefBy(classDef)
 
@@ -340,14 +349,14 @@ val billingBypassPatch = bytecodePatch(
                     val nativeField = classDef.fields.find { it.type == "J" }
                     val fieldName = nativeField?.name ?: "zza"
                     method.addInstructions(0, """
-                        iget-wide v0, p0, $className->$fieldName:J
+                        iget-wide v0, p0, ${className}->${fieldName}:J
                         const/4 v2, 0x0
                         const-string v3, ""
                         invoke-static {v2, v3, v0, v1}, ${className}->nativeOnBillingSetupFinished(ILjava/lang/String;J)V
                         return-void
                     """.trimIndent())
-                    patchedMethods.add("$className.onBillingSetupFinished -> force success")
-                    logger.info("  patched: $className.onBillingSetupFinished -> force success")
+                    patchedMethods.add(className + ".onBillingSetupFinished -> force success")
+                    logger.info("  patched: " + className + ".onBillingSetupFinished -> force success")
                 }
             }
 
@@ -361,8 +370,8 @@ val billingBypassPatch = bytecodePatch(
                         :continue
                         nop
                     """.trimIndent())
-                    patchedMethods.add("$className.onPurchasesUpdated -> swallow errors")
-                    logger.info("  patched: $className.onPurchasesUpdated -> swallow errors")
+                    patchedMethods.add(className + ".onPurchasesUpdated -> swallow errors")
+                    logger.info("  patched: " + className + ".onPurchasesUpdated -> swallow errors")
                 }
             }
         }
@@ -377,8 +386,8 @@ val billingBypassPatch = bytecodePatch(
         // ================================================================
         if (patchedMethods.isNotEmpty()) {
             logger.info("Billing bypass COMPLETE (Phases 2+3 + IL2CPP hex patch)")
-            logger.info("Patched ${patchedMethods.size} method(s):")
-            patchedMethods.forEach { logger.info("  - $it") }
+            logger.info("Patched " + patchedMethods.size + " method(s):")
+            patchedMethods.forEach { logger.info("  - " + it) }
             return@execute
         }
 
@@ -399,21 +408,8 @@ val billingBypassPatch = bytecodePatch(
 
                 if ((methodName == "isBillingSupported" || methodName == "isBillingSupportedExtraParams") && returnType == "I") {
                     method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")
-                    patchedMethods.add("$className.$methodName -> 0")
-                    logger.info("  patched: $className.$methodName -> 0")
+                    patchedMethods.add(className + "." + methodName + " -> 0")
+                    logger.info("  patched: " + className + "." + methodName + " -> 0")
                 }
                 if (methodName == "isReady" && returnType == "Z") {
-                    method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
-                    patchedMethods.add("$className.isReady -> true")
-                    logger.info("  patched: $className.isReady -> true")
-                }
-                if (methodName == "getPurchaseState" && returnType == "I") {
-                    method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")
-                    patchedMethods.add("$className.getPurchaseState -> 0")
-                    logger.info("  patched: $className.getPurchaseState -> 0")
-                }
-            }
-        }
-
-        if (patchedMethods.isEmpty()) {
-            throw PatchException("No Google Play Billing classes
+                    method.addInstructions(0
