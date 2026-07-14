@@ -1,3 +1,19 @@
+## [1.9.12](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.11...v1.9.12) (2026-07-14)
+
+### 🐛 Bug Fixes
+
+* "}" ([31af059](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/31af05938ec3f1e83b3bcdc8082f20b1bc7f02fe))
+* **billing:** add Phase 4 IL2CPP hex patch to universal + move hex to UnlockTribes UnlockAllTribesPatch (Polytopia) ([bf15319](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/bf153190f88527a1cafd62fc04ac99730cfa08d9))
+* **billing:** add Phase 4 IL2CPP hex patch to universal + move hex to UnlockTribes UnlockAllTribesPatch (Polytopia) ([8ea53da](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8ea53da8afa990f9edf6d8ad2c3b37b2412dd19c))
+* **billing:** add Phase 4 IL2CPP hex patch to universal + move hex to UnlockTribes UnlockAllTribesPatch (Polytopia) ([3f97a2e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/3f97a2e233fbfe1dc86600c21f6cfde621b4e4a1))
+* **billing:** file was truncated - restore complete Phase 4 Fallback ([a48a741](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a48a741151e9367a0afe8f050a52cf1c79fa8401))
+* **billing:** file was truncated - restore complete Phase 4 Fallback ([8554780](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8554780176e63103707ef3b7848e415dae798ff1))
+* **billing:** file was truncated - restore complete Phase 4 Fallback ([a3ea0f4](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a3ea0f416f64f1a1a3699962a15fac429c5b8f3c))
+* **billing:** move findPattern before rawResourcePatch to fix resolution ([d5182e5](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d5182e5d849adc9ee80b0bad79f7c198e9457afb))
+* **billing:** replace triple-quoted strings with concatenation in Phase 3 ([7bba16f](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7bba16f0ccf38e3345ed55f388a3dc9457d48ecb))
+* **billing:** separate IL2CPP hex patch into rawResourcePatch ([b8f0923](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b8f0923a1c130e4714d85fdfd4453a42e8a3b2d4))
+* **billing:** use string concatenation for className in all phases ([8d5772f](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8d5772fbc5996f92f31824ee0cc9d2befed5cb79))
+
 ## [1.9.11](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.10...v1.9.11) (2026-07-14)
 
 ### 🐛 Bug Fixes
