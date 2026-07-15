@@ -10,6 +10,7 @@ val CLIMB = Compatibility(
     apkFileType = ApkFileType.APKS,
     appIconColor = 0x4CAF50,
     targets = listOf(
+        AppTarget(version = "6.0.6"),
         AppTarget(version = "6.0.5"),
         AppTarget(version = null, isExperimental = true)
     )
