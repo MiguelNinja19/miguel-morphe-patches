@@ -1,3 +1,11 @@
+## [1.10.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.0...v1.10.1) (2026-07-15)
+
+### 🐛 Bug Fixes
+
+* **climb:** patch GPBilling_Purchase_GetState for No Ads instead of GetPurchases ([d71007e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d71007e16982703367f3352663b20f40f074cf3c))
+* **climb:** patch GPBilling_Purchase_GetState for No Ads instead of GetPurchases ([de9bcd3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/de9bcd37349dd3284dde911ee091908880b822ef))
+* **climb:** patch GPBilling_Purchase_GetState for No Ads instead of GetPurchases ([f1aa7c8](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/f1aa7c860e15e0bc24708469e74d5dffedfe89f1))
+
 ## [1.10.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.12...v1.10.0) (2026-07-15)
 
 ### 🐛 Bug Fixes

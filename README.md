@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.10.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.10.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;13 patches total
+> **[v1.10.1](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.10.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;13 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -74,13 +74,13 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 **🎯 Supported versions:**
 
-| 6.0.5 |
-| :---: |
+| 6.0.6 | 6.0.5 |
+| :---: | :---: |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Free in-app purchases](#free-in-app-purchases) | Skips purchase signature verification and forces billing to report success. Patches RunnerBillingSecurity.verifyPurchase to always return true, Purchase.isAcknowledged/getPurchaseState to return valid values, and the billing bridge callbacks. |  |
-| [Remove ads](#remove-ads) | Simulates the purchase of the 'climbnoads' IAP product so the game thinks you bought No Ads and stops showing ads naturally. Injects a fake Purchase with productId='climbnoads' into the purchase list when the game queries purchases. |  |
+| [Remove ads](#remove-ads) | Simulates the purchase of the 'climbnoads' IAP product so the game thinks you bought No Ads and stops showing ads naturally. Patches GPBilling_Purchase_GetState to return PURCHASED when called with 'climbnoads'. |  |
 
 </details>
 
