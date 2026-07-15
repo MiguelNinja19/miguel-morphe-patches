@@ -142,7 +142,10 @@ val unityIl2CppHexPatch = rawResourcePatch(
 val billingBypassPatch = bytecodePatch(
     name = "Billing bypass",
     description = "Attempts to credit purchases by scanning the app for " +
-        "billing code and applying the appropriate bypass. Runs 4 phases.",
+        "billing code and applying the appropriate bypass. Runs 5 phases: " +
+        "(1) Cocos2d-x helper, (2) GameMaker verifyPurchase, (3) Google " +
+        "Play Billing, (4) Unity billing bridge, (5) Fallback. Also " +
+        "depends on Unity IL2CPP hex patch.",
     default = false,
 ) {
     dependsOn(unityIl2CppHexPatch)
@@ -155,7 +158,7 @@ val billingBypassPatch = bytecodePatch(
             "Lcom/google/android/gms/iap/",
         )
         val patchedMethods = mutableListOf<String>()
-        logger.info("Billing bypass: starting 4-phase scan")
+        logger.info("Billing bypass: starting 5-phase scan")
 
         // Phase 1: Cocos2d-x Helper
         val successMethodPatterns = listOf(
@@ -269,10 +272,36 @@ val billingBypassPatch = bytecodePatch(
         }
         logger.info("Phase 1: no success method found")
 
-        // Phase 2: Google Play Billing
+        // Phase 2: GameMaker verifyPurchase
+        // Searches for any method named "verifyPurchase" returning Z (boolean)
+        // and patches it to return true. Works for all GameMaker games.
+        logger.info("Phase 2 (GameMaker verifyPurchase): scanning...")
+        classDefForEach { classDef ->
+            val className = classDef.type
+            if (className.startsWith("Lcom/android/billingclient/api/")) return@classDefForEach
+            if (className.startsWith("Lcom/google/")) return@classDefForEach
+            if (className.startsWith("Landroid/")) return@classDefForEach
+
+            val verifyMethod = classDef.methods.find { method ->
+                method.name == "verifyPurchase" && method.returnType == "Z"
+            }
+
+            if (verifyMethod != null) {
+                val mutableClass = mutableClassDefBy(classDef)
+                mutableClass.methods.find { it.name == "verifyPurchase" && it.returnType == "Z" }?.let { method ->
+                    if (method.implementation != null) {
+                        method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
+                        patchedMethods.add(className + ".verifyPurchase -> return true")
+                        logger.info("  patched: " + className + ".verifyPurchase -> return true")
+                    }
+                }
+            }
+        }
+
+        // Phase 3: Google Play Billing (Purchase methods)
         val purchaseClass = classDefByOrNull("Lcom/android/billingclient/api/Purchase;")
         if (purchaseClass != null) {
-            logger.info("Phase 2 (Google Play Billing): found Purchase class")
+            logger.info("Phase 3 (Google Play Billing): found Purchase class")
             val mutablePurchase = mutableClassDefBy(purchaseClass)
             mutablePurchase.methods.find { it.name == "isAcknowledged" && it.returnType == "Z" }?.let { method ->
                 if (method.implementation != null) {
@@ -289,17 +318,17 @@ val billingBypassPatch = bytecodePatch(
                 }
             }
         } else {
-            logger.info("Phase 2: no Purchase class found")
+            logger.info("Phase 3: no Purchase class found")
         }
 
-        // Phase 3: Unity Billing
+        // Phase 4: Unity/GameMaker billing bridge (zz* callbacks)
         var foundBridge = false
         classDefForEach { classDef ->
             val className = classDef.type
             if (!className.startsWith("Lcom/android/billingclient/api/zz")) return@classDefForEach
             if (!classDef.methods.any { it.name == "nativeOnPurchasesUpdated" }) return@classDefForEach
             foundBridge = true
-            logger.info("Phase 3 (Unity billing): found bridge " + className)
+            logger.info("Phase 4 (billing bridge): found " + className)
             val mutableBridge = mutableClassDefBy(classDef)
 
             mutableBridge.methods.find {
@@ -344,17 +373,18 @@ val billingBypassPatch = bytecodePatch(
             }
         }
         if (!foundBridge) {
-            logger.info("Phase 3: no zzbq bridge found")
+            logger.info("Phase 4: no billing bridge found")
         }
 
         if (patchedMethods.isNotEmpty()) {
-            logger.info("Billing bypass COMPLETE (Phases 2+3 + IL2CPP hex patch)")
+            logger.info("Billing bypass COMPLETE (Phases 2+3+4 + IL2CPP hex patch)")
             logger.info("Patched " + patchedMethods.size + " method(s):")
             patchedMethods.forEach { logger.info("  - " + it) }
             return@execute
         }
-                // Phase 4: Fallback
-        logger.info("Phase 4 (Fallback): patching generic billing methods")
+
+        // Phase 5: Fallback
+        logger.info("Phase 5 (Fallback): patching generic billing methods")
         classDefForEach { classDef ->
             val className = classDef.type
             if (!billingPrefixes.any { className.startsWith(it) }) return@classDefForEach
@@ -363,7 +393,6 @@ val billingBypassPatch = bytecodePatch(
                 if (method.implementation == null) return@forEach
                 val methodName = method.name
                 val returnType = method.returnType
-
                 if ((methodName == "isBillingSupported" || methodName == "isBillingSupportedExtraParams") && returnType == "I") {
                     method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")
                     patchedMethods.add(className + "." + methodName + " -> 0")
@@ -386,7 +415,7 @@ val billingBypassPatch = bytecodePatch(
             throw PatchException("No Google Play Billing classes found in this app.")
         }
 
-        logger.info("Billing bypass COMPLETE (Phase 4: Fallback)")
+        logger.info("Billing bypass COMPLETE (Phase 5: Fallback)")
         logger.info("WARNING: Purchases NOT credited. Only billing errors suppressed.")
         logger.info("Patched " + patchedMethods.size + " method(s):")
         patchedMethods.forEach { logger.info("  - " + it) }
