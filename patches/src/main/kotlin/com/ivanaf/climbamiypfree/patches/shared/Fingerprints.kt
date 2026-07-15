@@ -5,6 +5,46 @@ import app.morphe.patcher.methodCall
 import com.android.tools.smali.dexlib2.AccessFlags
 
 /**
+ * GooglePlayBilling.GPBilling_Purchase_GetState(String)D
+ * Returns purchase state. Game calls this with purchaseToken to check
+ * if a product was purchased. We patch to return 13001 (PURCHASED) when
+ * called with "climbnoads".
+ *
+ * Smali signature:
+ *   .method public GPBilling_Purchase_GetState(Ljava/lang/String;)D
+ */
+object PurchaseGetStateFingerprint : Fingerprint(
+    definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GooglePlayBilling;",
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "D",
+    parameters = listOf("Ljava/lang/String;"),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GooglePlayBillingService;",
+            name = "GetPurchases",
+        ),
+    )
+)
+
+/**
+ * GooglePlayBillingService.GetPurchases()Ljava/util/Map;
+ * Returns m_purchaseRequests HashMap. We hook to inject fake Purchase
+ * with purchaseToken="climbnoads".
+ */
+object GetPurchasesFingerprint : Fingerprint(
+    definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GooglePlayBillingService;",
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "Ljava/util/Map;",
+    parameters = emptyList(),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GooglePlayBillingService;",
+            name = "m_purchaseRequests",
+        ),
+    )
+)
+
+/**
  * GameMaker RunnerBillingSecurity.verifyPurchase(String, String)Z
  * Verifies purchase signature. Patch to always return true.
  */
@@ -19,82 +59,4 @@ object VerifyPurchaseFingerprint : Fingerprint(
             name = "e",
         ),
     )
-)
-
-/**
- * GoogleMobileAdsGM.AdMob_Interstitial_Show()D
- * Shows interstitial ad. Patch to return 0 (skip).
- */
-object InterstitialShowFingerprint : Fingerprint(
-    definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GoogleMobileAdsGM;",
-    accessFlags = listOf(AccessFlags.PUBLIC),
-    returnType = "D",
-    parameters = emptyList(),
-    filters = listOf(
-        methodCall(
-            definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GoogleMobileAdsGM;",
-            name = "showInterstitialAd",
-        ),
-    )
-)
-
-/**
- * GoogleMobileAdsGM.AdMob_Banner_Show()D
- * Shows banner ad. Patch to return 0 (skip).
- */
-object BannerShowFingerprint : Fingerprint(
-    definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GoogleMobileAdsGM;",
-    accessFlags = listOf(AccessFlags.PUBLIC),
-    returnType = "D",
-    parameters = emptyList(),
-    filters = listOf(
-        methodCall(
-            definingClass = "Lcom/google/android/gms/ads/AdView;",
-            name = "setVisibility",
-        ),
-    )
-)
-
-/**
- * GoogleMobileAdsGM.AdMob_Banner_Create(DD)D
- * Creates banner ad. Patch to return 0 (skip).
- */
-object BannerCreateFingerprint : Fingerprint(
-    definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GoogleMobileAdsGM;",
-    accessFlags = listOf(AccessFlags.PUBLIC),
-    returnType = "D",
-    parameters = listOf("D", "D"),
-)
-
-/**
- * GoogleMobileAdsGM.AdMob_RewardedVideo_Show()D
- * Shows rewarded video ad. Patch to return 0 (skip).
- */
-object RewardedVideoShowFingerprint : Fingerprint(
-    definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GoogleMobileAdsGM;",
-    accessFlags = listOf(AccessFlags.PUBLIC),
-    returnType = "D",
-    parameters = emptyList(),
-)
-
-/**
- * GoogleMobileAdsGM.AdMob_RewardedInterstitial_Show()D
- * Shows rewarded interstitial ad. Patch to return 0 (skip).
- */
-object RewardedInterstitialShowFingerprint : Fingerprint(
-    definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GoogleMobileAdsGM;",
-    accessFlags = listOf(AccessFlags.PUBLIC),
-    returnType = "D",
-    parameters = emptyList(),
-)
-
-/**
- * GoogleMobileAdsGM.AdMob_AppOpenAd_Enable(D)D
- * Enables app open ad. Patch to return 0 (disable).
- */
-object AppOpenAdEnableFingerprint : Fingerprint(
-    definingClass = "Lcom/IvanAF/ClimbAMIYPfree/GoogleMobileAdsGM;",
-    accessFlags = listOf(AccessFlags.PUBLIC),
-    returnType = "D",
-    parameters = listOf("D"),
 )
