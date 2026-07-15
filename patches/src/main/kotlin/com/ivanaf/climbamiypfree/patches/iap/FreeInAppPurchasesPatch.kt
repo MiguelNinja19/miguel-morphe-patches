@@ -6,15 +6,10 @@
  *
  * HOOKS:
  * 1. RunnerBillingSecurity.verifyPurchase(String, String) -> return true
- *    Always accept purchases as valid (skip signature verification).
  * 2. Purchase.isAcknowledged() -> return true
  * 3. Purchase.getPurchaseState() -> return 1 (PURCHASED)
  * 4. zzbu.onBillingSetupFinished -> force responseCode=0 (success)
  * 5. zzbu.onPurchasesUpdated -> swallow errors (conditional return-void)
- *
- * When user taps Buy, Play Store dialog appears. If user cancels, the
- * error is swallowed. If purchase completes, verifyPurchase returns true
- * and the game credits the item.
  */
 
 package com.ivanaf.climbamiypfree.patches.iap
@@ -41,7 +36,8 @@ val freeInAppPurchasesPatch = bytecodePatch(
         var count = 0
 
         // HOOK 1: RunnerBillingSecurity.verifyPurchase -> return true
-        VerifyPurchaseFingerprint.matchOrNull?.let {
+        // FIX: matchOrNull is a FUNCTION, must call matchOrNull()
+        VerifyPurchaseFingerprint.matchOrNull()?.let {
             it.method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
             count++
             logger.info("  patched: RunnerBillingSecurity.verifyPurchase -> return true")
