@@ -1,3 +1,18 @@
+## [1.10.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.12...v1.10.0) (2026-07-15)
+
+### 🐛 Bug Fixes
+
+* **climb:** call matchOrNull() as function, not property ([5066fe6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/5066fe6ca48eb1398dce8e11b07c9960d69b2461))
+* **climb:** simulate 'climbnoads' IAP purchase instead of patching ads ([e037cef](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e037cef95855ee84ac9ed42d17988f7c8fc8cad9))
+
+### ✨ New Features
+
+* **climb:** add No Ads + Free IAP patches for Climb! ([02b7895](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/02b78957b22f9bf5d3b86af7805719022f1cc918))
+* **climb:** add No Ads + Free IAP patches for Climb! ([cf4098d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cf4098d2370a836649c0688b00c2187e49b050f2))
+* **climb:** add No Ads + Free IAP patches for Climb! ([24d5f23](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/24d5f239fb068f24699f47f782c6128100c12c12))
+* **climb:** add No Ads + Free IAP patches for Climb! ([c4d3f7f](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/c4d3f7f3d95eece4f45b16419507e65eb50df8a7))
+* **climb:** add No Ads + Free IAP patches for Climb! ([6ea15e6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6ea15e65252f546b5bde83c5ed8a10c5781c55f4))
+
 ## [1.9.12](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.9.11...v1.9.12) (2026-07-14)
 
 ### 🐛 Bug Fixes

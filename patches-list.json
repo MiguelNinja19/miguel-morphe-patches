@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.9.12",
+  "version": "1.10.0",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -37,7 +37,7 @@
     },
     {
       "name": "Billing bypass",
-      "description": "Attempts to credit purchases by scanning the app for billing code and applying the appropriate bypass. Runs 4 phases.",
+      "description": "Attempts to credit purchases by scanning the app for billing code and applying the appropriate bypass. Runs 5 phases: (1) Cocos2d-x helper, (2) GameMaker verifyPurchase, (3) Google Play Billing, (4) Unity billing bridge, (5) Fallback. Also depends on Unity IL2CPP hex patch.",
       "default": false,
       "dependencies": [
         "RawResourcePatch"
@@ -94,6 +94,39 @@
           "targets": [
             {
               "version": "3.16.0",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Free in-app purchases",
+      "description": "Skips purchase signature verification and forces billing to report success. Patches RunnerBillingSecurity.verifyPurchase to always return true, Purchase.isAcknowledged/getPurchaseState to return valid values, and the billing bridge callbacks.",
+      "default": false,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.IvanAF.ClimbAMIYPfree",
+          "name": "Climb!",
+          "description": null,
+          "apkFileType": "APKS",
+          "appIconColor": "#4CAF50",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "6.0.5",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,
@@ -193,6 +226,39 @@
           "targets": [
             {
               "version": "3.16.0",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Remove ads",
+      "description": "Simulates the purchase of the 'climbnoads' IAP product so the game thinks you bought No Ads and stops showing ads naturally. Injects a fake Purchase with productId='climbnoads' into the purchase list when the game queries purchases.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.IvanAF.ClimbAMIYPfree",
+          "name": "Climb!",
+          "description": null,
+          "apkFileType": "APKS",
+          "appIconColor": "#4CAF50",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "6.0.5",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,
