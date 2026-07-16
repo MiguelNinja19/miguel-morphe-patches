@@ -2,10 +2,11 @@
  * Remove Ads patch for Climb!
  *
  * Injects a fake Purchase with productId="climbnoads" into the purchase
- * list when the game queries purchases. The game's GML code finds
- * "climbnoads" and treats No Ads as purchased.
+ * list when the game queries purchases.
  *
- * FIX: JSON quotes must be escaped as \" in smali string literals.
+ * FIX: The List<Purchase> from Google Play Billing is IMMUTABLE. We
+ * create a new ArrayList, copy existing purchases, add the fake one,
+ * and replace p2 with the new list.
  */
 
 package com.ivanaf.climbamiypfree.patches.ads
@@ -30,15 +31,17 @@ val noAdsPatch = bytecodePatch(
         val logger = Logger.getLogger("NoAds")
         var count = 0
 
-        // In smali, string literals escape " as \"
-        // So the JSON needs \" for each "
-        // Kotlin: \\\" produces the literal \" in the smali source
+        // Fake Purchase JSON — productId must be "climbnoads"
+        // In smali, " is escaped as \", and in Kotlin string that's \\\"
         val fakeJson = "{\\\"productId\\\":\\\"climbnoads\\\",\\\"purchaseToken\\\":\\\"climbnoads\\\",\\\"packageName\\\":\\\"com.IvanAF.ClimbAMIYPfree\\\",\\\"purchaseState\\\":1,\\\"purchaseTime\\\":1700000000000,\\\"acknowledged\\\":true}"
 
         // ================================================================
         // HOOK 1: GooglePlayBillingService$1.onQueryPurchasesResponse
         // .locals 5 — v0-v4 available
         // p0=this, p1=BillingResult, p2=List<Purchase>
+        //
+        // The List from Google Play is IMMUTABLE. We create a new ArrayList,
+        // copy existing items, add fake Purchase, and replace p2.
         // ================================================================
         val queryListenerClass = classDefByOrNull("Lcom/IvanAF/ClimbAMIYPfree/GooglePlayBillingService\$1;")
         if (queryListenerClass != null) {
@@ -48,16 +51,24 @@ val noAdsPatch = bytecodePatch(
             }?.let { method ->
                 if (method.implementation != null) {
                     val sb = StringBuilder()
-                    sb.append("if-eqz p2, :skip_query\n")
-                    sb.append("new-instance v0, Lcom/android/billingclient/api/Purchase;\n")
-                    sb.append("const-string v1, \"")
+                    // v0 = new ArrayList (mutable copy)
+                    sb.append("new-instance v0, Ljava/util/ArrayList;\n")
+                    sb.append("invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V\n")
+                    // If p2 != null, add all existing purchases to v0
+                    sb.append("if-eqz p2, :skip_copy_query\n")
+                    sb.append("invoke-interface {v0, p2}, Ljava/util/List;->addAll(Ljava/util/Collection;)Z\n")
+                    sb.append(":skip_copy_query\n")
+                    // v1 = new Purchase(json, "")
+                    sb.append("new-instance v1, Lcom/android/billingclient/api/Purchase;\n")
+                    sb.append("const-string v2, \"")
                     sb.append(fakeJson)
                     sb.append("\"\n")
-                    sb.append("const-string v2, \"\"\n")
-                    sb.append("invoke-direct {v0, v1, v2}, Lcom/android/billingclient/api/Purchase;-><init>(Ljava/lang/String;Ljava/lang/String;)V\n")
-                    sb.append("invoke-interface {p2, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z\n")
-                    sb.append(":skip_query\n")
-                    sb.append("nop")
+                    sb.append("const-string v3, \"\"\n")
+                    sb.append("invoke-direct {v1, v2, v3}, Lcom/android/billingclient/api/Purchase;-><init>(Ljava/lang/String;Ljava/lang/String;)V\n")
+                    // v0.add(v1) — add fake Purchase to ArrayList
+                    sb.append("invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z\n")
+                    // p2 = v0 — replace immutable list with our mutable one
+                    sb.append("move-object p2, v0")
                     method.addInstructions(0, sb.toString())
                     count++
                     logger.info("  patched: GooglePlayBillingService\$1.onQueryPurchasesResponse -> inject climbnoads")
@@ -71,6 +82,7 @@ val noAdsPatch = bytecodePatch(
         // HOOK 2: YYPurchasesUpdatedListener.onPurchasesUpdated
         // .locals 10 — plenty available
         // p0=this, p1=BillingResult, p2=List<Purchase>
+        // Same approach: create new ArrayList, copy, add fake, replace p2
         // ================================================================
         val updatedListenerClass = classDefByOrNull("Lcom/IvanAF/ClimbAMIYPfree/GooglePlayBillingService\$YYPurchasesUpdatedListener;")
         if (updatedListenerClass != null) {
@@ -80,16 +92,19 @@ val noAdsPatch = bytecodePatch(
             }?.let { method ->
                 if (method.implementation != null) {
                     val sb = StringBuilder()
-                    sb.append("if-eqz p2, :skip_update\n")
-                    sb.append("new-instance v0, Lcom/android/billingclient/api/Purchase;\n")
-                    sb.append("const-string v1, \"")
+                    sb.append("new-instance v0, Ljava/util/ArrayList;\n")
+                    sb.append("invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V\n")
+                    sb.append("if-eqz p2, :skip_copy_update\n")
+                    sb.append("invoke-interface {v0, p2}, Ljava/util/List;->addAll(Ljava/util/Collection;)Z\n")
+                    sb.append(":skip_copy_update\n")
+                    sb.append("new-instance v1, Lcom/android/billingclient/api/Purchase;\n")
+                    sb.append("const-string v2, \"")
                     sb.append(fakeJson)
                     sb.append("\"\n")
-                    sb.append("const-string v2, \"\"\n")
-                    sb.append("invoke-direct {v0, v1, v2}, Lcom/android/billingclient/api/Purchase;-><init>(Ljava/lang/String;Ljava/lang/String;)V\n")
-                    sb.append("invoke-interface {p2, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z\n")
-                    sb.append(":skip_update\n")
-                    sb.append("nop")
+                    sb.append("const-string v3, \"\"\n")
+                    sb.append("invoke-direct {v1, v2, v3}, Lcom/android/billingclient/api/Purchase;-><init>(Ljava/lang/String;Ljava/lang/String;)V\n")
+                    sb.append("invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z\n")
+                    sb.append("move-object p2, v0")
                     method.addInstructions(0, sb.toString())
                     count++
                     logger.info("  patched: YYPurchasesUpdatedListener.onPurchasesUpdated -> inject climbnoads")
