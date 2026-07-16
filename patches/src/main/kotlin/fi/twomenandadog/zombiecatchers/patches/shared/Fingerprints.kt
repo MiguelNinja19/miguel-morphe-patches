@@ -65,8 +65,7 @@ object LicenseCheckFingerprint : Fingerprint(
 
 /**
  * com.pairip.StartupLauncher.launch()V
- * Executes encrypted VM bytecode that contains hidden anti-tamper
- * and license checks. Patch to return-void to skip ALL VM execution.
+ * Executes encrypted VM bytecode. Patch to return-void.
  */
 object StartupLauncherFingerprint : Fingerprint(
     definingClass = "Lcom/pairip/StartupLauncher;",
@@ -83,8 +82,7 @@ object StartupLauncherFingerprint : Fingerprint(
 
 /**
  * com.pairip.licensecheck.LicenseActivity.onStart()V
- * The "Get this app from Play" screen. Patch to return-void + finish()
- * so it closes immediately if launched.
+ * Patch to finish() immediately.
  */
 object LicenseActivityOnStartFingerprint : Fingerprint(
     definingClass = "Lcom/pairip/licensecheck/LicenseActivity;",
@@ -93,7 +91,7 @@ object LicenseActivityOnStartFingerprint : Fingerprint(
     parameters = emptyList(),
     filters = listOf(
         methodCall(
-            definingClass = "Lcom/pairip/licensecheck/LicenseActivity$ActivityType;",
+            definingClass = "Lcom/pairip/licensecheck/LicenseActivity" + "${'$'}" + "ActivityType;",
             name = "ordinal",
         ),
     )
