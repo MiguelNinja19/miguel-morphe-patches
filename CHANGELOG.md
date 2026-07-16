@@ -1,3 +1,10 @@
+## [1.11.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.2...v1.11.3) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** patch openPlayStoreZCPage to prevent Play Store redirect ([a477716](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a4777168a13f5644e70f2931f77177377483467b))
+* **zombie-catchers:** patch openPlayStoreZCPage to prevent Play Store redirect ([5f8dc2a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/5f8dc2aeee3ac7b77bebb879623b553378701ecd))
+
 ## [1.11.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.1...v1.11.2) (2026-07-16)
 
 ### 🐛 Bug Fixes

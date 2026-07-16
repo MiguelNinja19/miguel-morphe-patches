@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-16T17:45:24",
-  "description": "## [1.11.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.1...v1.11.2) (2026-07-16)\n\n### 🐛 Bug Fixes\n\n* **zombie-catchers:** bypass all 3 layers of PairIP anti-tamper ([7d80d6d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7d80d6d354c000680fee136dc70b4c7c4cadd0da))\n* **zombie-catchers:** bypass all 3 layers of PairIP anti-tamper ([1d83f89](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1d83f89f3edb134a26d94681d042d8b2cd232611))\n* **zombie-catchers:** escape $ in LicenseActivity$ActivityType fingerprint ([9ab2178](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9ab2178d27a11d6807f9d4e2726928339b885dc2))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.11.2/patches-1.11.2.mpp",
+  "created_at": "2026-07-16T18:01:58",
+  "description": "## [1.11.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.2...v1.11.3) (2026-07-16)\n\n### 🐛 Bug Fixes\n\n* **zombie-catchers:** patch openPlayStoreZCPage to prevent Play Store redirect ([a477716](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a4777168a13f5644e70f2931f77177377483467b))\n* **zombie-catchers:** patch openPlayStoreZCPage to prevent Play Store redirect ([5f8dc2a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/5f8dc2aeee3ac7b77bebb879623b553378701ecd))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.11.3/patches-1.11.3.mpp",
   "signature_download_url": "",
-  "version": "1.11.2"
+  "version": "1.11.3"
 }
