@@ -96,3 +96,21 @@ object LicenseActivityOnStartFingerprint : Fingerprint(
         ),
     )
 )
+/**
+ * fi.twomenandadog.zombiecatchers.ZCActivity.openPlayStoreZCPage()V
+ * Called by C++ via JNI to open the Play Store listing.
+ * This is what redirects the user to "Get this app from Play".
+ * Patch to return-void to prevent the redirect.
+ */
+object OpenPlayStoreFingerprint : Fingerprint(
+    definingClass = "Lfi/twomenandadog/zombiecatchers/ZCActivity;",
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "V",
+    parameters = emptyList(),
+    filters = listOf(
+        methodCall(
+            definingClass = "Landroid/content/Context;",
+            name = "startActivity",
+        ),
+    )
+)
