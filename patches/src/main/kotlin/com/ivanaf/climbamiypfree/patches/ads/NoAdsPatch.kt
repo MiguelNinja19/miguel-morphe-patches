@@ -1,24 +1,11 @@
 /*
  * Remove Ads patch for Climb!
  *
- * HOW IT WORKS:
+ * Injects a fake Purchase with productId="climbnoads" into the purchase
+ * list when the game queries purchases. The game's GML code finds
+ * "climbnoads" and treats No Ads as purchased.
  *
- * The game (GameMaker Studio) receives purchases via async event JSON:
- *   1. GML calls GPBilling_QueryPurchasesAsync()
- *   2. Java calls GooglePlayBillingService$1.onQueryPurchasesResponse()
- *   3. That method iterates the Purchase list, builds a JSON array, and
- *      sends it to GML via RunnerJNILib.CreateAsynEventWithDSMap()
- *   4. GML parses the JSON, checks if any purchase has productId="climbnoads"
- *
- * This patch injects a fake Purchase with productId="climbnoads" into the
- * Purchase list at the START of onQueryPurchasesResponse, BEFORE the
- * iteration. This way:
- *   - The fake purchase is added to m_purchaseRequests HashMap
- *   - Its JSON is included in the array sent to GML
- *   - GML finds "climbnoads" and treats No Ads as purchased
- *
- * Also patches onPurchasesUpdated (YYPurchasesUpdatedListener) for when
- * the user taps "Buy" — the fake purchase is added there too.
+ * FIX: JSON quotes must be escaped as \" in smali string literals.
  */
 
 package com.ivanaf.climbamiypfree.patches.ads
@@ -33,8 +20,8 @@ val noAdsPatch = bytecodePatch(
     name = "Remove ads",
     description = "Simulates the purchase of the 'climbnoads' IAP product " +
         "by injecting a fake Purchase into the purchase list when the game " +
-        "queries purchases. The game's GML code finds 'climbnoads' in the " +
-        "purchase list and treats No Ads as purchased.",
+        "queries purchases. The game finds 'climbnoads' and treats No Ads " +
+        "as purchased.",
     default = true,
 ) {
     compatibleWith(CLIMB)
@@ -43,21 +30,15 @@ val noAdsPatch = bytecodePatch(
         val logger = Logger.getLogger("NoAds")
         var count = 0
 
-        // The fake Purchase JSON — productId must be "climbnoads"
-        // purchaseToken is also "climbnoads" so it's used as HashMap key
-        val fakeJson = "{\"productId\":\"climbnoads\",\"purchaseToken\":\"climbnoads\",\"packageName\":\"com.IvanAF.ClimbAMIYPfree\",\"purchaseState\":1,\"purchaseTime\":1700000000000,\"acknowledged\":true}"
+        // In smali, string literals escape " as \"
+        // So the JSON needs \" for each "
+        // Kotlin: \\\" produces the literal \" in the smali source
+        val fakeJson = "{\\\"productId\\\":\\\"climbnoads\\\",\\\"purchaseToken\\\":\\\"climbnoads\\\",\\\"packageName\\\":\\\"com.IvanAF.ClimbAMIYPfree\\\",\\\"purchaseState\\\":1,\\\"purchaseTime\\\":1700000000000,\\\"acknowledged\\\":true}"
 
         // ================================================================
         // HOOK 1: GooglePlayBillingService$1.onQueryPurchasesResponse
-        // ================================================================
-        // .locals 5 (v0-v4 available), p0=this, p1=BillingResult, p2=List
-        //
-        // Inject at index 0 (before :try_start_0):
-        //   if p2 == null, skip
-        //   v0 = new Purchase(json, "")
-        //   p2.add(v0)
-        //   :skip
-        //   nop
+        // .locals 5 — v0-v4 available
+        // p0=this, p1=BillingResult, p2=List<Purchase>
         // ================================================================
         val queryListenerClass = classDefByOrNull("Lcom/IvanAF/ClimbAMIYPfree/GooglePlayBillingService\$1;")
         if (queryListenerClass != null) {
@@ -88,9 +69,8 @@ val noAdsPatch = bytecodePatch(
 
         // ================================================================
         // HOOK 2: YYPurchasesUpdatedListener.onPurchasesUpdated
-        // ================================================================
-        // .locals 10 (plenty available), p0=this, p1=BillingResult, p2=List
-        // Same injection: add fake Purchase to p2 before iteration.
+        // .locals 10 — plenty available
+        // p0=this, p1=BillingResult, p2=List<Purchase>
         // ================================================================
         val updatedListenerClass = classDefByOrNull("Lcom/IvanAF/ClimbAMIYPfree/GooglePlayBillingService\$YYPurchasesUpdatedListener;")
         if (updatedListenerClass != null) {
@@ -120,6 +100,5 @@ val noAdsPatch = bytecodePatch(
         }
 
         logger.info("No ads COMPLETE: " + count + " methods patched")
-        logger.info("  Fake Purchase with productId='climbnoads' injected into purchase list")
     }
 }
