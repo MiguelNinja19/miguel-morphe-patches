@@ -1,3 +1,15 @@
+## [1.11.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.4...v1.11.0) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** call matchOrNull() as function, not property ([d0baff6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d0baff6e62e9a163f1d518d744214b728316fd17))
+
+### ✨ New Features
+
+* **zombie-catchers:** add Unlock All + Unlimited Everything patch ([efceac1](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/efceac1b217b47c5ff939ac920f87941c30360b1))
+* **zombie-catchers:** add Unlock All + Unlimited Everything patch ([58316ac](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/58316ac909f8298db5d5abd9c404b5099e842f3d))
+* **zombie-catchers:** add Unlock All + Unlimited Everything patch ([c2d67d7](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/c2d67d78260f30efa244a641bc362dd247955487))
+
 ## [1.10.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.3...v1.10.4) (2026-07-16)
 
 ### 🐛 Bug Fixes
