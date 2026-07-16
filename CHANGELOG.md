@@ -1,3 +1,9 @@
+## [1.10.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.2...v1.10.3) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **climb:** escape JSON quotes in smali string literals ([41922ff](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/41922ffc48b374a32f328d3694f99aa2dc0f9e33))
+
 ## [1.10.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.1...v1.10.2) (2026-07-16)
 
 ### 🐛 Bug Fixes
