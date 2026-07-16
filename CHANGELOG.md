@@ -1,3 +1,10 @@
+## [1.11.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.6...v1.11.7) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** native hex patch on libcocos2dcpp.so ([c095781](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/c09578184e2f3a3507f1488b41706078180c5324))
+* **zombie-catchers:** use hb() helper to avoid Int vs Byte errors ([641ba27](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/641ba277ddba2c04caaba75045507b639cbcbe01))
+
 ## [1.11.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.5...v1.11.6) (2026-07-16)
 
 ### 🐛 Bug Fixes

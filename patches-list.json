@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.11.6",
+  "version": "1.11.7",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -333,7 +333,7 @@
     },
     {
       "name": "Unlock all",
-      "description": "Writes unlimited currencies to SharedPreferences at the END of onCreate (after C++ init) and bypasses PairIP.",
+      "description": "Hex patches libcocos2dcpp.so to: bypass Play Store redirect (openPlayStore, openUrl, quitApplication), skip billing connection, return null from getSHA256, and make getIntegerForKey return 999999999 for Balance keys. Pure native patching — no DEX modification, no C++ integrity check trigger.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
