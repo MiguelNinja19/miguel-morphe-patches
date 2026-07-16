@@ -1,3 +1,11 @@
+## [1.11.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.1...v1.11.2) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** bypass all 3 layers of PairIP anti-tamper ([7d80d6d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7d80d6d354c000680fee136dc70b4c7c4cadd0da))
+* **zombie-catchers:** bypass all 3 layers of PairIP anti-tamper ([1d83f89](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1d83f89f3edb134a26d94681d042d8b2cd232611))
+* **zombie-catchers:** escape $ in LicenseActivity$ActivityType fingerprint ([9ab2178](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9ab2178d27a11d6807f9d4e2726928339b885dc2))
+
 ## [1.11.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.0...v1.11.1) (2026-07-16)
 
 ### 🐛 Bug Fixes
