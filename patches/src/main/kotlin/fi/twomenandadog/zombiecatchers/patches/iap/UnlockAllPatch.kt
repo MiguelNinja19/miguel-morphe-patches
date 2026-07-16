@@ -1,16 +1,23 @@
 /*
- * Unlock All + Unlimited Everything for Zombie Catchers.
+ * Unlock All + Unlimited Everything + PairIP Bypass for Zombie Catchers.
  *
- * Also bypasses PairIP anti-tamper protection (signature verification
- * and license check) that redirects to Play Store when the APK is
- * re-signed by Morphe.
+ * PairIP anti-tamper protection has 3 layers:
+ *   1. StartupLauncher.launch() — executes encrypted VM bytecode
+ *      containing hidden signature/license checks
+ *   2. SignatureCheck.verifyIntegrity() — checks APK signature hash
+ *   3. LicenseClient.checkLicense() — connects to Google Play Licensing
  *
- * HOOKS:
- *   1. Cocos2dxHelper.getIntegerForKey → 999999999 for "Balance" keys
- *   2. Cocos2dxHelper.getBoolForKey → true for unlock/purchase/ads keys
- *   3. Security.verifyPurchase → return true
- *   4. PairIP SignatureCheck.verifyIntegrity → return-void (bypass)
- *   5. PairIP LicenseClient.checkLicense → return-void (bypass)
+ * If any check fails, LicenseActivity is launched showing
+ * "Get this app from Play" screen.
+ *
+ * This patch bypasses ALL layers:
+ *   HOOK 1: StartupLauncher.launch → return-void (skip VM bytecode)
+ *   HOOK 2: SignatureCheck.verifyIntegrity → return-void
+ *   HOOK 3: LicenseClient.checkLicense → return-void
+ *   HOOK 4: LicenseActivity.onStart → finish() (close immediately)
+ *   HOOK 5: getIntegerForKey → 999999999 for Balance keys
+ *   HOOK 6: getBoolForKey → true for unlock keys
+ *   HOOK 7: Security.verifyPurchase → return true
  */
 
 package fi.twomenandadog.zombiecatchers.patches.iap
@@ -23,14 +30,16 @@ import fi.twomenandadog.zombiecatchers.patches.shared.GetBoolForKeyFingerprint
 import fi.twomenandadog.zombiecatchers.patches.shared.VerifyPurchaseFingerprint
 import fi.twomenandadog.zombiecatchers.patches.shared.SignatureCheckFingerprint
 import fi.twomenandadog.zombiecatchers.patches.shared.LicenseCheckFingerprint
+import fi.twomenandadog.zombiecatchers.patches.shared.StartupLauncherFingerprint
+import fi.twomenandadog.zombiecatchers.patches.shared.LicenseActivityOnStartFingerprint
 import java.util.logging.Logger
 
 @Suppress("unused")
 val unlockAllPatch = bytecodePatch(
     name = "Unlock all",
-    description = "Unlocks everything, sets all currencies (plutonium, " +
-        "coins, squeezer parts) to 999999999, and bypasses PairIP " +
-        "anti-tamper protection (signature verification + license check) " +
+    description = "Unlocks everything, sets all currencies to 999999999, " +
+        "and bypasses PairIP anti-tamper protection (VM bytecode, " +
+        "signature verification, license check, and LicenseActivity) " +
         "that redirects to Play Store.",
     default = true,
 ) {
@@ -40,7 +49,46 @@ val unlockAllPatch = bytecodePatch(
         val logger = Logger.getLogger("UnlockAll")
         var count = 0
 
-        // HOOK 1: getIntegerForKey → 999999999 for "Balance" keys
+        // === PAIRIP BYPASS (4 hooks) ===
+
+        // HOOK 1: StartupLauncher.launch → return-void
+        // Skips ALL encrypted VM bytecode execution (hidden checks)
+        StartupLauncherFingerprint.matchOrNull()?.let {
+            it.method.addInstructions(0, "return-void")
+            count++
+            logger.info("  patched: PairIP StartupLauncher.launch -> return-void (skip VM)")
+        }
+
+        // HOOK 2: SignatureCheck.verifyIntegrity → return-void
+        SignatureCheckFingerprint.matchOrNull()?.let {
+            it.method.addInstructions(0, "return-void")
+            count++
+            logger.info("  patched: PairIP SignatureCheck.verifyIntegrity -> return-void")
+        }
+
+        // HOOK 3: LicenseClient.checkLicense → return-void
+        LicenseCheckFingerprint.matchOrNull()?.let {
+            it.method.addInstructions(0, "return-void")
+            count++
+            logger.info("  patched: PairIP LicenseClient.checkLicense -> return-void")
+        }
+
+        // HOOK 4: LicenseActivity.onStart → finish() + return-void
+        // If LicenseActivity is launched despite HOOK 3, close it immediately
+        // .locals 2 — v0, v1 available
+        // p0 = this (Activity)
+        LicenseActivityOnStartFingerprint.matchOrNull()?.let {
+            it.method.addInstructions(0, """
+                invoke-virtual {p0}, Lcom/pairip/licensecheck/LicenseActivity;->finish()V
+                return-void
+            """.trimIndent())
+            count++
+            logger.info("  patched: PairIP LicenseActivity.onStart -> finish() (close immediately)")
+        }
+
+        // === UNLOCK ALL + UNLIMITED (3 hooks) ===
+
+        // HOOK 5: getIntegerForKey → 999999999 for "Balance" keys
         GetIntegerForKeyFingerprint.matchOrNull()?.let {
             it.method.addInstructions(0, """
                 const-string v0, "Balance"
@@ -56,7 +104,7 @@ val unlockAllPatch = bytecodePatch(
             logger.info("  patched: Cocos2dxHelper.getIntegerForKey -> 999999999 for Balance keys")
         }
 
-        // HOOK 2: getBoolForKey → true for unlock/purchase/ads/bought keys
+        // HOOK 6: getBoolForKey → true for unlock/purchase/ads/bought keys
         GetBoolForKeyFingerprint.matchOrNull()?.let {
             it.method.addInstructions(0, """
                 const-string v0, "nlock"
@@ -86,29 +134,11 @@ val unlockAllPatch = bytecodePatch(
             logger.info("  patched: Cocos2dxHelper.getBoolForKey -> true for unlock/purchase/ads/bought keys")
         }
 
-        // HOOK 3: Security.verifyPurchase → return true
+        // HOOK 7: Security.verifyPurchase → return true
         VerifyPurchaseFingerprint.matchOrNull()?.let {
             it.method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
             count++
             logger.info("  patched: Security.verifyPurchase -> return true")
-        }
-
-        // HOOK 4: PairIP SignatureCheck.verifyIntegrity → return-void
-        // Bypasses APK signature verification that detects re-signed APKs
-        // and redirects to Play Store.
-        SignatureCheckFingerprint.matchOrNull()?.let {
-            it.method.addInstructions(0, "return-void")
-            count++
-            logger.info("  patched: PairIP SignatureCheck.verifyIntegrity -> return-void (bypass)")
-        }
-
-        // HOOK 5: PairIP LicenseClient.checkLicense → return-void
-        // Bypasses Google Play license check that verifies the app was
-        // installed from Play Store.
-        LicenseCheckFingerprint.matchOrNull()?.let {
-            it.method.addInstructions(0, "return-void")
-            count++
-            logger.info("  patched: PairIP LicenseClient.checkLicense -> return-void (bypass)")
         }
 
         logger.info("Unlock all COMPLETE: " + count + " methods patched")
