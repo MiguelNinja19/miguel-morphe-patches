@@ -1,3 +1,9 @@
+## [1.10.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.1...v1.10.2) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **climb:** inject fake climbnoads Purchase into purchase list ([895a54d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/895a54de4bec56866e3d3af8522c8fbc9d44e611))
+
 ## [1.10.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.0...v1.10.1) (2026-07-15)
 
 ### 🐛 Bug Fixes
