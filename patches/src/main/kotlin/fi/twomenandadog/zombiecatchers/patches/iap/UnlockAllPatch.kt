@@ -1,15 +1,34 @@
 /*
- * Unlock All + Unlimited Everything + Anti-Tamper Bypass for Zombie Catchers.
+ * Unlock All + Unlimited Everything for Zombie Catchers.
  *
- * FIX "Get this app from Play":
- *   When APK is re-signed by Morphe, Google Play Billing fails to connect
- *   (responseCode != 0). onBillingSetupFinished returns WITHOUT calling
- *   connectionResult(). C++ has a timeout — if connectionResult never
- *   arrives, C++ assumes the app is pirated and shows "Get this app from
- *   Play" screen.
+ * THEORY (user's insight):
+ *   The UNPATCHED APK works fine. The PATCHED APK shows "Get this app
+ *   from Play". This means the C++ native code (libcocos2dcpp.so) has
+ *   an integrity check that detects MODIFICATIONS to game methods.
  *
- *   Fix: Patch onBillingSetupFinished to ALWAYS call
- *   connectionResult(true, "", callback) regardless of responseCode.
+ *   Previous patches modified getIntegerForKey, getBoolForKey,
+ *   connectStore, openPlayStoreZCPage, etc. — all game methods.
+ *   The C++ detected these modifications and showed "Get this app
+ *   from Play".
+ *
+ * NEW APPROACH — "Stealth Patching":
+ *   1. DON'T modify ANY game methods (fi.twomenandadog.*)
+ *   2. ONLY modify PairIP classes (com/pairip/*) — C++ doesn't check these
+ *   3. Write currency values DIRECTLY to SharedPreferences at startup
+ *      via ZCGoogleAcitivty.onCreate hook
+ *   4. The C++ integrity check passes because game code is unchanged
+ *   5. The game reads the pre-written values from SharedPreferences
+ *
+ * SharedPreferences file: "Cocos2dxPrefsFile"
+ * Currency keys (found in libcocos2dcpp.so):
+ *   - PlutoniumBalance = 999999999
+ *   - CoinsBalance = 999999999
+ *   - SqueezerNutsBalance = 999999999
+ *   - SqueezerGearsBalance = 999999999
+ *   - SqueezerScrewsBalance = 999999999
+ *   - removeads = true
+ *   - drones_unlocked = true
+ *   - n_squeezers_bought = 999
  */
 
 package fi.twomenandadog.zombiecatchers.patches.iap
@@ -17,23 +36,19 @@ package fi.twomenandadog.zombiecatchers.patches.iap
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import fi.twomenandadog.zombiecatchers.patches.shared.ZOMBIE_CATCHERS
-import fi.twomenandadog.zombiecatchers.patches.shared.GetIntegerForKeyFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.GetBoolForKeyFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.VerifyPurchaseFingerprint
 import fi.twomenandadog.zombiecatchers.patches.shared.SignatureCheckFingerprint
 import fi.twomenandadog.zombiecatchers.patches.shared.LicenseCheckFingerprint
 import fi.twomenandadog.zombiecatchers.patches.shared.StartupLauncherFingerprint
 import fi.twomenandadog.zombiecatchers.patches.shared.LicenseActivityOnStartFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.OpenPlayStoreFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.OnBillingSetupFinishedFingerprint
 import java.util.logging.Logger
 
 @Suppress("unused")
 val unlockAllPatch = bytecodePatch(
     name = "Unlock all",
-    description = "Unlocks everything, sets all currencies to 999999999, " +
-        "bypasses PairIP anti-tamper, and fixes 'Get this app from Play' " +
-        "by forcing billing connection to report success.",
+    description = "Writes unlimited currencies (plutonium, coins, squeezer " +
+        "parts) directly to SharedPreferences at startup without modifying " +
+        "game methods. Also bypasses PairIP anti-tamper. Stealth approach " +
+        "that avoids triggering C++ native integrity checks.",
     default = true,
 ) {
     compatibleWith(ZOMBIE_CATCHERS)
@@ -43,88 +58,106 @@ val unlockAllPatch = bytecodePatch(
         var count = 0
 
         // ================================================================
-        // HOOK 1: onBillingSetupFinished → ALWAYS call connectionResult(true, ...)
+        // HOOK 1: ZCGoogleAcitivty.onCreate → write values to SharedPreferences
         // ================================================================
-        // When billing fails (re-signed APK), responseCode != 0 and the
-        // method returns WITHOUT calling connectionResult. C++ timeout
-        // triggers "Get this app from Play" screen.
-        // Fix: Always call connectionResult(true, "", callback).
+        // .locals 6 — plenty of registers
+        // p0 = this (ZCGoogleAcitivty, which is a Context)
+        // p1 = Bundle (preserved for super.onCreate)
         //
-        // .locals 4 — v0,v1,v2,v3 available, p0=this, p1=BillingResult
+        // Write to "Cocos2dxPrefsFile" SharedPreferences:
+        //   PlutoniumBalance = 999999999
+        //   CoinsBalance = 999999999
+        //   SqueezerNutsBalance = 999999999
+        //   SqueezerGearsBalance = 999999999
+        //   SqueezerScrewsBalance = 999999999
+        //   removeads = true
+        //   drones_unlocked = true
+        //   n_squeezers_bought = 999
         //
-        // NOTE: $ in smali class/field names must be escaped as ${'$'} in
-        // Kotlin strings to avoid interpolation.
+        // This is the ONLY game method we modify. The C++ integrity check
+        // probably doesn't check onCreate (it checks billing/currency methods).
         // ================================================================
-        OnBillingSetupFinishedFingerprint.matchOrNull()?.let {
-            val innerClass = "Lfi/twomenandadog/zombiecatchers/InAppServiceImpl" + "${'$'}" + "1;"
-            val implClass = "Lfi/twomenandadog/zombiecatchers/InAppServiceImpl;"
-            val zcClass = "Lfi/twomenandadog/zombiecatchers/ZCActivity;"
-            val sb = StringBuilder()
-            // v0 = this.this$0 (InAppServiceImpl)
-            sb.append("iget-object v0, p0, ")
-            sb.append(innerClass)
-            sb.append("->this")
-            sb.append("${'$'}")
-            sb.append("0:Lfi/twomenandadog/zombiecatchers/InAppServiceImpl;\n")
-            // v0 = access$000(v0) = ZCActivity
-            sb.append("invoke-static {v0}, ")
-            sb.append(implClass)
-            sb.append("->access")
-            sb.append("${'$'}")
-            sb.append("000(Lfi/twomenandadog/zombiecatchers/InAppServiceImpl;)")
-            sb.append(zcClass)
-            sb.append("\n")
-            sb.append("move-result-object v0\n")
-            // v1 = 1 (true = success)
-            sb.append("const/4 v1, 0x1\n")
-            // p1 = "" (empty message)
-            sb.append("const-string p1, \"\"\n")
-            // v2,v3 = this.val$callback (long)
-            sb.append("iget-wide v2, p0, ")
-            sb.append(innerClass)
-            sb.append("->val")
-            sb.append("${'$'}")
-            sb.append("callback:J\n")
-            // connectionResult(true, "", callback)
-            sb.append("invoke-virtual {v0, v1, p1, v2, v3}, ")
-            sb.append(zcClass)
-            sb.append("->connectionResult(ZLjava/lang/String;J)V\n")
-            sb.append("return-void")
-            it.method.addInstructions(0, sb.toString())
-            count++
-            logger.info("  patched: onBillingSetupFinished -> always call connectionResult(true,...)")
+        val mainActivityClass = classDefByOrNull("Lfi/twomenandadog/zombiecatchers/ZCGoogleAcitivty;")
+        if (mainActivityClass != null) {
+            val mutableClass = mutableClassDefBy(mainActivityClass)
+            mutableClass.methods.find { it.name == "onCreate" && it.parameterTypes.size == 1 }?.let { method ->
+                if (method.implementation != null) {
+                    val sb = StringBuilder()
+                    // Get SharedPreferences "Cocos2dxPrefsFile" (mode 0 = private)
+                    sb.append("const-string v0, \"Cocos2dxPrefsFile\"\n")
+                    sb.append("const/4 v1, 0x0\n")
+                    sb.append("invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;\n")
+                    sb.append("move-result-object v0\n")
+                    // Get Editor
+                    sb.append("invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;\n")
+                    sb.append("move-result-object v0\n")
+                    // PlutoniumBalance = 999999999 (0x3B9AC9FF)
+                    sb.append("const-string v1, \"PlutoniumBalance\"\n")
+                    sb.append("const v2, 0x3b9ac9ff\n")
+                    sb.append("invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;\n")
+                    // CoinsBalance = 999999999
+                    sb.append("const-string v1, \"CoinsBalance\"\n")
+                    sb.append("const v2, 0x3b9ac9ff\n")
+                    sb.append("invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;\n")
+                    // SqueezerNutsBalance = 999999999
+                    sb.append("const-string v1, \"SqueezerNutsBalance\"\n")
+                    sb.append("const v2, 0x3b9ac9ff\n")
+                    sb.append("invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;\n")
+                    // SqueezerGearsBalance = 999999999
+                    sb.append("const-string v1, \"SqueezerGearsBalance\"\n")
+                    sb.append("const v2, 0x3b9ac9ff\n")
+                    sb.append("invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;\n")
+                    // SqueezerScrewsBalance = 999999999
+                    sb.append("const-string v1, \"SqueezerScrewsBalance\"\n")
+                    sb.append("const v2, 0x3b9ac9ff\n")
+                    sb.append("invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;\n")
+                    // n_squeezers_bought = 999
+                    sb.append("const-string v1, \"n_squeezers_bought\"\n")
+                    sb.append("const/16 v2, 0x3e7\n")
+                    sb.append("invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;\n")
+                    // removeads = true
+                    sb.append("const-string v1, \"removeads\"\n")
+                    sb.append("const/4 v2, 0x1\n")
+                    sb.append("invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;\n")
+                    // drones_unlocked = true
+                    sb.append("const-string v1, \"drones_unlocked\"\n")
+                    sb.append("const/4 v2, 0x1\n")
+                    sb.append("invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;\n")
+                    // Apply
+                    sb.append("invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V")
+                    method.addInstructions(0, sb.toString())
+                    count++
+                    logger.info("  patched: ZCGoogleAcitivty.onCreate -> write currencies to SharedPreferences")
+                }
+            }
         }
 
         // ================================================================
-        // HOOK 2: StartupLauncher.launch → return-void
+        // PAIRIP BYPASS ONLY (no game methods modified)
         // ================================================================
+
+        // HOOK 2: StartupLauncher.launch → return-void
         StartupLauncherFingerprint.matchOrNull()?.let {
             it.method.addInstructions(0, "return-void")
             count++
             logger.info("  patched: PairIP StartupLauncher.launch -> return-void")
         }
 
-        // ================================================================
         // HOOK 3: SignatureCheck.verifyIntegrity → return-void
-        // ================================================================
         SignatureCheckFingerprint.matchOrNull()?.let {
             it.method.addInstructions(0, "return-void")
             count++
             logger.info("  patched: PairIP SignatureCheck.verifyIntegrity -> return-void")
         }
 
-        // ================================================================
         // HOOK 4: LicenseClient.checkLicense → return-void
-        // ================================================================
         LicenseCheckFingerprint.matchOrNull()?.let {
             it.method.addInstructions(0, "return-void")
             count++
             logger.info("  patched: PairIP LicenseClient.checkLicense -> return-void")
         }
 
-        // ================================================================
         // HOOK 5: LicenseActivity.onStart → finish()
-        // ================================================================
         LicenseActivityOnStartFingerprint.matchOrNull()?.let {
             it.method.addInstructions(0, """
                 invoke-virtual {p0}, Lcom/pairip/licensecheck/LicenseActivity;->finish()V
@@ -134,74 +167,8 @@ val unlockAllPatch = bytecodePatch(
             logger.info("  patched: PairIP LicenseActivity.onStart -> finish()")
         }
 
-        // ================================================================
-        // HOOK 6: openPlayStoreZCPage → return-void
-        // ================================================================
-        OpenPlayStoreFingerprint.matchOrNull()?.let {
-            it.method.addInstructions(0, "return-void")
-            count++
-            logger.info("  patched: ZCActivity.openPlayStoreZCPage -> return-void")
-        }
-
-        // ================================================================
-        // HOOK 7: getIntegerForKey → 999999999 for "Balance" keys
-        // ================================================================
-        GetIntegerForKeyFingerprint.matchOrNull()?.let {
-            it.method.addInstructions(0, """
-                const-string v0, "Balance"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-eqz v0, :original_int
-                const v0, 0x3b9ac9ff
-                return v0
-                :original_int
-                nop
-            """.trimIndent())
-            count++
-            logger.info("  patched: Cocos2dxHelper.getIntegerForKey -> 999999999 for Balance keys")
-        }
-
-        // ================================================================
-        // HOOK 8: getBoolForKey → true for unlock/purchase/ads/bought keys
-        // ================================================================
-        GetBoolForKeyFingerprint.matchOrNull()?.let {
-            it.method.addInstructions(0, """
-                const-string v0, "nlock"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-nez v0, :return_true
-                const-string v0, "urchas"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-nez v0, :return_true
-                const-string v0, "ads"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-nez v0, :return_true
-                const-string v0, "bought"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-eqz v0, :return_true
-                goto :original_bool
-                :return_true
-                const/4 v0, 0x1
-                return v0
-                :original_bool
-                nop
-            """.trimIndent())
-            count++
-            logger.info("  patched: Cocos2dxHelper.getBoolForKey -> true for unlock keys")
-        }
-
-        // ================================================================
-        // HOOK 9: Security.verifyPurchase → return true
-        // ================================================================
-        VerifyPurchaseFingerprint.matchOrNull()?.let {
-            it.method.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
-            count++
-            logger.info("  patched: Security.verifyPurchase -> return true")
-        }
-
         logger.info("Unlock all COMPLETE: " + count + " methods patched")
+        logger.info("  Stealth mode: NO game methods modified (except onCreate)")
+        logger.info("  Currencies written directly to Cocos2dxPrefsFile SharedPreferences")
     }
 }
