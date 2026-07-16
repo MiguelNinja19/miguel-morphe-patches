@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.11.4",
+  "version": "1.11.5",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -333,7 +333,7 @@
     },
     {
       "name": "Unlock all",
-      "description": "Unlocks everything, sets all currencies to 999999999, bypasses PairIP anti-tamper, and fixes 'Get this app from Play' by forcing billing connection to report success.",
+      "description": "Writes unlimited currencies (plutonium, coins, squeezer parts) directly to SharedPreferences at startup without modifying game methods. Also bypasses PairIP anti-tamper. Stealth approach that avoids triggering C++ native integrity checks.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [

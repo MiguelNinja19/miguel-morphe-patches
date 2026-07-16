@@ -1,3 +1,11 @@
+## [1.11.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.4...v1.11.5) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** escape $ in SharedPreferences$Editor smali references ([ab5cb8a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ab5cb8a2444d21ac22de4d55b15fc2938dcdd4fa))
+* **zombie-catchers:** stealth approach - write to SharedPreferences, don't modify game methods ([e40f7f1](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e40f7f1ba8ed20658887e8f1322295549b2db70f))
+* **zombie-catchers:** use line comments to avoid unclosed block comment ([a4ff3df](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a4ff3dff66ae9de157f62a499f48a7cce8098f9e))
+
 ## [1.11.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.3...v1.11.4) (2026-07-16)
 
 ### 🐛 Bug Fixes
