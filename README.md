@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.11.3](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.11.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;14 patches total
+> **[v1.11.4](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.11.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;14 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -110,7 +110,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Unlock all](#unlock-all) | Unlocks everything, sets all currencies to 999999999, and bypasses PairIP anti-tamper protection (VM bytecode, signature verification, license check, LicenseActivity, and Play Store redirect) that redirects to Play Store. |  |
+| [Unlock all](#unlock-all) | Unlocks everything, sets all currencies to 999999999, bypasses PairIP anti-tamper, and fixes 'Get this app from Play' by forcing billing connection to report success. |  |
 
 </details>
 

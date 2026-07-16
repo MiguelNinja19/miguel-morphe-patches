@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.11.3",
+  "version": "1.11.4",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -333,7 +333,7 @@
     },
     {
       "name": "Unlock all",
-      "description": "Unlocks everything, sets all currencies to 999999999, and bypasses PairIP anti-tamper protection (VM bytecode, signature verification, license check, LicenseActivity, and Play Store redirect) that redirects to Play Store.",
+      "description": "Unlocks everything, sets all currencies to 999999999, bypasses PairIP anti-tamper, and fixes 'Get this app from Play' by forcing billing connection to report success.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [

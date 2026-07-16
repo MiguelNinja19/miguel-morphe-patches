@@ -1,3 +1,11 @@
+## [1.11.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.3...v1.11.4) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** escape $ in InAppServiceImpl$1 and val$callback ([7ade5ac](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7ade5ac8d202a62b3fe0fcd83dcd96ec0de0a41c))
+* **zombie-catchers:** fix "Get this app from Play" by forcing billing success ([cf4c809](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cf4c809a50962eafd4713f3ab0e9972b12b900f4))
+* **zombie-catchers:** fix "Get this app from Play" by forcing billing success ([0f37a7e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0f37a7e4bdc56ec8a3cef1d4c335c334e32a5f14))
+
 ## [1.11.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.2...v1.11.3) (2026-07-16)
 
 ### 🐛 Bug Fixes
