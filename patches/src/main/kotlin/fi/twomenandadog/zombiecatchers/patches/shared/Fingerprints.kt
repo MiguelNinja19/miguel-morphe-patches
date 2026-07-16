@@ -114,3 +114,24 @@ object OpenPlayStoreFingerprint : Fingerprint(
         ),
     )
 )
+/**
+ * fi.twomenandadog.zombiecatchers.InAppServiceImpl$1.onBillingSetupFinished(BillingResult)V
+ * Called when billing connection completes. If responseCode != 0, the
+ * method returns WITHOUT calling connectionResult, causing C++ timeout
+ * which shows "Get this app from Play".
+ *
+ * Patch to ALWAYS call connectionResult(true, "", callback) regardless
+ * of responseCode, so C++ thinks billing connected successfully.
+ */
+object OnBillingSetupFinishedFingerprint : Fingerprint(
+    definingClass = "Lfi/twomenandadog/zombiecatchers/InAppServiceImpl$1;",
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "V",
+    parameters = listOf("Lcom/android/billingclient/api/BillingResult;"),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lcom/android/billingclient/api/BillingResult;",
+            name = "getResponseCode",
+        ),
+    )
+)
