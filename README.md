@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.10.3](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.10.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;13 patches total
+> **[v1.10.4](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.10.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;13 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>

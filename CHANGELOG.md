@@ -1,3 +1,9 @@
+## [1.10.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.3...v1.10.4) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **climb:** create mutable ArrayList for fake Purchase injection ([8dce65e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8dce65e3e1d02ba1e01ef3aa4b25c4dca158c548))
+
 ## [1.10.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.2...v1.10.3) (2026-07-16)
 
 ### 🐛 Bug Fixes
