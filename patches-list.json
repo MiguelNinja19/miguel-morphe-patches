@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -333,7 +333,7 @@
     },
     {
       "name": "Unlock all",
-      "description": "Unlocks everything and sets all currencies (plutonium, coins, squeezer parts) to 999999999. Patches Cocos2dxHelper to return max values for Balance keys and true for unlock keys.",
+      "description": "Unlocks everything, sets all currencies (plutonium, coins, squeezer parts) to 999999999, and bypasses PairIP anti-tamper protection (signature verification + license check) that redirects to Play Store.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [

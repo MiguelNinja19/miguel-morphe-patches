@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.0...v1.11.1) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** bypass PairIP anti-tamper protection ([556f21e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/556f21e7984d112532922814fc8dae00e87776a3))
+* **zombie-catchers:** bypass PairIP anti-tamper protection ([94f6839](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/94f6839d9026f28ee5da23f2d1c3d5cb8da4ee44))
+
 ## [1.11.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.4...v1.11.0) (2026-07-16)
 
 ### 🐛 Bug Fixes

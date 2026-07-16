@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-16T16:45:44",
-  "description": "## [1.11.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.10.4...v1.11.0) (2026-07-16)\n\n### 🐛 Bug Fixes\n\n* **zombie-catchers:** call matchOrNull() as function, not property ([d0baff6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d0baff6e62e9a163f1d518d744214b728316fd17))\n\n### ✨ New Features\n\n* **zombie-catchers:** add Unlock All + Unlimited Everything patch ([efceac1](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/efceac1b217b47c5ff939ac920f87941c30360b1))\n* **zombie-catchers:** add Unlock All + Unlimited Everything patch ([58316ac](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/58316ac909f8298db5d5abd9c404b5099e842f3d))\n* **zombie-catchers:** add Unlock All + Unlimited Everything patch ([c2d67d7](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/c2d67d78260f30efa244a641bc362dd247955487))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.11.0/patches-1.11.0.mpp",
+  "created_at": "2026-07-16T17:15:27",
+  "description": "## [1.11.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.0...v1.11.1) (2026-07-16)\n\n### 🐛 Bug Fixes\n\n* **zombie-catchers:** bypass PairIP anti-tamper protection ([556f21e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/556f21e7984d112532922814fc8dae00e87776a3))\n* **zombie-catchers:** bypass PairIP anti-tamper protection ([94f6839](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/94f6839d9026f28ee5da23f2d1c3d5cb8da4ee44))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.11.1/patches-1.11.1.mpp",
   "signature_download_url": "",
-  "version": "1.11.0"
+  "version": "1.11.1"
 }
