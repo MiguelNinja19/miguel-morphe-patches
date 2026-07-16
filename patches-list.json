@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.11.5",
+  "version": "1.11.6",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -333,7 +333,7 @@
     },
     {
       "name": "Unlock all",
-      "description": "Writes unlimited currencies (plutonium, coins, squeezer parts) directly to SharedPreferences at startup without modifying game methods. Also bypasses PairIP anti-tamper. Stealth approach that avoids triggering C++ native integrity checks.",
+      "description": "Writes unlimited currencies to SharedPreferences at the END of onCreate (after C++ init) and bypasses PairIP.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [

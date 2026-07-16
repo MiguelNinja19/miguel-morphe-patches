@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.11.5](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.11.5)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;14 patches total
+> **[v1.11.6](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.11.6)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;14 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -110,7 +110,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Unlock all](#unlock-all) | Writes unlimited currencies (plutonium, coins, squeezer parts) directly to SharedPreferences at startup without modifying game methods. Also bypasses PairIP anti-tamper. Stealth approach that avoids triggering C++ native integrity checks. |  |
+| [Unlock all](#unlock-all) | Writes unlimited currencies to SharedPreferences at the END of onCreate (after C++ init) and bypasses PairIP. |  |
 
 </details>
 

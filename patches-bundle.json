@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-16T21:35:25",
-  "description": "## [1.11.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.4...v1.11.5) (2026-07-16)\n\n### 🐛 Bug Fixes\n\n* **zombie-catchers:** escape $ in SharedPreferences$Editor smali references ([ab5cb8a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ab5cb8a2444d21ac22de4d55b15fc2938dcdd4fa))\n* **zombie-catchers:** stealth approach - write to SharedPreferences, don't modify game methods ([e40f7f1](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e40f7f1ba8ed20658887e8f1322295549b2db70f))\n* **zombie-catchers:** use line comments to avoid unclosed block comment ([a4ff3df](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a4ff3dff66ae9de157f62a499f48a7cce8098f9e))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.11.5/patches-1.11.5.mpp",
+  "created_at": "2026-07-16T21:47:57",
+  "description": "## [1.11.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.5...v1.11.6) (2026-07-16)\n\n### 🐛 Bug Fixes\n\n* **zombie-catchers:** inject SharedPreferences at END of onCreate ([b4fb6d6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b4fb6d66c73df628d07e3852eb24086adbba73ea))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.11.6/patches-1.11.6.mpp",
   "signature_download_url": "",
-  "version": "1.11.5"
+  "version": "1.11.6"
 }

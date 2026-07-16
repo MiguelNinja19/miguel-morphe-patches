@@ -1,3 +1,9 @@
+## [1.11.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.5...v1.11.6) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** inject SharedPreferences at END of onCreate ([b4fb6d6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b4fb6d66c73df628d07e3852eb24086adbba73ea))
+
 ## [1.11.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.4...v1.11.5) (2026-07-16)
 
 ### 🐛 Bug Fixes
