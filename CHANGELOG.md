@@ -1,3 +1,10 @@
+## [1.11.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.8...v1.11.9) (2026-07-17)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** integrate Nai64's 10 PairIP bypass strategies ([798b539](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/798b53929ee6ca529a915fa8ea414b3a737d8f68))
+* **zombie-catchers:** integrate Nai64's 10 PairIP bypass strategies ([6ec3dac](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6ec3dacc311a886203a37e4f51e9a3861d8b2399))
+
 ## [1.11.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.7...v1.11.8) (2026-07-17)
 
 ### 🐛 Bug Fixes
