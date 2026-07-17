@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.11.9",
+  "version": "1.11.10",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -333,9 +333,11 @@
     },
     {
       "name": "Unlock all",
-      "description": "Unlocks everything, sets all currencies to 999999999, and bypasses PairIP anti-tamper using 10 strategies from Nai64.",
+      "description": "Removes PairIP from manifest, hex patches libcocos2dcpp.so for unlimited currencies (plutonium, coins, squeezer parts) and blocks Play Store redirect. Based on working mod analysis.",
       "default": true,
-      "dependencies": [],
+      "dependencies": [
+        "ResourcePatch"
+      ],
       "compatiblePackages": [
         {
           "packageName": "fi.twomenandadog.zombiecatchers",

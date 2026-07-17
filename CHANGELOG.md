@@ -1,3 +1,9 @@
+## [1.11.10](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.9...v1.11.10) (2026-07-17)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** remove PairIP from manifest + hex patch .so ([bccab6e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/bccab6e6346eb197f9da05647f2447bc5b64cc5c))
+
 ## [1.11.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.8...v1.11.9) (2026-07-17)
 
 ### 🐛 Bug Fixes
