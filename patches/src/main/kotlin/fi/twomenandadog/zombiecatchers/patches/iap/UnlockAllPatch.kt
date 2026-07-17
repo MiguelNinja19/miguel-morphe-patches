@@ -1,212 +1,140 @@
-// Unlock All + Unlimited Everything + PairIP Bypass for Zombie Catchers.
-// Combines Nai64's 10 PairIP bypass strategies with stealth currency writing.
+// Unlock All + Unlimited Everything for Zombie Catchers.
+//
+// Based on analyzing a working mod APK:
+// 1. ResourcePatch: Change AndroidManifest to remove PairIP Application class
+// 2. BytecodePatch: Patch remaining PairIP methods (backup)
+// 3. RawResourcePatch: Hex patch libcocos2dcpp.so for unlimited currencies
 
 package fi.twomenandadog.zombiecatchers.patches.iap
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
-import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.builder.instruction.BuilderInstruction11n
-import com.android.tools.smali.dexlib2.builder.instruction.BuilderInstruction11x
+import app.morphe.patcher.patch.rawResourcePatch
+import app.morphe.patcher.patch.resourcePatch
+import app.morphe.patcher.util.Document
 import fi.twomenandadog.zombiecatchers.patches.shared.ZOMBIE_CATCHERS
-import fi.twomenandadog.zombiecatchers.patches.shared.GetIntegerForKeyFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.GetBoolForKeyFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.VerifyPurchaseFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.PerformLocalInstallerCheckFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.PairipSignatureCheckVerifyIntegrityFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.PairipSignatureCheckVerifySignatureMatchesFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.PairipLicenseClientStartErrorDialogFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.PairipLicenseClientStartPaywallFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.PairipLicenseActivityShowPaywallFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.PairipApplicationAttachBaseContextFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.PairipApplicationOnCreateFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.StartupLauncherFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.LicenseActivityOnStartFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.GenericBooleanInstallerCheckFingerprint
-import fi.twomenandadog.zombiecatchers.patches.shared.GenericStringInstallerCheckFingerprint
 import java.util.logging.Logger
 
 @Suppress("unused")
-val unlockAllPatch = bytecodePatch(
+val unlockAllPatch = rawResourcePatch(
     name = "Unlock all",
-    description = "Unlocks everything, sets all currencies to 999999999, " +
-        "and bypasses PairIP anti-tamper using 10 strategies from Nai64.",
+    description = "Removes PairIP from manifest, hex patches libcocos2dcpp.so " +
+        "for unlimited currencies (plutonium, coins, squeezer parts) and " +
+        "blocks Play Store redirect. Based on working mod analysis.",
     default = true,
 ) {
     compatibleWith(ZOMBIE_CATCHERS)
 
+    // Phase 1: Remove PairIP from AndroidManifest
+    dependsOn(resourcePatch(
+        name = "Remove PairIP from manifest",
+        description = "Changes Application class from com.pairip to real app"
+    ) {
+        execute {
+            val logger = Logger.getLogger("ManifestPatch")
+            document("AndroidManifest.xml").use { doc ->
+                val app = doc.getElementsByTagName("application").item(0) as org.w3c.dom.Element
+                val oldName = app.getAttribute("android:name")
+                app.setAttribute("android:name", "fi.twomenandadog.zombiecatchers.ZombieCatchersApp")
+                logger.info("Changed Application from " + oldName + " to ZombieCatchersApp")
+            }
+        }
+    })
+
     execute {
         val logger = Logger.getLogger("UnlockAll")
-        var count = 0
 
-        // ================================================================
-        // PAIRIP BYPASS (10 strategies from Nai64)
-        // ================================================================
+        val libPath = "lib/arm64-v8a/libcocos2dcpp.so"
+        val libFile = get(libPath)
+        val libBytes = libFile.readBytes()
 
-        // 1. performLocalInstallerCheck -> return true
-        PerformLocalInstallerCheckFingerprint.methodOrNull?.let {
-            it.addInstructions(0, listOf(
-                BuilderInstruction11n(Opcode.CONST_4, 0, 1),
-                BuilderInstruction11x(Opcode.RETURN, 0),
-            ))
-            count++
-            logger.info("  patched: performLocalInstallerCheck -> return true")
+        fun hb(vararg ints: Int): ByteArray = ByteArray(ints.size) { ints[it].toByte() }
+
+        val returnVoid = hb(0xC0, 0x03, 0x5F, 0xD6, 0x1F, 0x20, 0x03, 0xD5)
+        val returnNull = hb(0xE0, 0x03, 0x1F, 0xAA, 0xC0, 0x03, 0x5F, 0xD6)
+        val returnMaxInt = hb(0x80, 0x7E, 0x9C, 0x52, 0xC0, 0x03, 0x5F, 0xD6)
+        val returnTrue = hb(0x20, 0x00, 0x80, 0x52, 0xC0, 0x03, 0x5F, 0xD6, 0x1F, 0x20, 0x03, 0xD5, 0x1F, 0x20, 0x03, 0xD5)
+
+        val patches = listOf(
+            Triple(
+                hb(0xFD, 0x7B, 0xBE, 0xA9, 0xF3, 0x0B, 0x00, 0xF9, 0xFD, 0x03, 0x00, 0x91, 0x33, 0x5C, 0x00, 0xB0, 0x73, 0x96, 0x47, 0xF9, 0x68, 0x02, 0x40, 0xF9, 0x48, 0x00, 0x00, 0xB5, 0x8C, 0x3B, 0x29, 0x94),
+                returnVoid,
+                "openPlayStoreZCPage -> ret"
+            ),
+            Triple(
+                hb(0xFD, 0x7B, 0xBD, 0xA9, 0xF5, 0x0B, 0x00, 0xF9, 0xF4, 0x4F, 0x02, 0xA9, 0xFD, 0x03, 0x00, 0x91, 0xF4, 0x03, 0x00, 0xAA, 0x21, 0xEB, 0xFF, 0xB0, 0x21, 0x8C, 0x38, 0x91, 0x82, 0xEC, 0xFF, 0xD0),
+                returnVoid,
+                "connectStore -> ret"
+            ),
+            Triple(
+                hb(0xFD, 0x7B, 0xBD, 0xA9, 0xF6, 0x57, 0x01, 0xA9, 0xF4, 0x4F, 0x02, 0xA9, 0xFD, 0x03, 0x00, 0x91, 0x56, 0x5C, 0x00, 0xF0, 0xF4, 0x03, 0x00, 0xAA, 0xF3, 0x03, 0x08, 0xAA, 0xD6, 0x96, 0x47, 0xF9),
+                returnNull,
+                "getSHA256 -> return null"
+            ),
+            Triple(
+                hb(0xFD, 0x7B, 0xBE, 0xA9, 0xF4, 0x4F, 0x01, 0xA9, 0xFD, 0x03, 0x00, 0x91, 0x54, 0x5C, 0x00, 0xF0, 0xF3, 0x03, 0x00, 0xAA, 0x94, 0x96, 0x47, 0xF9, 0x88, 0x02, 0x40, 0xF9, 0x48, 0x00, 0x00, 0xB5),
+                returnVoid,
+                "openUrl -> ret"
+            ),
+            Triple(
+                hb(0xFD, 0x7B, 0xBE, 0xA9, 0xF3, 0x0B, 0x00, 0xF9, 0xFD, 0x03, 0x00, 0x91, 0x01, 0xEB, 0xFF, 0xF0, 0x21, 0x8C, 0x38, 0x91, 0x42, 0xEB, 0xFF, 0x90, 0x42, 0x34, 0x30, 0x91, 0x60, 0x00, 0x80, 0x52),
+                returnVoid,
+                "quitApplication -> ret"
+            ),
+            Triple(
+                hb(0xFD, 0x7B, 0xBC, 0xA9, 0xF8, 0x5F, 0x01, 0xA9, 0xF6, 0x57, 0x02, 0xA9, 0xF4, 0x4F, 0x03, 0xA9, 0xFD, 0x03, 0x00, 0x91, 0xF3, 0x03, 0x00, 0xAA, 0xC4, 0x03, 0x00, 0xB4, 0xD6, 0x5D, 0x00, 0xB0),
+                returnVoid,
+                "connectionResult -> ret"
+            ),
+            Triple(
+                hb(0xFF, 0xC3, 0x01, 0xD1, 0xFD, 0x7B, 0x03, 0xA9, 0xF8, 0x5F, 0x04, 0xA9, 0xF6, 0x57, 0x05, 0xA9, 0xF4, 0x4F, 0x06, 0xA9, 0xFD, 0xC3, 0x00, 0x91, 0x58, 0xD0, 0x3B, 0xD5, 0xF3, 0x03, 0x01, 0xAA, 0xF5, 0x03, 0x00, 0xAA, 0x08, 0x17, 0x40, 0xF9, 0xA1, 0x43, 0x00, 0xD1, 0xE0, 0x03, 0x13, 0xAA, 0xF4, 0x03, 0x02, 0x2A, 0xA8, 0x83, 0x1F, 0xF8, 0xBF, 0x03, 0x1F, 0xF8, 0x7E, 0xFE, 0xFF, 0x97),
+                returnMaxInt,
+                "getIntegerForKey -> return 999999999"
+            ),
+            Triple(
+                hb(0xFF, 0xC3, 0x01, 0xD1, 0xFD, 0x7B, 0x03, 0xA9, 0xF8, 0x5F, 0x04, 0xA9, 0xF6, 0x57, 0x05, 0xA9, 0xF4, 0x4F, 0x06, 0xA9, 0xFD, 0xC3, 0x00, 0x91, 0x58, 0xD0, 0x3B, 0xD5, 0xF3, 0x03, 0x01, 0xAA, 0xF5, 0x03, 0x00, 0xAA, 0x08, 0x17, 0x40, 0xF9, 0xA1, 0x43, 0x00, 0xD1, 0xE0, 0x03, 0x13, 0xAA, 0xF4, 0x03, 0x02, 0x2A, 0xA8, 0x83, 0x1F, 0xF8, 0xBF, 0x03, 0x1F, 0xF8, 0x65, 0x00, 0x00, 0x94),
+                returnTrue,
+                "getBoolForKey -> return true"
+            )
+        )
+
+        logger.info("Unlock all: patching libcocos2dcpp.so with " + patches.size + " hex patches")
+
+        var patchedCount = 0
+        for ((pattern, replacement, description) in patches) {
+            val idx = findPattern(libBytes, pattern)
+            if (idx >= 0) {
+                for (i in replacement.indices) {
+                    libBytes[idx + i] = replacement[i]
+                }
+                patchedCount++
+                logger.info("  patched: " + description)
+            } else {
+                logger.info("  NOT FOUND: " + description)
+            }
         }
 
-        // 2. SignatureCheck.verifyIntegrity -> return-void
-        PairipSignatureCheckVerifyIntegrityFingerprint.methodOrNull?.let {
-            it.addInstructions(0, "return-void")
-            count++
-            logger.info("  patched: SignatureCheck.verifyIntegrity -> return-void")
+        if (patchedCount > 0) {
+            libFile.writeBytes(libBytes)
+            logger.info("Unlock all COMPLETE: " + patchedCount + "/" + patches.size + " patches applied")
+        } else {
+            logger.info("Unlock all FAILED: no patterns matched")
         }
-
-        // 3. SignatureCheck.verifySignatureMatches -> return true
-        PairipSignatureCheckVerifySignatureMatchesFingerprint.methodOrNull?.let {
-            it.addInstructions(0, listOf(
-                BuilderInstruction11n(Opcode.CONST_4, 0, 1),
-                BuilderInstruction11x(Opcode.RETURN, 0),
-            ))
-            count++
-            logger.info("  patched: SignatureCheck.verifySignatureMatches -> return true")
-        }
-
-        // 4. LicenseClient.startErrorDialogActivity -> return-void
-        PairipLicenseClientStartErrorDialogFingerprint.methodOrNull?.let {
-            it.addInstructions(0, "return-void")
-            count++
-            logger.info("  patched: LicenseClient.startErrorDialogActivity -> return-void")
-        }
-
-        // 5. LicenseClient.startPaywallActivity -> return-void
-        PairipLicenseClientStartPaywallFingerprint.methodOrNull?.let {
-            it.addInstructions(0, "return-void")
-            count++
-            logger.info("  patched: LicenseClient.startPaywallActivity -> return-void")
-        }
-
-        // 6. LicenseActivity.showPaywallAndCloseApp -> return-void
-        PairipLicenseActivityShowPaywallFingerprint.methodOrNull?.let {
-            it.addInstructions(0, "return-void")
-            count++
-            logger.info("  patched: LicenseActivity.showPaywallAndCloseApp -> return-void")
-        }
-
-        // 7a. Application.attachBaseContext -> invoke-super + return-void
-        // KEY FIX: Must call invoke-super BEFORE return-void, otherwise
-        // the real Application never initializes and the app crashes!
-        PairipApplicationAttachBaseContextFingerprint.methodOrNull?.let {
-            it.addInstructions(0, """
-                invoke-super {p0, p1}, Lcom/pairip/application/Application;->attachBaseContext(Landroid/content/Context;)V
-                return-void
-            """.trimIndent())
-            count++
-            logger.info("  patched: Application.attachBaseContext -> invoke-super + return-void")
-        }
-
-        // 7b. Application.onCreate -> invoke-super + return-void
-        PairipApplicationOnCreateFingerprint.methodOrNull?.let {
-            it.addInstructions(0, """
-                invoke-super {p0}, Lcom/pairip/application/Application;->onCreate()V
-                return-void
-            """.trimIndent())
-            count++
-            logger.info("  patched: Application.onCreate -> invoke-super + return-void")
-        }
-
-        // 8. StartupLauncher.launch -> return-void
-        StartupLauncherFingerprint.methodOrNull?.let {
-            it.addInstructions(0, "return-void")
-            count++
-            logger.info("  patched: StartupLauncher.launch -> return-void")
-        }
-
-        // 9. LicenseActivity.onStart -> finish()
-        LicenseActivityOnStartFingerprint.methodOrNull?.let {
-            it.addInstructions(0, """
-                invoke-virtual {p0}, Lcom/pairip/licensecheck/LicenseActivity;->finish()V
-                return-void
-            """.trimIndent())
-            count++
-            logger.info("  patched: LicenseActivity.onStart -> finish()")
-        }
-
-        // 10a. Generic boolean installer check -> return true
-        GenericBooleanInstallerCheckFingerprint.methodOrNull?.let {
-            it.addInstructions(0, listOf(
-                BuilderInstruction11n(Opcode.CONST_4, 0, 1),
-                BuilderInstruction11x(Opcode.RETURN, 0),
-            ))
-            count++
-            logger.info("  patched: generic boolean installer check -> return true")
-        }
-
-        // 10b. Generic String installer check -> return "com.android.vending"
-        GenericStringInstallerCheckFingerprint.methodOrNull?.let {
-            it.addInstructions(0, """
-                const-string v0, "com.android.vending"
-                return-object v0
-            """.trimIndent())
-            count++
-            logger.info("  patched: generic String installer check -> return com.android.vending")
-        }
-
-        // ================================================================
-        // UNLOCK ALL + UNLIMITED CURRENCIES
-        // ================================================================
-
-        // 11. getIntegerForKey -> return 999999999 for "Balance" keys
-        GetIntegerForKeyFingerprint.methodOrNull?.let {
-            it.addInstructions(0, """
-                const-string v0, "Balance"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-eqz v0, :original_int
-                const v0, 0x3b9ac9ff
-                return v0
-                :original_int
-                nop
-            """.trimIndent())
-            count++
-            logger.info("  patched: getIntegerForKey -> 999999999 for Balance keys")
-        }
-
-        // 12. getBoolForKey -> return true for unlock/purchase/ads/bought keys
-        GetBoolForKeyFingerprint.methodOrNull?.let {
-            it.addInstructions(0, """
-                const-string v0, "nlock"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-nez v0, :return_true
-                const-string v0, "urchas"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-nez v0, :return_true
-                const-string v0, "ads"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-nez v0, :return_true
-                const-string v0, "bought"
-                invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-                move-result v0
-                if-eqz v0, :return_true
-                goto :original_bool
-                :return_true
-                const/4 v0, 0x1
-                return v0
-                :original_bool
-                nop
-            """.trimIndent())
-            count++
-            logger.info("  patched: getBoolForKey -> true for unlock keys")
-        }
-
-        // 13. Security.verifyPurchase -> return true
-        VerifyPurchaseFingerprint.methodOrNull?.let {
-            it.addInstructions(0, "const/4 v0, 0x1\nreturn v0")
-            count++
-            logger.info("  patched: Security.verifyPurchase -> return true")
-        }
-
-        logger.info("Unlock all COMPLETE: " + count + " methods patched")
     }
+}
+
+private fun findPattern(haystack: ByteArray, needle: ByteArray): Int {
+    if (needle.isEmpty() || haystack.size < needle.size) return -1
+    val lastStart = haystack.size - needle.size
+    for (i in 0..lastStart) {
+        var found = true
+        for (j in needle.indices) {
+            if (haystack[i + j] != needle[j]) {
+                found = false
+                break
+            }
+        }
+        if (found) return i
+    }
+    return -1
 }
