@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.11.7](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.11.7)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;14 patches total
+> **[v1.11.8](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.11.8)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;14 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -110,7 +110,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Unlock all](#unlock-all) | Hex patches libcocos2dcpp.so to: bypass Play Store redirect (openPlayStore, openUrl, quitApplication), skip billing connection, return null from getSHA256, and make getIntegerForKey return 999999999 for Balance keys. Pure native patching — no DEX modification, no C++ integrity check trigger. |  |
+| [Unlock all](#unlock-all) | Hex patches libcocos2dcpp.so to bypass Play Store redirect and set unlimited currencies. Pure native patching. |  |
 
 </details>
 

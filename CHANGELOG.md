@@ -1,3 +1,9 @@
+## [1.11.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.7...v1.11.8) (2026-07-17)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** remove trailing zeros from hex patterns ([0216500](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0216500415d66c355f6a5342713d51f7d79882e3))
+
 ## [1.11.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.6...v1.11.7) (2026-07-16)
 
 ### 🐛 Bug Fixes
