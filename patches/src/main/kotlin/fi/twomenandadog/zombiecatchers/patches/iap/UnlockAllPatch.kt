@@ -1,5 +1,7 @@
 // Unlock All + Unlimited Everything for Zombie Catchers.
-// Uses resourcePatch which has access to BOTH document() and get().
+// Based on analyzing a working mod APK.
+// 1. resourcePatch: Remove PairIP from AndroidManifest
+// 2. Hex patch libcocos2dcpp.so for unlimited currencies + Play Store bypass
 
 package fi.twomenandadog.zombiecatchers.patches.iap
 
@@ -19,26 +21,21 @@ val unlockAllPatch = resourcePatch(
     execute {
         val logger = Logger.getLogger("UnlockAll")
 
-        // ================================================================
-        // STEP 1: Change AndroidManifest to remove PairIP Application class
-        // ================================================================
-        // This is the KEY fix. The mod changes:
-        //   android:name="com.pairip.application.Application"
-        // to:
-        //   android:name="fi.twomenandadog.zombiecatchers.ZombieCatchersApp"
-        //
-        // This prevents PairIP from EVER loading.
-        // ================================================================
+        // STEP 1: Remove PairIP from AndroidManifest
+        // Change android:name from com.pairip.application.Application
+        // to fi.twomenandadog.zombiecatchers.ZombieCatchersApp
         document("AndroidManifest.xml").use { doc ->
             val app = doc.getElementsByTagName("application").item(0) as org.w3c.dom.Element
             val oldName = app.getAttribute("android:name")
-            app.setAttribute("android:name", "fi.twomenandadog.zombiecatchers.ZombieCatchersApp")
-            logger.info("Changed Application from " + oldName + " to ZombieCatchersApp")
+            if (oldName == "com.pairip.application.Application") {
+                app.setAttribute("android:name", "fi.twomenandadog.zombiecatchers.ZombieCatchersApp")
+                logger.info("Removed PairIP: changed Application from com.pairip to ZombieCatchersApp")
+            } else {
+                logger.info("Application class is " + oldName + " (not PairIP, skipping)")
+            }
         }
 
-        // ================================================================
         // STEP 2: Hex patch libcocos2dcpp.so
-        // ================================================================
         val libPath = "lib/arm64-v8a/libcocos2dcpp.so"
         val libFile = get(libPath)
         val libBytes = libFile.readBytes()
