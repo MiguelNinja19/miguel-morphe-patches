@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-18T14:25:55",
-  "description": "## [1.11.13](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.12...v1.11.13) (2026-07-18)\n\n### 🐛 Bug Fixes\n\n* **zombie-catchers:** remove StartupLauncher.launch() from ComponentFactory ([0c569b8](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0c569b8b959fd6a8824bfbf41b1cf4c814b80aff))\n* **zombie-catchers:** remove StartupLauncher.launch() from ComponentFactory ([6f6cb98](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6f6cb9815c1f764a2694bc365840703e2d4f7dd2))\n* **zombie-catchers:** split into resourcePatch + bytecodePatch ([a634e8b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a634e8bb9f5705368ae8a66b60f6208cf2bb7a42))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.11.13/patches-1.11.13.mpp",
+  "created_at": "2026-07-18T14:50:36",
+  "description": "## [1.12.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.13...v1.12.0) (2026-07-18)\n\n### ✨ New Features\n\n* **oddmar:** add Unlock full game patch ([4d6965c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4d6965cbfdb4a41ebde7047942e34a158d4c818c))\n* **oddmar:** add Unlock full game patch ([4b63f67](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4b63f67928efd8e81f55e44952f9aabf9733fb2a))\n* **oddmar:** add Unlock full game patch ([34c1eb3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/34c1eb3c9304b4868e458c6be01122bc4f0287a5))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.12.0/patches-1.12.0.mpp",
   "signature_download_url": "",
-  "version": "1.11.13"
+  "version": "1.12.0"
 }

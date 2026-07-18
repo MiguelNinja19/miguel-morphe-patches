@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.11.13",
+  "version": "1.12.0",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -382,6 +382,39 @@
           "targets": [
             {
               "version": "2.17.2.16299",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Unlock full game",
+      "description": "Unlocks all levels by making the game think the 'unlock_all_levels' IAP product was purchased. Patches HasProductBeenPurchasedCall to always report success.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.mobge.Oddmar",
+          "name": "Oddmar",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#FF9800",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "0.111",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,

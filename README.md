@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.11.13](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.11.13)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;15 patches total
+> **[v1.12.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.12.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;16 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -112,6 +112,21 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 |----------|----------------|-----------|
 | [Unlock all](#unlock-all) | Removes PairIP StartupLauncher from ComponentFactory and depends on hex patch for manifest + .so patching. |  |
 | [ZC hex patch](#zc-hex-patch) | Changes manifest and hex patches libcocos2dcpp.so |  |
+
+</details>
+
+<details open>
+<summary>📦 Oddmar&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
+<br>
+
+**🎯 Supported versions:**
+
+| 0.111 |
+| :---: |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Unlock full game](#unlock-full-game) | Unlocks all levels by making the game think the 'unlock_all_levels' IAP product was purchased. Patches HasProductBeenPurchasedCall to always report success. |  |
 
 </details>
 

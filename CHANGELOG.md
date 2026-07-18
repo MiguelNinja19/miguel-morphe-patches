@@ -1,3 +1,11 @@
+## [1.12.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.13...v1.12.0) (2026-07-18)
+
+### ✨ New Features
+
+* **oddmar:** add Unlock full game patch ([4d6965c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4d6965cbfdb4a41ebde7047942e34a158d4c818c))
+* **oddmar:** add Unlock full game patch ([4b63f67](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4b63f67928efd8e81f55e44952f9aabf9733fb2a))
+* **oddmar:** add Unlock full game patch ([34c1eb3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/34c1eb3c9304b4868e458c6be01122bc4f0287a5))
+
 ## [1.11.13](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.12...v1.11.13) (2026-07-18)
 
 ### 🐛 Bug Fixes
