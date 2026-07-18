@@ -1,3 +1,12 @@
+## [1.12.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.0...v1.12.1) (2026-07-18)
+
+### 🐛 Bug Fixes
+
+* **oddmar:** add unlock full game and free IAP patches for v0.111 ([6b5ca91](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6b5ca91b79a457542acd4c4b92e31326694e79e3))
+* **oddmar:** add unlock full game and free IAP patches for v0.111 ([7ccbb03](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7ccbb03b550c541aad8f6e38a7c7b5d61b69769e))
+* **oddmar:** add unlock full game and free IAP patches for v0.111 ([3b5b264](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/3b5b2649bae2f62d72acab50ed9d42d55dd79091))
+* **oddmar:** add unlock full game and free IAP patches for v0.111 ([cdf8cf4](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cdf8cf4de5cd3428b795dac6ac4d08a3c8182008))
+
 ## [1.12.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.13...v1.12.0) (2026-07-18)
 
 ### ✨ New Features

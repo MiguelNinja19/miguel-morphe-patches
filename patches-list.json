@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -134,6 +134,39 @@
             },
             {
               "version": "6.0.5",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Free in-app purchases",
+      "description": "Makes every IAP purchase succeed instantly without contacting Google Play Billing. When the user taps 'Buy' on any in-app product, the game credits the purchase immediately and skips the Play Store dialog. For Oddmar 0.111 the only IAP product is 'unlock_all_levels', so this patch gives a free full-game unlock on demand. Note: literal 'unlimited coins' (the in-game currency counter) requires native libil2cpp.so patching and is NOT covered by this Java patch.",
+      "default": false,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.mobge.Oddmar",
+          "name": "Oddmar",
+          "description": null,
+          "apkFileType": "APKS",
+          "appIconColor": "#C2185B",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "0.111",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,
@@ -401,7 +434,7 @@
     },
     {
       "name": "Unlock full game",
-      "description": "Unlocks all levels by making the game think the 'unlock_all_levels' IAP product was purchased. Patches HasProductBeenPurchasedCall to always report success.",
+      "description": "Unlocks the full game (all levels, all worlds) by intercepting the IAP 'has product been purchased' check. Oddmar's only IAP product is 'unlock_all_levels' — this patch makes the game think it has already been purchased, so every level is unlocked from the start. No Google Play Billing connection is required. Also disables the startup 'acknowledge all purchases' query so the patch doesn't try to reach Google Play at boot.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -409,8 +442,8 @@
           "packageName": "com.mobge.Oddmar",
           "name": "Oddmar",
           "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#FF9800",
+          "apkFileType": "APKS",
+          "appIconColor": "#C2185B",
           "signatures": null,
           "targets": [
             {
