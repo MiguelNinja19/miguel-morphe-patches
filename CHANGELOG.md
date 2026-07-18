@@ -1,3 +1,9 @@
+## [1.11.12](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.11...v1.11.12) (2026-07-18)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** match working mod approach exactly ([0ff9f5a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0ff9f5a79dfd1422371e260376318ccf8a4cc7ab))
+
 ## [1.11.11](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.10...v1.11.11) (2026-07-18)
 
 ### 🐛 Bug Fixes
