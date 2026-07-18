@@ -1,41 +1,72 @@
 // Unlock All + Unlimited Everything for Zombie Catchers.
-// Based on analyzing a working mod APK.
-// 1. resourcePatch: Remove PairIP from AndroidManifest
-// 2. Hex patch libcocos2dcpp.so for unlimited currencies + Play Store bypass
+//
+// ROOT CAUSE: Even when we change the Application class in the manifest,
+// CoreComponentFactory.<clinit>() still calls StartupLauncher.launch()
+// which runs PairIP's encrypted VM bytecode BEFORE the app starts.
+//
+// The mod removes this call from BOTH:
+// - androidx.core.app.CoreComponentFactory.<clinit>
+// - android.app.AppComponentFactory.<clinit>
+//
+// This patch does the same + manifest change + hex patch .so.
 
 package fi.twomenandadog.zombiecatchers.patches.iap
 
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
 import fi.twomenandadog.zombiecatchers.patches.shared.ZOMBIE_CATCHERS
+import fi.twomenandadog.zombiecatchers.patches.shared.CoreComponentFactoryClinitFingerprint
+import fi.twomenandadog.zombiecatchers.patches.shared.AppComponentFactoryClinitFingerprint
 import java.util.logging.Logger
 
 @Suppress("unused")
-val unlockAllPatch = resourcePatch(
+val unlockAllPatch = bytecodePatch(
     name = "Unlock all",
-    description = "Removes PairIP from manifest and hex patches " +
-        "libcocos2dcpp.so for unlimited currencies and Play Store bypass.",
+    description = "Removes PairIP from manifest, removes StartupLauncher " +
+        "calls from ComponentFactory, and hex patches libcocos2dcpp.so " +
+        "for unlimited currencies.",
     default = true,
 ) {
     compatibleWith(ZOMBIE_CATCHERS)
 
-    execute {
-        val logger = Logger.getLogger("UnlockAll")
-
-        // STEP 1: Remove PairIP from AndroidManifest
-        // Change android:name from com.pairip.application.Application
-        // to fi.twomenandadog.zombiecatchers.ZombieCatchersApp
-        document("AndroidManifest.xml").use { doc ->
-            val app = doc.getElementsByTagName("application").item(0) as org.w3c.dom.Element
-            val oldName = app.getAttribute("android:name")
-            if (oldName == "com.pairip.application.Application") {
+    dependsOn(resourcePatch(
+        name = "Remove PairIP manifest",
+        description = "Changes Application class and appComponentFactory"
+    ) {
+        execute {
+            val logger = Logger.getLogger("ManifestPatch")
+            document("AndroidManifest.xml").use { doc ->
+                val app = doc.getElementsByTagName("application").item(0) as org.w3c.dom.Element
+                // Change Application class from PairIP to real app
                 app.setAttribute("android:name", "fi.twomenandadog.zombiecatchers.ZombieCatchersApp")
-                logger.info("Removed PairIP: changed Application from com.pairip to ZombieCatchersApp")
-            } else {
-                logger.info("Application class is " + oldName + " (not PairIP, skipping)")
+                // Change appComponentFactory to default (no PairIP)
+                app.setAttribute("android:appComponentFactory", "android.app.AppComponentFactory")
+                logger.info("Changed Application to ZombieCatchersApp and appComponentFactory to default")
             }
         }
+    })
 
-        // STEP 2: Hex patch libcocos2dcpp.so
+    execute {
+        val logger = Logger.getLogger("UnlockAll")
+        var count = 0
+
+        // HOOK 1: Remove StartupLauncher.launch() from CoreComponentFactory.<clinit>
+        // This is the KEY fix — PairIP VM runs here BEFORE the app starts
+        CoreComponentFactoryClinitFingerprint.methodOrNull?.let {
+            it.addInstructions(0, "return-void")
+            count++
+            logger.info("  patched: CoreComponentFactory.<clinit> -> return-void (remove PairIP startup)")
+        }
+
+        // HOOK 2: Remove StartupLauncher.launch() from AppComponentFactory.<clinit>
+        AppComponentFactoryClinitFingerprint.methodOrNull?.let {
+            it.addInstructions(0, "return-void")
+            count++
+            logger.info("  patched: AppComponentFactory.<clinit> -> return-void (remove PairIP startup)")
+        }
+
+        // HOOK 3: Hex patch libcocos2dcpp.so
         val libPath = "lib/arm64-v8a/libcocos2dcpp.so"
         val libFile = get(libPath)
         val libBytes = libFile.readBytes()
@@ -90,28 +121,19 @@ val unlockAllPatch = resourcePatch(
             )
         )
 
-        logger.info("Patching libcocos2dcpp.so with " + patches.size + " hex patches")
-
-        var patchedCount = 0
         for ((pattern, replacement, description) in patches) {
             val idx = findPattern(libBytes, pattern)
             if (idx >= 0) {
                 for (i in replacement.indices) {
                     libBytes[idx + i] = replacement[i]
                 }
-                patchedCount++
+                count++
                 logger.info("  patched: " + description)
-            } else {
-                logger.info("  NOT FOUND: " + description)
             }
         }
 
-        if (patchedCount > 0) {
-            libFile.writeBytes(libBytes)
-            logger.info("Unlock all COMPLETE: " + patchedCount + "/" + patches.size + " patches applied")
-        } else {
-            logger.info("Unlock all: no hex patches matched (may be different version)")
-        }
+        libFile.writeBytes(libBytes)
+        logger.info("Unlock all COMPLETE: " + count + " patches applied")
     }
 }
 
