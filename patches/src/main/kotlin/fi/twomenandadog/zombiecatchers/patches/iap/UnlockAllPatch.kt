@@ -1,49 +1,44 @@
 // Unlock All + Unlimited Everything for Zombie Catchers.
-//
-// Based on analyzing a working mod APK:
-// 1. ResourcePatch: Change AndroidManifest to remove PairIP Application class
-// 2. BytecodePatch: Patch remaining PairIP methods (backup)
-// 3. RawResourcePatch: Hex patch libcocos2dcpp.so for unlimited currencies
+// Uses resourcePatch which has access to BOTH document() and get().
 
 package fi.twomenandadog.zombiecatchers.patches.iap
 
-import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
-import app.morphe.patcher.patch.bytecodePatch
-import app.morphe.patcher.patch.rawResourcePatch
 import app.morphe.patcher.patch.resourcePatch
-import app.morphe.patcher.util.Document
 import fi.twomenandadog.zombiecatchers.patches.shared.ZOMBIE_CATCHERS
 import java.util.logging.Logger
 
 @Suppress("unused")
-val unlockAllPatch = rawResourcePatch(
+val unlockAllPatch = resourcePatch(
     name = "Unlock all",
-    description = "Removes PairIP from manifest, hex patches libcocos2dcpp.so " +
-        "for unlimited currencies (plutonium, coins, squeezer parts) and " +
-        "blocks Play Store redirect. Based on working mod analysis.",
+    description = "Removes PairIP from manifest and hex patches " +
+        "libcocos2dcpp.so for unlimited currencies and Play Store bypass.",
     default = true,
 ) {
     compatibleWith(ZOMBIE_CATCHERS)
 
-    // Phase 1: Remove PairIP from AndroidManifest
-    dependsOn(resourcePatch(
-        name = "Remove PairIP from manifest",
-        description = "Changes Application class from com.pairip to real app"
-    ) {
-        execute {
-            val logger = Logger.getLogger("ManifestPatch")
-            document("AndroidManifest.xml").use { doc ->
-                val app = doc.getElementsByTagName("application").item(0) as org.w3c.dom.Element
-                val oldName = app.getAttribute("android:name")
-                app.setAttribute("android:name", "fi.twomenandadog.zombiecatchers.ZombieCatchersApp")
-                logger.info("Changed Application from " + oldName + " to ZombieCatchersApp")
-            }
-        }
-    })
-
     execute {
         val logger = Logger.getLogger("UnlockAll")
 
+        // ================================================================
+        // STEP 1: Change AndroidManifest to remove PairIP Application class
+        // ================================================================
+        // This is the KEY fix. The mod changes:
+        //   android:name="com.pairip.application.Application"
+        // to:
+        //   android:name="fi.twomenandadog.zombiecatchers.ZombieCatchersApp"
+        //
+        // This prevents PairIP from EVER loading.
+        // ================================================================
+        document("AndroidManifest.xml").use { doc ->
+            val app = doc.getElementsByTagName("application").item(0) as org.w3c.dom.Element
+            val oldName = app.getAttribute("android:name")
+            app.setAttribute("android:name", "fi.twomenandadog.zombiecatchers.ZombieCatchersApp")
+            logger.info("Changed Application from " + oldName + " to ZombieCatchersApp")
+        }
+
+        // ================================================================
+        // STEP 2: Hex patch libcocos2dcpp.so
+        // ================================================================
         val libPath = "lib/arm64-v8a/libcocos2dcpp.so"
         val libFile = get(libPath)
         val libBytes = libFile.readBytes()
@@ -98,7 +93,7 @@ val unlockAllPatch = rawResourcePatch(
             )
         )
 
-        logger.info("Unlock all: patching libcocos2dcpp.so with " + patches.size + " hex patches")
+        logger.info("Patching libcocos2dcpp.so with " + patches.size + " hex patches")
 
         var patchedCount = 0
         for ((pattern, replacement, description) in patches) {
@@ -118,7 +113,7 @@ val unlockAllPatch = rawResourcePatch(
             libFile.writeBytes(libBytes)
             logger.info("Unlock all COMPLETE: " + patchedCount + "/" + patches.size + " patches applied")
         } else {
-            logger.info("Unlock all FAILED: no patterns matched")
+            logger.info("Unlock all: no hex patches matched (may be different version)")
         }
     }
 }
