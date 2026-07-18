@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.11.12",
+  "version": "1.11.13",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -333,9 +333,11 @@
     },
     {
       "name": "Unlock all",
-      "description": "Removes PairIP from manifest and hex patches libcocos2dcpp.so for unlimited currencies and Play Store bypass.",
+      "description": "Removes PairIP StartupLauncher from ComponentFactory and depends on hex patch for manifest + .so patching.",
       "default": true,
-      "dependencies": [],
+      "dependencies": [
+        "ResourcePatch"
+      ],
       "compatiblePackages": [
         {
           "packageName": "fi.twomenandadog.zombiecatchers",
@@ -420,6 +422,39 @@
             },
             {
               "version": "4.1.0",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "ZC hex patch",
+      "description": "Changes manifest and hex patches libcocos2dcpp.so",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "fi.twomenandadog.zombiecatchers",
+          "name": "Zombie Catchers",
+          "description": null,
+          "apkFileType": "APKS",
+          "appIconColor": "#8BC34A",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "1.67.15",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,

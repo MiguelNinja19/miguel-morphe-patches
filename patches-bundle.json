@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-07-18T01:13:14",
-  "description": "## [1.11.12](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.11...v1.11.12) (2026-07-18)\n\n### 🐛 Bug Fixes\n\n* **zombie-catchers:** match working mod approach exactly ([0ff9f5a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0ff9f5a79dfd1422371e260376318ccf8a4cc7ab))",
-  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.11.12/patches-1.11.12.mpp",
+  "created_at": "2026-07-18T14:25:55",
+  "description": "## [1.11.13](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.12...v1.11.13) (2026-07-18)\n\n### 🐛 Bug Fixes\n\n* **zombie-catchers:** remove StartupLauncher.launch() from ComponentFactory ([0c569b8](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0c569b8b959fd6a8824bfbf41b1cf4c814b80aff))\n* **zombie-catchers:** remove StartupLauncher.launch() from ComponentFactory ([6f6cb98](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6f6cb9815c1f764a2694bc365840703e2d4f7dd2))\n* **zombie-catchers:** split into resourcePatch + bytecodePatch ([a634e8b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a634e8bb9f5705368ae8a66b60f6208cf2bb7a42))",
+  "download_url": "https://github.com/MiguelNinja19/miguel-morphe-patches/releases/download/v1.11.13/patches-1.11.13.mpp",
   "signature_download_url": "",
-  "version": "1.11.12"
+  "version": "1.11.13"
 }

@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.11.12](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.11.12)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;14 patches total
+> **[v1.11.13](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.11.13)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;15 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -100,7 +100,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 </details>
 
 <details open>
-<summary>📦 Zombie Catchers&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
+<summary>📦 Zombie Catchers&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
 
 **🎯 Supported versions:**
@@ -110,7 +110,8 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Unlock all](#unlock-all) | Removes PairIP from manifest and hex patches libcocos2dcpp.so for unlimited currencies and Play Store bypass. |  |
+| [Unlock all](#unlock-all) | Removes PairIP StartupLauncher from ComponentFactory and depends on hex patch for manifest + .so patching. |  |
+| [ZC hex patch](#zc-hex-patch) | Changes manifest and hex patches libcocos2dcpp.so |  |
 
 </details>
 

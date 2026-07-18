@@ -1,3 +1,11 @@
+## [1.11.13](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.12...v1.11.13) (2026-07-18)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** remove StartupLauncher.launch() from ComponentFactory ([0c569b8](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0c569b8b959fd6a8824bfbf41b1cf4c814b80aff))
+* **zombie-catchers:** remove StartupLauncher.launch() from ComponentFactory ([6f6cb98](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6f6cb9815c1f764a2694bc365840703e2d4f7dd2))
+* **zombie-catchers:** split into resourcePatch + bytecodePatch ([a634e8b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a634e8bb9f5705368ae8a66b60f6208cf2bb7a42))
+
 ## [1.11.12](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.11...v1.11.12) (2026-07-18)
 
 ### 🐛 Bug Fixes
