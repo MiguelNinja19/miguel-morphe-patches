@@ -1,3 +1,9 @@
+## [1.11.11](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.10...v1.11.11) (2026-07-18)
+
+### 🐛 Bug Fixes
+
+* **zombie-catchers:** use single resourcePatch for manifest + hex patch ([8f96861](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8f96861c505c14ac88be7bd1282d28fec4d9c113))
+
 ## [1.11.10](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.11.9...v1.11.10) (2026-07-17)
 
 ### 🐛 Bug Fixes
