@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -43,6 +43,39 @@
         "RawResourcePatch"
       ],
       "compatiblePackages": null,
+      "options": []
+    },
+    {
+      "name": "Disable Google Play Games sign-in prompt when already signed in",
+      "description": "Suppresses the Google Play Games sign-in popup ONLY when the user has already signed in before. On first launch (or after signing out) the popup still appears so the user can authenticate and get cloud saves. On subsequent launches the popup is suppressed because getAccount() returns the cached GoogleSignInAccount. Cloud saves, leaderboards and achievements continue to work normally. The in-game Sign In button is unaffected. Fixes the issue where the popup reappeared on every launch even after the user had already signed in.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.mobge.Oddmar",
+          "name": "Oddmar",
+          "description": null,
+          "apkFileType": "APKS",
+          "appIconColor": "#C2185B",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "0.111",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
       "options": []
     },
     {

@@ -1,3 +1,10 @@
+## [1.12.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.1...v1.12.2) (2026-07-21)
+
+### 🐛 Bug Fixes
+
+* **oddmar:** add missing DisplayLoginDialogIfNecessaryFingerprint to Fingerprints.kt ([66087e8](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/66087e8c608833b4b5925c3105443336906eafb8))
+* **oddmar:** suppress Google Play Games popup only when already signed in (fixes [#4](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/4)) ([f5da909](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/f5da9092e6f3a633be985ae09c8858b3d9e2430e))
+
 ## [1.12.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.0...v1.12.1) (2026-07-18)
 
 ### 🐛 Bug Fixes
