@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.12.2",
+  "version": "1.12.3",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -398,41 +398,6 @@
       "options": []
     },
     {
-      "name": "Unlock all",
-      "description": "Removes PairIP StartupLauncher from ComponentFactory and depends on hex patch for manifest + .so patching.",
-      "default": true,
-      "dependencies": [
-        "ResourcePatch"
-      ],
-      "compatiblePackages": [
-        {
-          "packageName": "fi.twomenandadog.zombiecatchers",
-          "name": "Zombie Catchers",
-          "description": null,
-          "apkFileType": "APKS",
-          "appIconColor": "#8BC34A",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "1.67.15",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            },
-            {
-              "version": null,
-              "versionCodes": null,
-              "isExperimental": true,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
       "name": "Unlock all tribes",
       "description": "Unlocks all 20 tribes (Xinxi, Imperius, Bardur, Oumaji, Kickoo, Hoodrick, Luxidoor, Vengir, Zebasi, Aimo, Aquarion, Elyrion, Polaris, Magma, Yadakk, Quetzali, Cymanti, Swamp, Ikarus, Urkaz) and all skins by patching the native IL2CPP library (libil2cpp.so). Makes IsProductUnlocked return true, skips the purchase flow, and suppresses the 'Purchase error' dialog. Pure ARM64 hex patching, no smali, no extension.",
       "default": true,
@@ -521,39 +486,6 @@
             },
             {
               "version": "4.1.0",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            },
-            {
-              "version": null,
-              "versionCodes": null,
-              "isExperimental": true,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
-      "name": "ZC hex patch",
-      "description": "Changes manifest and hex patches libcocos2dcpp.so",
-      "default": true,
-      "dependencies": [],
-      "compatiblePackages": [
-        {
-          "packageName": "fi.twomenandadog.zombiecatchers",
-          "name": "Zombie Catchers",
-          "description": null,
-          "apkFileType": "APKS",
-          "appIconColor": "#8BC34A",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "1.67.15",
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": null,

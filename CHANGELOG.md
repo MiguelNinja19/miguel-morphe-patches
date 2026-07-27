@@ -1,3 +1,9 @@
+## [1.12.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.2...v1.12.3) (2026-07-27)
+
+### 🐛 Bug Fixes
+
+* remove Zombie cathers ([1bca721](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1bca72153fbddbc63952fd81b57e019bb0aa90e5))
+
 ## [1.12.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.1...v1.12.2) (2026-07-21)
 
 ### 🐛 Bug Fixes
