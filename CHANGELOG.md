@@ -1,3 +1,9 @@
+## [1.12.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.3...v1.12.4) (2026-07-27)
+
+### 🐛 Bug Fixes
+
+* delete DisableSighInPromptPatch.kt ([b46f407](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b46f407aeb1a397bd76556cf6811077f5bca32d5))
+
 ## [1.12.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.2...v1.12.3) (2026-07-27)
 
 ### 🐛 Bug Fixes
