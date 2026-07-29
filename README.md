@@ -18,7 +18,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.12.4](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.12.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;15 patches total
+> **[v1.13.0](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.13.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;17 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -112,6 +112,22 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Free in-app purchases](#free-in-app-purchases) | Skips Google Play Billing and credits IAP items (gem packs, coin packs, starter packs) directly. Lets the original failure path run after crediting to close the Contacting screen naturally. Also disables the startup purchase-restore flow. |  |
+
+</details>
+
+<details open>
+<summary>📦 Cube Solver&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
+<br>
+
+**🎯 Supported versions:**
+
+| 5.0.3 |
+| :---: |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Remove ads](#remove-ads) | Removes all advertisements (rewarded ads and interstitial ads) from the app. When the user taps 'Watch ad to unlock' on a locked design, the ad is skipped and the design is unlocked instantly — the reward is granted without showing any ad. Also disables rewarded ad preloading to save bandwidth. Note: this patch does NOT automatically unlock designs — the user must still tap each locked design to unlock it (the ad is just skipped). For automatic unlock of ALL designs at startup, enable the 'Unlock all designs' patch. |  |
+| [Unlock all designs](#unlock-all-designs) | Unlocks all puzzle designs (kilominx, mirror 2x2x2, and all other premium designs) by injecting localStorage["ulcsall"] = "ok" into the WebView when the app starts. The JS-side isPaidUser() function checks this key and, when it returns true, treats every design as unlocked. Also skips the GDPR consent popup. Note: setting ulcsall=ok also removes all ads as a side effect (because the JS ad functions check isPaidUser first), so this patch is a superset of the 'Remove ads' patch. If you only want to remove ads without unlocking everything, use only the 'Remove ads' patch. |  |
 
 </details>
 

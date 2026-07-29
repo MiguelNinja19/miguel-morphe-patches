@@ -1,3 +1,12 @@
+## [1.13.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.4...v1.13.0) (2026-07-29)
+
+### ✨ New Features
+
+* **cubesolver:** add remove ads and unlock all designs patches for v5.0.3 ([bf35143](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/bf35143010fb72a408b25d5d09f701a1133280d4))
+* **cubesolver:** add remove ads and unlock all designs patches for v5.0.3 ([0d9f9a8](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0d9f9a830de99c100a442f37de973949d423f8b2))
+* **cubesolver:** add remove ads and unlock all designs patches for v5.0.3 ([fd235bf](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fd235bf36aaee062ef1df578cd2acd545b1920ed))
+* **cubesolver:** add remove ads and unlock all designs patches for v5.0.3 ([f88932e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/f88932eb49b877328580dc9e749eb477a57a06a0))
+
 ## [1.12.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.3...v1.12.4) (2026-07-27)
 
 ### 🐛 Bug Fixes
