@@ -1,3 +1,12 @@
+## [1.13.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.0...v1.13.1) (2026-07-30)
+
+### 🐛 Bug Fixes
+
+* **cubesolver:** add PairIP bypass patch (fixes app crash on patched APK) ([e0ff35c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e0ff35c32bb6c5e9e47ad16c24f1460e17b851d7))
+* **cubesolver:** add PairIP bypass patch (fixes app crash on patched APK) ([f4d0fa3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/f4d0fa3b445ccb2d920914ce626d5b60ccd5948c))
+* **cubesolver:** add PairIP bypass patch (fixes app crash on patched APK) ([ddf136e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ddf136eb52be8377f326e812daa14e0c3b27cff0))
+* **cubesolver:** add PairIP bypass patch (fixes app crash on patched APK) ([d80d792](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d80d79200736a8878856d96d59ed58a451f49772))
+
 ## [1.13.0](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.12.4...v1.13.0) (2026-07-29)
 
 ### ✨ New Features
