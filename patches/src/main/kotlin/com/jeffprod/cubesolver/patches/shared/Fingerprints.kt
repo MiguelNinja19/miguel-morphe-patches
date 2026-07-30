@@ -44,13 +44,16 @@ import com.android.tools.smali.dexlib2.AccessFlags
  *
  * NOTE on PairIP:
  *   The app uses Google Play's PairIP (Play Automatic Integrity Protection).
- *   The com.pairip.* package and libpairipcore.so are present, and
- *   MainActivity.onCreate / App.onCreate are routed through PairIP VM
- *   reflection (com.unity3d.ads.datastore.Vq.aFGUz). HOWEVER, the
- *   VmDecryptor.decrypt() method is a no-op stub that returns the input
- *   bytes unchanged, so all method bodies are in plain smali. The k93
- *   class (which is the JS bridge) is NOT behind PairIP VM — its methods
- *   are direct Java/smali and can be patched freely.
+ *   The com.pairip.* package and libpairipcore.so are present. The
+ *   AndroidManifest declares android:name="com.pairip.application.Application"
+ *   which extends com.jeffprod.cubesolver.App. The Application.attachBaseContext
+ *   calls SignatureCheck.verifyIntegrity() and LicenseClient.checkLicense().
+ *   The VmDecryptor.decrypt() method is a no-op stub, BUT the VM bytecode
+ *   in asset "PAvdaIa2xHwL2BZt" is still executed by the native libpairipcore.so.
+ *   MainActivity.onCreate, MainActivity.onDestroy, and App.onCreate are routed
+ *   through PairIP VM reflection (com.unity3d.ads.datastore.Vq.aFGUz).
+ *   The k93 class is NOT behind PairIP VM — its methods are direct Java/smali
+ *   and can be patched freely. See BypassPairIPPatch for the PairIP bypass.
  */
 object AppReadyFingerprint : Fingerprint(
     definingClass = "Lk93;",
@@ -177,4 +180,66 @@ object LoadRewardedAdFingerprint : Fingerprint(
             name = "<init>",
         ),
     )
+)
+
+/**
+ * Fingerprint for PairIP SignatureCheck.verifyIntegrity(Context).
+ *
+ * PairIP's SignatureCheck verifies that the APK signature matches the
+ * expected signature hash. When Morphe re-signs the APK with its own
+ * key, this check fails and throws SignatureTamperedException, crashing
+ * the app.
+ *
+ * Smali signature (from decompiled APK 5.0.3):
+ *   .method public static verifyIntegrity(Landroid/content/Context;)V
+ *     .locals 2
+ *     ...
+ *     invoke-virtual {v0, p0, v1}, Landroid/content/pm/PackageManager;->getPackageInfo(...)
+ *     ...
+ *     invoke-static {p0}, Lcom/pairip/SignatureCheck;->verifySignatureMatches(Ljava/lang/String;)Z
+ *     ...
+ *     if-nez v0, :cond_1
+ *     new-instance p0, Lcom/pairip/SignatureCheck$SignatureTamperedException;
+ *     invoke-direct {p0, v0}, Lcom/pairip/SignatureCheck$SignatureTamperedException;-><init>(Ljava/lang/String;)V
+ *     throw p0
+ *
+ * We hook this to be a no-op (return-void) so the signature check is
+ * skipped entirely. This allows the Morphe-signed APK to run without
+ * crashing.
+ */
+object SignatureCheckFingerprint : Fingerprint(
+    definingClass = "Lcom/pairip/SignatureCheck;",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
+    returnType = "V",
+    parameters = listOf("Landroid/content/Context;"),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lcom/pairip/SignatureCheck;",
+            name = "verifySignatureMatches",
+        ),
+    )
+)
+
+/**
+ * Fingerprint for PairIP LicenseClient.checkLicense(Context).
+ *
+ * PairIP's LicenseClient contacts Google Play's licensing service to
+ * verify that the app was installed from the Play Store. On a patched
+ * APK, this check will fail (no valid Play Store license), which can
+ * cause the app to refuse to run or display an error.
+ *
+ * Smali signature (from decompiled APK 5.0.3):
+ *   .method public static checkLicense(Landroid/content/Context;)V
+ *     .locals 1
+ *     ...
+ *
+ * We hook this to be a no-op (return-void) so the license check is
+ * skipped entirely. This allows the patched APK to run without
+ * contacting Google Play's licensing service.
+ */
+object LicenseCheckFingerprint : Fingerprint(
+    definingClass = "Lcom/pairip/licensecheck/LicenseClient;",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
+    returnType = "V",
+    parameters = listOf("Landroid/content/Context;"),
 )
