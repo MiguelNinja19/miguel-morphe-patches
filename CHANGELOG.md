@@ -1,3 +1,10 @@
+## [1.13.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.3...v1.13.4) (2026-07-30)
+
+### 🐛 Bug Fixes
+
+* **cubesolver:** bypass PairIP via manifest modification instead of bytecode no-ops ([0c4a27d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/0c4a27df2fc98f6c2ecce80b6511560b9d4c3a5d))
+* **cubesolver:** bypass PairIP via manifest modification instead of bytecode no-ops ([b8f2613](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b8f261389a58173e1b7dd76e275b9dfb597c2ae7))
+
 ## [1.13.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.2...v1.13.3) (2026-07-30)
 
 ### 🐛 Bug Fixes
