@@ -160,16 +160,16 @@ object LicenseCheckFingerprint : Fingerprint(
  *
  * We no-op this (return-void) so the license check NEVER runs, regardless
  * of which code path triggers it.
+ *
+ * NOTE: No filter is used because the method is unique enough (only one
+ * public initializeLicenseCheck()V with no parameters in LicenseClient).
+ * Using LicenseCheckState as a filter caused a compile error because
+ * it's a smali inner class (LicenseClient$LicenseCheckState) which
+ * Kotlin can't resolve as a type.
  */
 object InitializeLicenseCheckFingerprint : Fingerprint(
     definingClass = "Lcom/pairip/licensecheck/LicenseClient;",
     accessFlags = listOf(AccessFlags.PUBLIC),
     returnType = "V",
     parameters = emptyList(),
-    filters = listOf(
-        methodCall(
-            definingClass = "Lcom/pairip/licensecheck/LicenseClient$LicenseCheckState;",
-            name = "ordinal",
-        ),
-    )
 )
