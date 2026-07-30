@@ -41,19 +41,6 @@ import com.android.tools.smali.dexlib2.AccessFlags
  *
  * So calling MainActivity.j("ulcsall", "ok") from appReady() achieves
  * both "no ads" and "unlock all designs" in one shot.
- *
- * NOTE on PairIP:
- *   The app uses Google Play's PairIP (Play Automatic Integrity Protection).
- *   The com.pairip.* package and libpairipcore.so are present. The
- *   AndroidManifest declares android:name="com.pairip.application.Application"
- *   which extends com.jeffprod.cubesolver.App. The Application.attachBaseContext
- *   calls SignatureCheck.verifyIntegrity() and LicenseClient.checkLicense().
- *   The VmDecryptor.decrypt() method is a no-op stub, BUT the VM bytecode
- *   in asset "PAvdaIa2xHwL2BZt" is still executed by the native libpairipcore.so.
- *   MainActivity.onCreate, MainActivity.onDestroy, and App.onCreate are routed
- *   through PairIP VM reflection (com.unity3d.ads.datastore.Vq.aFGUz).
- *   The k93 class is NOT behind PairIP VM — its methods are direct Java/smali
- *   and can be patched freely. See BypassPairIPPatch for the PairIP bypass.
  */
 object AppReadyFingerprint : Fingerprint(
     definingClass = "Lk93;",
@@ -82,24 +69,8 @@ object AppReadyFingerprint : Fingerprint(
  *   5. After the ad is watched, y7 callback calls MainActivity.j(designKey, "ok")
  *      which sets localStorage[designKey] = "ok" and unlocks the design
  *
- * Smali signature (from decompiled APK 5.0.3):
- *   .method public final showRA(Ljava/lang/String;)V
- *     .locals 7
- *     .annotation runtime Landroid/webkit/JavascriptInterface;
- *     .end annotation
- *     ...
- *     iget-object p0, p0, Lk93;->a:Ljava/lang/ref/WeakReference;
- *     invoke-virtual {p0}, Ljava/lang/ref/Reference;->get()Ljava/lang/Object;
- *     move-result-object p0
- *     check-cast p0, Lcom/jeffprod/cubesolver/MainActivity;
- *     ...
- *     new-instance v1, Ljl1;
- *     const/4 v2, 0x4
- *     invoke-direct {v1, p0, p1, v2}, Ljl1;-><init>(Lcom/jeffprod/cubesolver/MainActivity;Ljava/lang/String;I)V
- *
  * We hook this to call MainActivity.j(p1, "ok") directly — skipping the
- * ad entirely but still granting the reward. The design is unlocked
- * instantly without any ad being shown.
+ * ad entirely but still granting the reward.
  */
 object ShowRAFingerprint : Fingerprint(
     definingClass = "Lk93;",
@@ -117,23 +88,8 @@ object ShowRAFingerprint : Fingerprint(
 /**
  * Fingerprint for k93.showAdInterstitielle().
  *
- * Called by JS to show a full-screen interstitial ad (e.g., between
- * screen transitions). The original method gets MainActivity from
- * k93.a and posts an il1 runnable with case=9, which calls the
- * AdMob/AppLovin interstitial ad loader.
- *
- * Smali signature (from decompiled APK 5.0.3):
- *   .method public final showAdInterstitielle()V
- *     .locals 3
- *     .annotation runtime Landroid/webkit/JavascriptInterface;
- *     .end annotation
- *     iget-object p0, p0, Lk93;->a:Ljava/lang/ref/WeakReference;
- *     ...
- *     new-instance v1, Lil1;
- *     const/16 v2, 0x9
- *     invoke-direct {v1, p0, v2}, Lil1;-><init>(Lcom/jeffprod/cubesolver/MainActivity;I)V
- *
- * We hook this to be a no-op (return-void) so interstitial ads never show.
+ * Called by JS to show a full-screen interstitial ad. We hook this to
+ * be a no-op (return-void) so interstitial ads never show.
  */
 object ShowAdInterstitielleFingerprint : Fingerprint(
     definingClass = "Lk93;",
@@ -151,23 +107,8 @@ object ShowAdInterstitielleFingerprint : Fingerprint(
 /**
  * Fingerprint for k93.loadRewardedAd().
  *
- * Called by JS to preload a rewarded ad before showing it. The original
- * method gets MainActivity from k93.a and posts an il1 runnable with
- * case=12 (0xc), which calls the AdMob/AppLovin rewarded ad loader.
- *
- * Smali signature (from decompiled APK 5.0.3):
- *   .method public final loadRewardedAd()V
- *     .locals 3
- *     .annotation runtime Landroid/webkit/JavascriptInterface;
- *     .end annotation
- *     iget-object p0, p0, Lk93;->a:Ljava/lang/ref/WeakReference;
- *     ...
- *     new-instance v1, Lil1;
- *     const/16 v2, 0xc
- *     invoke-direct {v1, p0, v2}, Lil1;-><init>(Lcom/jeffprod/cubesolver/MainActivity;I)V
- *
- * We hook this to be a no-op (return-void) so rewarded ads are never
- * preloaded, saving bandwidth and preventing the ad SDK from initialising.
+ * Called by JS to preload a rewarded ad before showing it. We hook this
+ * to be a no-op (return-void) so rewarded ads are never preloaded.
  */
 object LoadRewardedAdFingerprint : Fingerprint(
     definingClass = "Lk93;",
@@ -183,63 +124,59 @@ object LoadRewardedAdFingerprint : Fingerprint(
 )
 
 /**
- * Fingerprint for PairIP SignatureCheck.verifyIntegrity(Context).
+ * Fingerprint for PairIP Application.attachBaseContext(Context).
  *
- * PairIP's SignatureCheck verifies that the APK signature matches the
- * expected signature hash. When Morphe re-signs the APK with its own
- * key, this check fails and throws SignatureTamperedException, crashing
- * the app.
+ * This is the MAIN PairIP entry point. The AndroidManifest declares
+ * android:name="com.pairip.application.Application" which extends
+ * com.jeffprod.cubesolver.App. The attachBaseContext method is called
+ * VERY early in app startup (before onCreate) and runs three PairIP
+ * protection layers:
+ *
+ *   1. VMRunner.setContext(context) — needed for the PairIP VM to work
+ *   2. SignatureCheck.verifyIntegrity(context) — CRASHES on patched APK
+ *   3. LicenseClient.checkLicense(context) — blocks on sideloaded APK
+ *   4. super.attachBaseContext(context) — needed for app to function
  *
  * Smali signature (from decompiled APK 5.0.3):
- *   .method public static verifyIntegrity(Landroid/content/Context;)V
- *     .locals 2
- *     ...
- *     invoke-virtual {v0, p0, v1}, Landroid/content/pm/PackageManager;->getPackageInfo(...)
- *     ...
- *     invoke-static {p0}, Lcom/pairip/SignatureCheck;->verifySignatureMatches(Ljava/lang/String;)Z
- *     ...
- *     if-nez v0, :cond_1
- *     new-instance p0, Lcom/pairip/SignatureCheck$SignatureTamperedException;
- *     invoke-direct {p0, v0}, Lcom/pairip/SignatureCheck$SignatureTamperedException;-><init>(Ljava/lang/String;)V
- *     throw p0
+ *   .method protected attachBaseContext(Landroid/content/Context;)V
+ *     .locals 0
+ *     invoke-static {p1}, Lcom/pairip/VMRunner;->setContext(Landroid/content/Context;)V
+ *     invoke-static {p1}, Lcom/pairip/SignatureCheck;->verifyIntegrity(Landroid/content/Context;)V
+ *     invoke-static {p1}, Lcom/pairip/licensecheck/LicenseClient;->checkLicense(Landroid/content/Context;)V
+ *     invoke-super {p0, p1}, Lcom/pairip/application/Application;->attachBaseContext(Landroid/content/Context;)V
+ *     return-void
+ *   .end method
  *
- * We hook this to be a no-op (return-void) so the signature check is
- * skipped entirely. This allows the Morphe-signed APK to run without
- * crashing.
+ * We hook this to:
+ *   1. KEEP VMRunner.setContext (the VM is needed for onCreate/onDestroy)
+ *   2. SKIP SignatureCheck.verifyIntegrity (prevents crash)
+ *   3. SKIP LicenseClient.checkLicense (prevents license block)
+ *   4. KEEP super.attachBaseContext (needed for app to function)
+ *
+ * This is the "nuclear option" that bypasses ALL PairIP checks in one
+ * hook, while keeping the VM functional.
+ *
+ * WHY THIS IS BETTER than patching SignatureCheck and LicenseClient
+ * individually:
+ * - One hook instead of two (simpler, more reliable)
+ * - Even if SignatureCheck or LicenseClient are called from elsewhere
+ *   (e.g., from the PairIP VM bytecode), they won't be reached because
+ *   attachBaseContext is the only caller in the original code
+ * - More robust against future updates that might add more checks
  */
-object SignatureCheckFingerprint : Fingerprint(
-    definingClass = "Lcom/pairip/SignatureCheck;",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
+object AttachBaseContextFingerprint : Fingerprint(
+    definingClass = "Lcom/pairip/application/Application;",
+    accessFlags = listOf(AccessFlags.PROTECTED),
     returnType = "V",
     parameters = listOf("Landroid/content/Context;"),
     filters = listOf(
         methodCall(
             definingClass = "Lcom/pairip/SignatureCheck;",
-            name = "verifySignatureMatches",
+            name = "verifyIntegrity",
+        ),
+        methodCall(
+            definingClass = "Lcom/pairip/licensecheck/LicenseClient;",
+            name = "checkLicense",
         ),
     )
-)
-
-/**
- * Fingerprint for PairIP LicenseClient.checkLicense(Context).
- *
- * PairIP's LicenseClient contacts Google Play's licensing service to
- * verify that the app was installed from the Play Store. On a patched
- * APK, this check will fail (no valid Play Store license), which can
- * cause the app to refuse to run or display an error.
- *
- * Smali signature (from decompiled APK 5.0.3):
- *   .method public static checkLicense(Landroid/content/Context;)V
- *     .locals 1
- *     ...
- *
- * We hook this to be a no-op (return-void) so the license check is
- * skipped entirely. This allows the patched APK to run without
- * contacting Google Play's licensing service.
- */
-object LicenseCheckFingerprint : Fingerprint(
-    definingClass = "Lcom/pairip/licensecheck/LicenseClient;",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
-    returnType = "V",
-    parameters = listOf("Landroid/content/Context;"),
 )
