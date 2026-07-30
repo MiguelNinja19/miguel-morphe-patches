@@ -77,10 +77,13 @@ val removeAdsPatch = bytecodePatch(
         "bandwidth. Note: this patch does NOT automatically unlock " +
         "designs — the user must still tap each locked design to unlock " +
         "it (the ad is just skipped). For automatic unlock of ALL " +
-        "designs at startup, enable the 'Unlock all designs' patch.",
+        "designs at startup, enable the 'Unlock all designs' patch. " +
+        "Requires the 'Bypass PairIP integrity check' patch.",
     default = true,
 ) {
     compatibleWith(CUBE_SOLVER)
+
+    dependsOn(bypassPairIPPatch)
 
     execute {
         // ============================================================
