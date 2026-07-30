@@ -3,52 +3,91 @@
  *
  * WHY THIS PATCH EXISTS:
  *
- * Cube Solver uses Google Play's PairIP (Play Automatic Integrity Protection)
- * with THREE active protection layers:
- *
- *   1. SignatureCheck.verifyIntegrity(Context)
- *      Checks that the APK signing certificate matches the expected hash
- *      ("pFVteim+91xX9uruckRiPle8UtHsH0NqfUqPPmj3wO0="). When Morphe
- *      re-signs the APK with its own key, this check fails and throws
- *      SignatureTamperedException, crashing the app.
- *
- *   2. LicenseClient.checkLicense(Context)
- *      Contacts Google Play's licensing service to verify the app was
- *      installed from the Play Store. On a patched APK sideloaded outside
- *      the Play Store, this check will fail, which can cause the app to
- *      refuse to run or display a license error.
- *
- *   3. VMRunner / libpairipcore.so
- *      The native VM executes bytecode from asset "PAvdaIa2xHwL2BZt".
- *      This VM provides the real implementations of MainActivity.onCreate,
- *      MainActivity.onDestroy, and App.onCreate via reflection
- *      (com.unity3d.ads.datastore.Vq.aFGUz). We MUST keep the VM running
- *      because the app's core lifecycle methods depend on it.
- *
+ * Cube Solver uses Google Play's PairIP (Play Automatic Integrity Protection).
  * The AndroidManifest declares android:name="com.pairip.application.Application"
  * which extends com.jeffprod.cubesolver.App. The Application.attachBaseContext
- * calls:
- *   VMRunner.setContext(context)
- *   SignatureCheck.verifyIntegrity(context)   <- crashes on patched APK
- *   LicenseClient.checkLicense(context)       <- blocks on patched APK
- *   super.attachBaseContext(context)
+ * method (called very early, before onCreate) runs three PairIP layers:
  *
- * THE PATCH (2 hooks):
+ *   1. VMRunner.setContext(context)
+ *      Sets the context for the PairIP VM. The VM (libpairipcore.so) executes
+ *      bytecode from asset "PAvdaIa2xHwL2BZt" which provides the REAL
+ *      implementations of MainActivity.onCreate, MainActivity.onDestroy, and
+ *      App.onCreate via reflection (com.unity3d.ads.datastore.Vq.aFGUz).
+ *      We MUST keep this — without it, the app crashes with NullPointerException.
  *
- *   HOOK 1: SignatureCheck.verifyIntegrity(Context) -> return-void (no-op)
- *     Skips the APK signature check entirely. The Morphe-signed APK can
- *     now run without throwing SignatureTamperedException.
+ *   2. SignatureCheck.verifyIntegrity(context)
+ *      Computes SHA-256 of the APK signing certificate and compares it to the
+ *      expected hash "pFVteim+91xX9uruckRiPle8UtHsH0NqfUqPPmj3wO0=". When
+ *      Morphe re-signs the APK with its own key, the hash doesn't match and
+ *      this method THROWS SignatureTamperedException, which is NOT caught by
+ *      attachBaseContext, so the app CRASHES immediately.
  *
- *   HOOK 2: LicenseClient.checkLicense(Context) -> return-void (no-op)
- *     Skips the Google Play licensing check entirely. The patched APK
- *     can now run without contacting Google Play's licensing service.
+ *   3. LicenseClient.checkLicense(context)
+ *      Contacts Google Play's licensing service via IPC to verify the app was
+ *      installed from the Play Store. On a patched APK sideloaded outside the
+ *      Play Store, this check fails and can cause the app to refuse to run.
  *
- * We do NOT disable StartupLauncher.launch() or VMRunner because the VM
- * provides the real implementations of onCreate/onDestroy via reflection.
- * Disabling the VM would cause NullPointerExceptions in the lifecycle
- * methods and crash the app.
+ * WHY WE CAN'T USE THE ORIGINAL SIGNATURE:
+ *   The expected signature hash is the SHA-256 of the original developer's
+ *   signing certificate. To reproduce it, we'd need the developer's private
+ *   key, which we don't have. Android requires every APK to be signed with
+ *   a valid key, so Morphe MUST re-sign with its own key. The signature
+ *   check will ALWAYS fail on a patched APK — the only option is to skip it.
  *
- * After this patch, the app runs normally:
+ * WHY MICROG RE DOESN'T HELP WITH THE LICENSE CHECK:
+ *   MicroG RE replaces Google Play Services (GmsCore) but does NOT implement
+ *   Google Play's licensing service. The licensing service is a server-side
+ *   check that requires a valid Play Store install. MicroG RE focuses on
+ *   account authentication and Google API compatibility, not app licensing.
+ *   The only way to bypass the license check is to skip it entirely.
+ *
+ * WHY WE CAN'T DISABLE THE VM (libpairipcore.so):
+ *   The PairIP VM bytecode (asset "PAvdaIa2xHwL2BZt") contains the REAL
+ *   implementations of:
+ *     - MainActivity.onCreate (sets up WebView, loads file:///android_asset/www/index.html,
+ *       calls addJavascriptInterface to register the k93 JS bridge as "Android")
+ *     - MainActivity.onDestroy
+ *     - App.onCreate
+ *   These methods are routed through PairIP VM reflection (aFGUz). If we
+ *   disable the VM (e.g., by no-oping StartupLauncher.launch()), the aFGUz
+ *   static Method fields stay null, and onCreate tries to call null.invoke()
+ *   → NullPointerException → app crash.
+ *
+ *   Analysis of libpairipcore.so (596KB ARM64):
+ *     - NO anti-debug (no ptrace, no Frida/Xposed/Magisk detection)
+ *     - NO native signature/integrity checks (only Java-level checks)
+ *     - Only native function: ExecuteProgram (runs VM bytecode)
+ *     - Checks "ro.arch" property (architecture, not root/debug)
+ *   So the native lib is purely a VM executor, not an integrity checker.
+ *
+ * THE PATCH (1 hook, "nuclear option"):
+ *
+ *   We replace the body of com.pairip.application.Application.attachBaseContext
+ *   with:
+ *     1. VMRunner.setContext(context) — KEEP (VM needs context)
+ *     2. super.attachBaseContext(context) — KEEP (app needs to initialize)
+ *
+ *   We SKIP:
+ *     - SignatureCheck.verifyIntegrity(context) — prevents crash
+ *     - LicenseClient.checkLicense(context) — prevents license block
+ *
+ *   Smali:
+ *     p0 = this  (com.pairip.application.Application)
+ *     p1 = context  (Context)
+ *
+ *     invoke-static {p1}, Lcom/pairip/VMRunner;->setContext(Landroid/content/Context;)V
+ *     invoke-super {p0, p1}, Lcom/jeffprod/cubesolver/App;->attachBaseContext(Landroid/content/Context;)V
+ *     return-void
+ *
+ *   This is better than patching SignatureCheck and LicenseClient individually
+ *   because:
+ *   - One hook instead of two (simpler, more reliable fingerprint match)
+ *   - Even if the VM bytecode calls SignatureCheck or LicenseClient from
+ *     elsewhere, they won't be called during startup (attachBaseContext is
+ *     the only caller in the original code)
+ *   - More robust against future PairIP updates that might add more checks
+ *
+ * After this patch:
  *   - The VM still starts and provides reflected method implementations
  *   - No signature check crash
  *   - No license check block
@@ -59,8 +98,10 @@
  * should be default ON and all other patches should depend on it.
  *
  * Pattern reference (morphe-ai):
- *   - patcher-apis.md: addInstructions(0, "return-void") = the simplest
- *     returnEarly() pattern (Pattern 1).
+ *   - patcher-apis.md: addInstructions(0, ...) replaces method body
+ *   - patch-examples.md: Pattern 5 (Callback Replacement) — we replace
+ *     the method body with a selective version that keeps some calls
+ *     and skips others.
  *
  * Pure smali, no extension DEX, no native patching.
  */
@@ -70,20 +111,21 @@ package com.jeffprod.cubesolver.patches.iap
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import com.jeffprod.cubesolver.patches.shared.CUBE_SOLVER
-import com.jeffprod.cubesolver.patches.shared.SignatureCheckFingerprint
-import com.jeffprod.cubesolver.patches.shared.LicenseCheckFingerprint
+import com.jeffprod.cubesolver.patches.shared.AttachBaseContextFingerprint
 
 @Suppress("unused")
 val bypassPairIPPatch = bytecodePatch(
     name = "Bypass PairIP integrity check",
     description = "Bypasses Google Play's PairIP (Play Automatic Integrity " +
-        "Protection) by disabling the APK signature check and the Google " +
-        "Play licensing check. Without this patch, the app crashes on " +
-        "launch with SignatureTamperedException because the Morphe-signed " +
-        "APK has a different signing certificate than the original. The " +
-        "PairIP VM itself (libpairipcore.so) is NOT disabled — it provides " +
-        "the real implementations of onCreate/onDestroy via reflection, " +
-        "so disabling it would crash the app. This patch is REQUIRED for " +
+        "Protection) by replacing Application.attachBaseContext to skip " +
+        "the APK signature check (SignatureCheck.verifyIntegrity) and " +
+        "the Google Play licensing check (LicenseClient.checkLicense). " +
+        "Without this patch, the app crashes on launch with " +
+        "SignatureTamperedException because the Morphe-signed APK has a " +
+        "different signing certificate than the original. The PairIP VM " +
+        "itself (libpairipcore.so) is NOT disabled — it provides the " +
+        "real implementations of onCreate/onDestroy via reflection, so " +
+        "disabling it would crash the app. This patch is REQUIRED for " +
         "all other Cube Solver patches to function.",
     default = true,
 ) {
@@ -91,34 +133,43 @@ val bypassPairIPPatch = bytecodePatch(
 
     execute {
         // ============================================================
-        // HOOK 1: SignatureCheck.verifyIntegrity -> no-op
+        // HOOK: Application.attachBaseContext -> selective bypass
         // ============================================================
-        // Pattern: returnEarly (morphe-ai Pattern 1).
+        // Pattern: method body replacement (morphe-ai Pattern 5).
         //
-        // We replace the method body with a single return-void.
-        // The original code that checks the APK signature hash and
-        // throws SignatureTamperedException on mismatch becomes dead code.
+        // We replace the entire method body with just two calls:
+        //   1. VMRunner.setContext(context) — needed for the PairIP VM
+        //   2. super.attachBaseContext(context) — needed for app init
         //
-        // This allows the Morphe-signed APK to run without crashing.
+        // We SKIP:
+        //   - SignatureCheck.verifyIntegrity(context) — crashes on patched APK
+        //   - LicenseClient.checkLicense(context) — blocks sideloaded APK
+        //
+        // p0 = this  (com.pairip.application.Application)
+        // p1 = context  (Context)
+        //
+        // Note: we call super on Lcom/jeffprod/cubesolver/App; (the parent
+        // class), NOT on Lcom/pairip/application/Application; (the current
+        // class). This is because the original code calls:
+        //   invoke-super {p0, p1}, Lcom/pairip/application/Application;->attachBaseContext
+        // But we ARE com.pairip.application.Application, so we need to call
+        // the GRANDPARENT's attachBaseContext, which is App.attachBaseContext.
+        // App doesn't override attachBaseContext, so this effectively calls
+        // android.app.Application.attachBaseContext (the framework default).
         // ============================================================
-        SignatureCheckFingerprint.method.addInstructions(0, """
-            return-void
-        """.trimIndent())
+        AttachBaseContextFingerprint.method.addInstructions(0, """
+            # Keep: set VM context (needed for PairIP VM to work)
+            invoke-static {p1}, Lcom/pairip/VMRunner;->setContext(Landroid/content/Context;)V
 
+            # Skip: SignatureCheck.verifyIntegrity(context) — would crash
+            # Skip: LicenseClient.checkLicense(context) — would block
 
-        // ============================================================
-        // HOOK 2: LicenseClient.checkLicense -> no-op
-        // ============================================================
-        // Pattern: returnEarly (morphe-ai Pattern 1).
-        //
-        // We replace the method body with a single return-void.
-        // The original code that contacts Google Play's licensing service
-        // and blocks the app if the license is invalid becomes dead code.
-        //
-        // This allows the patched APK to run without a valid Play Store
-        // license.
-        // ============================================================
-        LicenseCheckFingerprint.method.addInstructions(0, """
+            # Keep: call super.attachBaseContext (needed for app init)
+            # The parent of com.pairip.application.Application is
+            # com.jeffprod.cubesolver.App, which doesn't override
+            # attachBaseContext, so this calls the framework default.
+            invoke-super {p0, p1}, Lcom/jeffprod/cubesolver/App;->attachBaseContext(Landroid/content/Context;)V
+
             return-void
         """.trimIndent())
     }
