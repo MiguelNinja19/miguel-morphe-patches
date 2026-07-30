@@ -3,6 +3,8 @@
 Morphe patches by [@MiguelNinja19](https://github.com/MiguelNinja19).
 Multiple apps supported — see the patch list below.
 
+Everything here is AI‑generated
+
 ## 📥 Add to Morphe Manager
 
 Tap this link on your Android device:
