@@ -1,127 +1,143 @@
 /*
  * Bypass PairIP patch for Cube Solver.
  *
- * WHY THIS PATCH EXISTS:
+ * ROOT CAUSE (found after deep analysis):
  *
- * Cube Solver uses Google Play's PairIP (Play Automatic Integrity Protection).
- * There are THREE protection layers, and the license check has TWO entry
- * points that must both be blocked:
+ * The AndroidManifest declares:
+ *   android:name="com.pairip.application.Application"
  *
- *   1. SignatureCheck.verifyIntegrity(Context)
- *      Checks APK signing certificate hash. Crashes on patched APK.
- *      Called from Application.attachBaseContext.
+ * This PairIP Application class extends com.jeffprod.cubesolver.App and
+ * overrides attachBaseContext to run THREE PairIP protection layers:
  *
- *   2. LicenseClient.checkLicense(Context) [STATIC]
- *      Entry point #1 for license check. Called from
- *      Application.attachBaseContext. We no-op this.
+ *   1. VMRunner.setContext(context) — needed for PairIP VM
+ *   2. SignatureCheck.verifyIntegrity(context) — CRASHES on patched APK
+ *   3. LicenseClient.checkLicense(context) — redirects to Play Store
  *
- *   3. LicenseClient.initializeLicenseCheck() [INSTANCE]
- *      Entry point #2 for license check. Called DIRECTLY by
- *      LicenseContentProvider.onCreate(), which runs BEFORE
- *      Application.attachBaseContext in the Android lifecycle.
- *      This bypasses our checkLicense no-op! The PairIP VM bytecode
- *      might also call this directly.
- *      When the check fails, it calls handleError ->
- *      startErrorDialogActivity -> createCloseAppIntentOrExitIfAppInBackground
- *      -> LicenseActivity, which redirects to the Play Store.
- *      THIS IS THE REDIRECT THE USER SEES.
+ * Previous attempts tried to no-op the individual Java methods
+ * (verifyIntegrity, checkLicense, initializeLicenseCheck). This didn't
+ * work because:
+ * - LicenseContentProvider.onCreate() calls initializeLicenseCheck()
+ *   DIRECTLY, bypassing the static checkLicense method
+ * - ContentProviders run BEFORE Application.attachBaseContext
+ * - The PairIP VM might also call these methods internally
  *
- * THE PATCH (4 hooks):
+ * THE FIX (manifest modification):
  *
- *   HOOK 1: SignatureCheck.verifyIntegrity(Context) -> return-void
- *     Skips APK signature hash check. Prevents crash.
+ *   Change android:name from "com.pairip.application.Application" to
+ *   "com.jeffprod.cubesolver.App" in the AndroidManifest.xml.
  *
- *   HOOK 2: SignatureCheck.verifySignatureMatches(String) -> return true
- *     Belt-and-suspenders: always says "signature OK".
+ *   This completely bypasses com.pairip.application.Application, so
+ *   attachBaseContext (with all its checks) is NEVER called. The app
+ *   uses App directly, which inherits attachBaseContext from
+ *   android.app.Application (the default, no checks).
  *
- *   HOOK 3: LicenseClient.checkLicense(Context) -> return-void
- *     Skips license check entry point #1 (from attachBaseContext).
+ *   App.<clinit> still calls StartupLauncher.launch() which starts the
+ *   PairIP VM. The VM provides the real onCreate/onDestroy implementations
+ *   via reflection (aFGUz). So the app functions normally.
  *
- *   HOOK 4: LicenseClient.initializeLicenseCheck() -> return-void
- *     Skips license check entry point #2 (from ContentProvider/VM).
- *     THIS IS THE FIX for the Play Store redirect — without this hook,
- *     the license check runs via the ContentProvider path and redirects
- *     to the Play Store even though checkLicense is no-oped.
+ *   Also remove LicenseActivity from the manifest so even if the license
+ *   check somehow runs, it can't redirect to the Play Store.
  *
- * We do NOT disable:
- *   - VMRunner.setContext (VM needs context)
- *   - StartupLauncher.launch (VM provides real onCreate via reflection)
- *   - libpairipcore.so (native VM executor, no integrity checks in it)
+ *   Also remove the CHECK_LICENSE permission since it's no longer needed.
  *
- * This patch is REQUIRED for all other Cube Solver patches to work.
+ * Analysis confirming this is safe:
+ *   - VM bytecode (asset PAvdaIa2xHwL2BZt) does NOT contain any
+ *     integrity/license check strings (verified with `strings`)
+ *   - VM bytecode only contains onCreate implementation (WebView setup,
+ *     loadUrl, addJavascriptInterface)
+ *   - libpairipcore.so has NO anti-debug, NO native integrity checks
+ *   - The VM is purely a bytecode executor, not an integrity checker
+ *
+ * This approach is inspired by PKiller (github.com/Anon4You/PKiller)
+ * which removes PairIP code entirely. We take a softer approach: keep
+ * the VM running (needed for onCreate) but bypass the Application
+ * wrapper that triggers the checks.
+ *
+ * This is a RESOURCE patch (modifies AndroidManifest.xml), not a
+ * bytecode patch. No smali modification needed for the bypass itself.
  */
 
 package com.jeffprod.cubesolver.patches.iap
 
-import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
-import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.patch.resourcePatch
 import com.jeffprod.cubesolver.patches.shared.CUBE_SOLVER
-import com.jeffprod.cubesolver.patches.shared.SignatureCheckFingerprint
-import com.jeffprod.cubesolver.patches.shared.VerifySignatureMatchesFingerprint
-import com.jeffprod.cubesolver.patches.shared.LicenseCheckFingerprint
-import com.jeffprod.cubesolver.patches.shared.InitializeLicenseCheckFingerprint
+import org.w3c.dom.Element
 
 @Suppress("unused")
-val bypassPairIPPatch = bytecodePatch(
+val bypassPairIPPatch = resourcePatch(
     name = "Bypass PairIP integrity check",
-    description = "Bypasses Google Play's PairIP by disabling the APK " +
-        "signature check and the Google Play licensing check. Without " +
-        "this patch, the app crashes on launch (signature mismatch) or " +
-        "redirects to the Play Store (license check failure). The " +
-        "license check has TWO entry points that must both be blocked: " +
-        "checkLicense (from attachBaseContext) and " +
-        "initializeLicenseCheck (from ContentProvider, which runs " +
-        "before attachBaseContext). REQUIRED for all other patches.",
+    description = "Bypasses Google Play's PairIP by changing the " +
+        "application class in AndroidManifest.xml from " +
+        "com.pairip.application.Application to com.jeffprod.cubesolver.App. " +
+        "This completely skips the PairIP attachBaseContext which runs " +
+        "the APK signature check (crashes on patched APK) and the Google " +
+        "Play licensing check (redirects to Play Store). Also removes " +
+        "LicenseActivity and CHECK_LICENSE permission from the manifest. " +
+        "The PairIP VM is NOT disabled — it provides real onCreate " +
+        "implementations via reflection. REQUIRED for all other patches.",
     default = true,
 ) {
     compatibleWith(CUBE_SOLVER)
 
     execute {
         // ============================================================
-        // HOOK 1: SignatureCheck.verifyIntegrity -> no-op
+        // HOOK 1: Change application class to skip PairIP Application
         // ============================================================
-        SignatureCheckFingerprint.method.addInstructions(0, """
-            return-void
-        """.trimIndent())
-
-        // ============================================================
-        // HOOK 2: SignatureCheck.verifySignatureMatches -> return true
-        // ============================================================
-        VerifySignatureMatchesFingerprint.method.addInstructions(0, """
-            const/4 v0, 0x1
-            return v0
-        """.trimIndent())
-
-        // ============================================================
-        // HOOK 3: LicenseClient.checkLicense -> no-op
-        // ============================================================
-        // This blocks license check entry point #1 (from attachBaseContext).
-        // ============================================================
-        LicenseCheckFingerprint.method.addInstructions(0, """
-            return-void
-        """.trimIndent())
-
-        // ============================================================
-        // HOOK 4: LicenseClient.initializeLicenseCheck -> no-op
-        // ============================================================
-        // THIS IS THE FIX for the Play Store redirect!
+        // Change android:name from "com.pairip.application.Application"
+        // to "com.jeffprod.cubesolver.App" in the <application> tag.
         //
-        // LicenseContentProvider.onCreate() creates a new LicenseClient
-        // and calls initializeLicenseCheck() DIRECTLY, bypassing our
-        // checkLicense no-op. ContentProviders run BEFORE
-        // Application.attachBaseContext, so this path triggers the
-        // license check before our other patches take effect.
-        //
-        // When the check fails, it calls handleError ->
-        // startErrorDialogActivity -> LicenseActivity, which redirects
-        // to the Play Store. This is exactly what the user sees.
-        //
-        // By no-oping initializeLicenseCheck(), we block BOTH entry
-        // points: the ContentProvider path AND any VM bytecode that
-        // might call it directly.
+        // This is the KEY fix. com.pairip.application.Application is the
+        // class that calls SignatureCheck.verifyIntegrity and
+        // LicenseClient.checkLicense in attachBaseContext. By using App
+        // directly, attachBaseContext is the default Android one (no
+        // checks). The PairIP VM still starts via App.<clinit> ->
+        // StartupLauncher.launch(), so onCreate works via reflection.
         // ============================================================
-        InitializeLicenseCheckFingerprint.method.addInstructions(0, """
-            return-void
-        """.trimIndent())
+        document("AndroidManifest.xml").use { document ->
+            val applicationElement =
+                document.getElementsByTagName("application").item(0) as Element
+
+            applicationElement.setAttribute(
+                "android:name",
+                "com.jeffprod.cubesolver.App",
+            )
+
+
+            // ============================================================
+            // HOOK 2: Remove LicenseActivity from manifest
+            // ============================================================
+            // LicenseActivity is the activity that redirects to the Play
+            // Store when the license check fails. By removing it from the
+            // manifest, even if the license check somehow runs, it can't
+            // start the redirect activity.
+            // ============================================================
+            val activities = document.getElementsByTagName("activity")
+            for (i in activities.length - 1 downTo 0) {
+                val activity = activities.item(i) as Element
+                if (activity.getAttribute("android:name")
+                        .contains("LicenseActivity")
+                ) {
+                    activity.parentNode.removeChild(activity)
+                }
+            }
+
+
+            // ============================================================
+            // HOOK 3: Remove CHECK_LICENSE permission
+            // ============================================================
+            // The CHECK_LICENSE permission is used by the Play Store
+            // licensing service. Since we're skipping the license check
+            // entirely, this permission is no longer needed.
+            // ============================================================
+            val permissions = document.getElementsByTagName("uses-permission")
+            for (i in permissions.length - 1 downTo 0) {
+                val permission = permissions.item(i) as Element
+                if (permission.getAttribute("android:name")
+                        .contains("CHECK_LICENSE")
+                ) {
+                    permission.parentNode.removeChild(permission)
+                }
+            }
+        }
     }
 }
