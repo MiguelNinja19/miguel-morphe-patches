@@ -111,10 +111,13 @@ val unlockAllPatch = bytecodePatch(
         "also removes all ads as a side effect (because the JS ad " +
         "functions check isPaidUser first), so this patch is a superset " +
         "of the 'Remove ads' patch. If you only want to remove ads " +
-        "without unlocking everything, use only the 'Remove ads' patch.",
+        "without unlocking everything, use only the 'Remove ads' patch. " +
+        "Requires the 'Bypass PairIP integrity check' patch.",
     default = false,
 ) {
     compatibleWith(CUBE_SOLVER)
+
+    dependsOn(bypassPairIPPatch)
 
     execute {
         // ============================================================
