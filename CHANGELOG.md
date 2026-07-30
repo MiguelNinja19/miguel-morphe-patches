@@ -1,3 +1,12 @@
+## [1.13.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.2...v1.13.3) (2026-07-30)
+
+### 🐛 Bug Fixes
+
+* **cubesolver:** fix compile error and add initializeLicenseCheck hook ([ed1d17d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ed1d17d7fcc13c931d9eae71f86ede723be50754))
+* **cubesolver:** fix compile error and add initializeLicenseCheck hook ([683b18c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/683b18c34a15c2da43e050399f1dd4a272ab5821))
+* **cubesolver:** improve PairIP bypass ([f2f16f7](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/f2f16f70e9610078f09d495f97679aaff246230c))
+* **cubesolver:** improve PairIP bypass ([66ae6f4](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/66ae6f4394e72798eb92d54ff65dd85da49e591c))
+
 ## [1.13.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.1...v1.13.2) (2026-07-30)
 
 ### 🐛 Bug Fixes
