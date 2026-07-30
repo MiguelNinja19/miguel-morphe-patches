@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.1...v1.13.2) (2026-07-30)
+
+### 🐛 Bug Fixes
+
+* **cubesolver:** improve PairIP bypass with single attachBaseContext hook ([cc19bbd](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cc19bbdf08045a76d530ed66d33038b5bbdc2575))
+* **cubesolver:** improve PairIP bypass with single attachBaseContext hook ([5ff103a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/5ff103a90d09f3d0bc542f811be6f32865d13566))
+
 ## [1.13.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.0...v1.13.1) (2026-07-30)
 
 ### 🐛 Bug Fixes
