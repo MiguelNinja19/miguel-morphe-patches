@@ -1,3 +1,13 @@
+## [1.13.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.4...v1.13.5) (2026-07-31)
+
+### 🐛 Bug Fixes
+
+* **cubesolver:** disable PairIP VM entirely and replace onCreate ([8f600b1](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8f600b16adaa44b27771c42270ca95426ed8639b))
+* **cubesolver:** disable PairIP VM entirely and replace onCreate ([4037504](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/40375042791850a50c5f093c97424f186f56e2ce))
+* **cubesolver:** move openPlayStore no-op to BypassPairIPPatch ([4b40d64](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4b40d648df123e7cdc0cc75462a8c33b5f5d3ce8))
+* **cubesolver:** split PairIP bypass into resource + bytecode patches (fixes CI) ([a187a6a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a187a6a6ca63cd5c0041ce44fbde56a62f7e4d2d))
+* **cubesolver:** split PairIP bypass into resource + bytecode patches (fixes CI) ([31f49bc](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/31f49bcf79841cc6c4b3d77e967c091906865073))
+
 ## [1.13.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.3...v1.13.4) (2026-07-30)
 
 ### 🐛 Bug Fixes
