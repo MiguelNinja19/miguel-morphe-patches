@@ -15,7 +15,7 @@
  * 3. Change manifest Application class — native code still runs via VM
  * 4. No-op k93.openPlayStore() — native code bypasses Java entirely
  *
- * THE FIX (VM bypass + manifest modification + onCreate replacement):
+ * THE FIX (VM bypass + onCreate replacement):
  *
  *   PART 1: No-op StartupLauncher.launch() to prevent the PairIP VM
  *   (libpairipcore.so) from starting. This prevents ALL native integrity
@@ -27,17 +27,15 @@
  *   WebView, configures it, registers the k93 JS bridge as "Android",
  *   and loads the game URL directly — no VM needed.
  *
- *   PART 3: Change AndroidManifest.xml to use com.jeffprod.cubesolver.App
- *   instead of com.pairip.application.Application.
+ *   PART 3: No-op k93.openPlayStore() to prevent JS-triggered redirects.
  *
- *   PART 4: Remove LicenseActivity and CHECK_LICENSE from manifest.
- *
- *   PART 5: No-op k93.openPlayStore() to prevent JS-triggered redirects.
+ *   The manifest modifications (Application class change, LicenseActivity
+ *   removal, CHECK_LICENSE removal) are handled by the companion patch
+ *   bypassPairIPManifestPatch (a resourcePatch), which this patch
+ *   depends on.
  *
  * This approach is inspired by RKPairip (github.com/TechnoIndian/RKPairip)
- * which removes ALL pairip code and restores method bodies. We can't do
- * full string restoration in a Morphe patch, but we CAN replace the one
- * critical method (onCreate) that the VM provides, making the VM unnecessary.
+ * which removes ALL pairip code and restores method bodies.
  *
  * This patch is REQUIRED for all other Cube Solver patches to work.
  */
@@ -50,7 +48,6 @@ import com.jeffprod.cubesolver.patches.shared.CUBE_SOLVER
 import com.jeffprod.cubesolver.patches.shared.OpenPlayStoreFingerprint
 import com.jeffprod.cubesolver.patches.shared.StartupLauncherFingerprint
 import com.jeffprod.cubesolver.patches.shared.MainActivityOnCreateFingerprint
-import org.w3c.dom.Element
 
 @Suppress("unused")
 val bypassPairIPPatch = bytecodePatch(
@@ -59,46 +56,20 @@ val bypassPairIPPatch = bytecodePatch(
         "disabling the PairIP VM (prevents native integrity checks and " +
         "Play Store redirects from libpairipcore.so), (2) replacing " +
         "MainActivity.onCreate with direct WebView setup (no VM needed), " +
-        "(3) changing the app class in manifest to skip PairIP " +
-        "Application, (4) removing LicenseActivity and CHECK_LICENSE, " +
-        "and (5) no-oping openPlayStore. The native library " +
+        "and (3) no-oping openPlayStore. The native library " +
         "libpairipcore.so is never loaded, so it can't do JNI-based " +
-        "redirects. REQUIRED for all other patches.",
+        "redirects. Also applies the manifest modifications from the " +
+        "companion 'Bypass PairIP manifest' patch. REQUIRED for all " +
+        "other patches.",
     default = true,
 ) {
     compatibleWith(CUBE_SOLVER)
 
+    dependsOn(bypassPairIPManifestPatch)
+
     execute {
         // ============================================================
-        // PART 1: Manifest modifications
-        // ============================================================
-        document("AndroidManifest.xml").use { document ->
-            val applicationElement =
-                document.getElementsByTagName("application").item(0) as Element
-            applicationElement.setAttribute(
-                "android:name",
-                "com.jeffprod.cubesolver.App",
-            )
-
-            val activities = document.getElementsByTagName("activity")
-            for (i in activities.length - 1 downTo 0) {
-                val activity = activities.item(i) as Element
-                if (activity.getAttribute("android:name").contains("LicenseActivity")) {
-                    activity.parentNode.removeChild(activity)
-                }
-            }
-
-            val permissions = document.getElementsByTagName("uses-permission")
-            for (i in permissions.length - 1 downTo 0) {
-                val permission = permissions.item(i) as Element
-                if (permission.getAttribute("android:name").contains("CHECK_LICENSE")) {
-                    permission.parentNode.removeChild(permission)
-                }
-            }
-        }
-
-        // ============================================================
-        // PART 2: No-op StartupLauncher.launch() — prevent VM from starting
+        // PART 1: No-op StartupLauncher.launch() — prevent VM from starting
         // ============================================================
         // This prevents libpairipcore.so from loading. The native library
         // has "android.intent.action.VIEW" and can redirect to Play Store
@@ -110,10 +81,10 @@ val bypassPairIPPatch = bytecodePatch(
         """.trimIndent())
 
         // ============================================================
-        // PART 3: Replace MainActivity.onCreate with direct WebView setup
+        // PART 2: Replace MainActivity.onCreate with direct WebView setup
         // ============================================================
         // The original onCreate uses PairIP VM reflection (aFGUz.pcKC).
-        // Since we disabled the VM (PART 2), aFGUz.pcKC would be null.
+        // Since we disabled the VM (PART 1), aFGUz.pcKC would be null.
         // We replace onCreate with a direct implementation that creates
         // the WebView, enables JS, registers the k93 JS bridge, and
         // loads the game URL — no VM needed.
@@ -161,7 +132,7 @@ val bypassPairIPPatch = bytecodePatch(
         """.trimIndent())
 
         // ============================================================
-        // PART 4: No-op k93.openPlayStore()
+        // PART 3: No-op k93.openPlayStore()
         // ============================================================
         OpenPlayStoreFingerprint.method.addInstructions(0, """
             return-void
