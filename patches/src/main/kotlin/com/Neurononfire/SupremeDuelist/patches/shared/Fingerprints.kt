@@ -45,23 +45,21 @@ object InitializeLicenseCheckFingerprint : Fingerprint(
  *
  * Entry point for purchases. We hook this to call nativeOnPurchasesUpdated
  * directly with success, skipping the Play Store dialog.
+ *
+ * NOTE: Uses name = "launchBillingFlow" instead of filters because the
+ * method is very large (28 locals) and doesn't directly call
+ * nativeOnPurchasesUpdated (that happens asynchronously via onPurchasesUpdated
+ * callback). Using name is more reliable.
  */
 object LaunchBillingFlowFingerprint : Fingerprint(
     definingClass = "Lcom/android/billingclient/api/BillingClientImpl;",
     accessFlags = listOf(AccessFlags.PUBLIC),
+    name = "launchBillingFlow",
     returnType = "Lcom/android/billingclient/api/BillingResult;",
     parameters = listOf(
         "Landroid/app/Activity;",
         "Lcom/android/billingclient/api/BillingFlowParams;",
     ),
-    filters = listOf(
-        methodCall(
-            definingClass = "Lcom/android/billingclient/api/zzbq;",
-            name = "nativeOnPurchasesUpdated",
-            parameters = listOf("I", "Ljava/lang/String;", "[Lcom/android/billingclient/api/Purchase;"),
-            returnType = "V",
-        ),
-    )
 )
 
 /**
