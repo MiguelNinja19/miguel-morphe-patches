@@ -1,3 +1,14 @@
+## [1.14.0-dev.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.6...v1.14.0-dev.1) (2026-08-16)
+
+### ✨ New Features
+
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([39b02ed](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/39b02edd571c430e3b63658040af4c03e2b2e921))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([b5b460e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b5b460e92c089fb0a075c68b6f9a44c0cb27e69f))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([fbaea0b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fbaea0b157f3bc1517f50452b2ce12d2ff7c7ebd))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([8252689](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8252689bdbe91dbb20bbe72cd322f05821694e2f))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([d87e20c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d87e20c25c684281aa532fa43681e204b95e3594))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([8c4a683](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8c4a68310522f08217909a2c7a5c86b01f1c94d5))
+
 ## [1.13.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.5...v1.13.6) (2026-08-16)
 
 ### 🐛 Bug Fixes
