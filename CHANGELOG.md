@@ -1,3 +1,10 @@
+## [1.14.0-dev.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.2...v1.14.0-dev.3) (2026-08-16)
+
+### 🐛 Bug Fixes
+
+* **supreme:** expand hex patches to 14 unlock + 3 coin methods (fixes weapons, skins, ads) ([ebbf919](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ebbf919f65ed017fb7a4cdc063b48d045ab71895))
+* **supreme:** expand hex patches to 14 unlock + 3 coin methods (fixes weapons, skins, ads)" ([a1e0907](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a1e0907cfe6bbec51eab6a0a8c87277c1cb644e7))
+
 ## [1.14.0-dev.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.1...v1.14.0-dev.2) (2026-08-16)
 
 ### 🐛 Bug Fixes
