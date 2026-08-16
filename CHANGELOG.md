@@ -1,3 +1,9 @@
+## [1.13.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.5...v1.13.6) (2026-08-16)
+
+### 🐛 Bug Fixes
+
+* **cubesolver:** remove ([d69291c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d69291c49da4c7868bc026af2d4cd74408b061af))
+
 ## [1.13.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.4...v1.13.5) (2026-07-31)
 
 ### 🐛 Bug Fixes
