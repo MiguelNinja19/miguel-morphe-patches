@@ -1,3 +1,9 @@
+## [1.14.0-dev.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.1...v1.14.0-dev.2) (2026-08-16)
+
+### 🐛 Bug Fixes
+
+* **supreme:** fix LaunchBillingFlowFingerprint match (use name instead of filter) ([1b470a9](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1b470a951f8e0ad068872a5345e5490d215ecc68))
+
 ## [1.14.0-dev.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.6...v1.14.0-dev.1) (2026-08-16)
 
 ### ✨ New Features
