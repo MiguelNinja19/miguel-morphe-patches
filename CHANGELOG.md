@@ -1,3 +1,10 @@
+## [1.14.0-dev.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.3...v1.14.0-dev.4) (2026-08-16)
+
+### 🐛 Bug Fixes
+
+* **supreme:** fix black screen crash by removing unsafe hex patches ([fe3c040](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fe3c0407d494ca8af3f635b68062b1400ab74124))
+* **supreme:** fix black screen crash by removing unsafe hex patches ([e020eb6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e020eb61fc7c140760aa532e726f1b54578d7609))
+
 ## [1.14.0-dev.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.2...v1.14.0-dev.3) (2026-08-16)
 
 ### 🐛 Bug Fixes
