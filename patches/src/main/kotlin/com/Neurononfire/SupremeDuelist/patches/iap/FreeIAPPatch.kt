@@ -1,10 +1,3 @@
-/*
- * Free In-App Purchases patch for Supreme Duelist Stickman.
- *
- * Hooks BillingClientImpl.launchBillingFlow and zzbq.onPurchasesUpdated
- * to make every purchase succeed instantly without contacting Google Play.
- */
-
 package com.Neurononfire.SupremeDuelist.patches.iap
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
@@ -14,46 +7,66 @@ import com.Neurononfire.SupremeDuelist.patches.shared.LaunchBillingFlowFingerpri
 import com.Neurononfire.SupremeDuelist.patches.shared.OnPurchasesUpdatedFingerprint
 
 @Suppress("unused")
-val freeIAPPatch = bytecodePatch(
-    name = "Free in-app purchases",
-    description = "Makes every IAP purchase succeed instantly without " +
-        "contacting Google Play Billing. When the user taps 'Buy' on " +
-        "any product (Remove Ads), the purchase is credited immediately.",
-    default = true,
+val freeIapPatch = bytecodePatch(
+    name = "Free in-app purchases (optional)",
+    description = "Skips Google Play Billing and credits IAP items " +
+        "(Remove Ads) directly. OPTIONAL: The other patches already " +
+        "give you unlimited coins and no ads.",
+    default = false,
 ) {
     compatibleWith(SUPREME_DUELIST)
 
     execute {
-        // HOOK 1: launchBillingFlow -> call nativeOnPurchasesUpdated(0, "", [])
-        LaunchBillingFlowFingerprint.method.addInstructions(0, """
+        OnPurchasesUpdatedFingerprint.method.addInstructions(0, """
             const/4 v0, 0x0
             new-array v1, v0, [Lcom/android/billingclient/api/Purchase;
             const-string v2, ""
             invoke-static {v0, v2, v1}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
-            invoke-static {}, Lcom/android/billingclient/api/BillingResult;->newBuilder()Lcom/android/billingclient/api/BillingResult${'$'}Builder;
-            move-result-object v3
-            invoke-virtual {v3, v0}, Lcom/android/billingclient/api/BillingResult${'$'}Builder;->setResponseCode(I)Lcom/android/billingclient/api/BillingResult${'$'}Builder;
-            invoke-virtual {v3}, Lcom/android/billingclient/api/BillingResult${'$'}Builder;->build()Lcom/android/billingclient/api/BillingResult;
-            move-result-object v0
-            return-object v0
+            return-void
         """.trimIndent())
 
-        // HOOK 2: onPurchasesUpdated -> force responseCode=0
-        OnPurchasesUpdatedFingerprint.method.addInstructions(0, """
-            if-nez p2, :has_purchases
-            invoke-static {}, Ljava/util/Collections;->emptyList()Ljava/util/List;
-            move-result-object p2
-            :has_purchases
-            invoke-interface {p2}, Ljava/util/List;->size()I
-            move-result v0
-            new-array v1, v0, [Lcom/android/billingclient/api/Purchase;
-            invoke-interface {p2, v1}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
-            move-result-object v2
-            check-cast v2, [Lcom/android/billingclient/api/Purchase;
-            const/4 v0, 0x0
-            const-string v3, ""
-            invoke-static {v0, v3, v2}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
-            return-void
+        LaunchBillingFlowFingerprint.method.addInstructions(0, """
+            invoke-virtual {p2}, Lcom/android/billingclient/api/BillingFlowParams;->zzk()Ljava/util/List;
+            move-result-object v0
+            if-eqz v0, :return_success
+            invoke-interface {v0}, Ljava/util/List;->size()I
+            move-result v1
+            if-eqz v1, :return_success
+            const/4 v1, 0x0
+            invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+            move-result-object v0
+            check-cast v0, Lcom/android/billingclient/api/BillingFlowParams$ProductDetailsParams;
+            invoke-virtual {v0}, Lcom/android/billingclient/api/BillingFlowParams$ProductDetailsParams;->zza()Lcom/android/billingclient/api/ProductDetails;
+            move-result-object v0
+            if-eqz v0, :return_success
+            invoke-virtual {v0}, Lcom/android/billingclient/api/ProductDetails;->getProductId()Ljava/lang/String;
+            move-result-object v0
+            if-eqz v0, :return_success
+            const-string v1, "{\"productId\":\"%s\",\"purchaseToken\":\"supreme_mod\",\"packageName\":\"com.Neurononfire.SupremeDuelist\",\"purchaseState\":1,\"purchaseTime\":1700000000000,\"acknowledged\":true}"
+            const/4 v2, 0x1
+            new-array v3, v2, [Ljava/lang/Object;
+            const/4 v4, 0x0
+            aput-object v0, v3, v4
+            invoke-static {v1, v3}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+            move-result-object v0
+            const-string v1, ""
+            new-instance v2, Lcom/android/billingclient/api/Purchase;
+            invoke-direct {v2, v0, v1}, Lcom/android/billingclient/api/Purchase;-><init>(Ljava/lang/String;Ljava/lang/String;)V
+            const/4 v3, 0x1
+            new-array v4, v3, [Lcom/android/billingclient/api/Purchase;
+            const/4 v5, 0x0
+            aput-object v2, v4, v5
+            const/4 v5, 0x0
+            const-string v6, ""
+            invoke-static {v5, v6, v4}, Lcom/android/billingclient/api/zzbq;->nativeOnPurchasesUpdated(ILjava/lang/String;[Lcom/android/billingclient/api/Purchase;)V
+            :return_success
+            invoke-static {}, Lcom/android/billingclient/api/BillingResult;->newBuilder()Lcom/android/billingclient/api/BillingResult$Builder;
+            move-result-object v0
+            const/4 v1, 0x0
+            invoke-virtual {v0, v1}, Lcom/android/billingclient/api/BillingResult$Builder;->setResponseCode(I)Lcom/android/billingclient/api/BillingResult$Builder;
+            invoke-virtual {v0}, Lcom/android/billingclient/api/BillingResult$Builder;->build()Lcom/android/billingclient/api/BillingResult;
+            move-result-object v0
+            return-object v0
         """.trimIndent())
     }
 }
