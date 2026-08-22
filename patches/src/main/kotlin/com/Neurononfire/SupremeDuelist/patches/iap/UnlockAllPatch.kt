@@ -82,13 +82,12 @@ private val PATCHES: List<HexPatch> = listOf(
         NOP,
         "AchatColor #3: NOP b.hs (coin check, third)"),
 
-    // 6. buyMiniGames: NOP b.ls at 0x0197bdc8 (after cmp w9, #3)
-    HexPatch(0x0197bdc8,
-        hb(0x49, 0x31, 0x00, 0x54),
-        NOP,
-        "buyMiniGames: NOP b.ls (coin check)"),
+    // NOTE: buyMiniGames REMOVED — NOPing its b.ls breaks mode
+    // initialization (all modes show as "boss fights"). With
+    // UnlimitedCoinsPatch active, the player has infinite coins to
+    // buy modes normally.
 
-    // 7. RemoveAds.get_AdsRemoved: mov w0,#1; ret at 0x01a0b24c
+    // 6. RemoveAds.get_AdsRemoved: mov w0,#1; ret at 0x01a0b24c
     //    Original: e0 03 13 aa (mov x0, x19) + f4 4f 42 a9 (ldp x20, x19, [sp, #0x20])
     //    Patched:  20 00 80 52 (mov w0, #1) + c0 03 5f d6 (ret)
     HexPatch(0x01a0b24c,
@@ -116,11 +115,13 @@ val unlockAllPatch = rawResourcePatch(
     description = "Hex patches libil2cpp.so to: " +
         "(1) NOP level checks in AchatWeapon (pattern-based: " +
         "searches for cmp w9, #51 + b.lt and cmp w9, #499 + b.lt). " +
-        "(2) NOP coin checks in AchatWeapon, AchatSkin, AchatColor (3x), " +
-        "buyMiniGames (offset-based, verified on 67MB lib). " +
+        "(2) NOP coin checks in AchatWeapon, AchatSkin, AchatColor (3x) " +
+        "(offset-based, verified on 67MB lib). " +
         "(3) Patch RemoveAds.get_AdsRemoved to always return true. " +
-        "Combined with UnlimitedCoinsPatch: unlimited coins + all " +
-        "weapons (no level req!) + all skins/colors/modes + no ads.",
+        "buyMiniGames is NOT patched (breaks mode init — use " +
+        "UnlimitedCoinsPatch to buy modes with infinite coins). " +
+        "Combined: unlimited coins + all weapons (no level req!) + " +
+        "all skins/colors + no ads.",
     default = true,
 ) {
     compatibleWith(SUPREME_DUELIST)
