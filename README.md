@@ -20,7 +20,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.14.0-dev.4](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.14.0-dev.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;20 patches total
+> **[v1.14.0-dev.5](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.14.0-dev.5)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;20 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -43,16 +43,16 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 
 **🎯 Supported versions:**
 
-| 4.0.5 |
-| :---: |
+| 4.0.5 | 4.0.4 |
+| :---: | :---: |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Bypass PairIP license check](#bypass-pairip-license-check) | Bypasses the PairIP license check by (1) no-oping LicenseClient.checkLicense (static, from attachBaseContext), (2) no-oping LicenseClient.initializeLicenseCheck (instance, from any caller), and (3) modifying AndroidManifest to skip the PairIP Application class, remove LicenseActivity, and remove CHECK_LICENSE permission. This app uses a simple PairIP setup (no VM, no signature check) — only the license check. |  |
-| [Bypass PairIP manifest](#bypass-pairip-manifest) | Modifies AndroidManifest.xml to skip the PairIP Application class, remove LicenseActivity, and remove CHECK_LICENSE permission. Part of the PairIP bypass. |  |
-| [Free in-app purchases](#free-in-app-purchases) | Makes every IAP purchase succeed instantly without contacting Google Play Billing. When the user taps 'Buy' on any product (Remove Ads), the purchase is credited immediately. |  |
-| [Unlimited coins](#unlimited-coins) | Hex patches libil2cpp.so to skip SaveCoins only. This prevents the game from persisting coin deductions — when you spend coins, the reduced amount is never saved. Your balance stays unlimited across sessions. Does NOT affect SavePlayerData or SavePlayerProfile (those caused crashes). |  |
-| [Unlock all (no ads + skip rewarded ads)](#unlock-all-no-ads-skip-rewarded-ads) | Hex patches libil2cpp.so to: (1) make get_AdsRemoved return true (No Ads purchased), (2) skip all rewarded ads (ShowRewardedWeaponAd, WatchReward, WatchRewardedAd, SkinAd) while still granting the rewards. Combined with the 'Unlimited coins' patch, the player can buy everything without losing coins. |  |
+| [Bypass PairIP license check](#bypass-pairip-license-check) | No-ops LicenseClient.checkLicense(Context) and LicenseClient.initializeLicenseCheck() to prevent the PairIP license verification from running. Required for the app to start when installed via Morphe/SAI (not from Play Store). |  |
+| [Free ads rewards (skip ad, grant unlock)](#free-ads-rewards-skip-ad-grant-unlock) | Patches ShowRewardedWeaponAd (and similar ad-reward methods) to skip the ad display and immediately grant the reward (weapon/skin/map unlock). Searches for the pattern 'ldr w9, [x8, #0xec]; cmp w9, #7; b.eq; cmp w9, #9; b.ne' and NOPs both conditional branches. This makes the code always fall through to the unlock branch regardless of ad state. Default OFF — enable only if you want all ad-rewarded content unlocked for free. |  |
+| [Free in-app purchases (optional)](#free-in-app-purchases-optional) | Skips Google Play Billing and credits IAP items (Remove Ads) directly. OPTIONAL: The other patches already give you unlimited coins and no ads. |  |
+| [Unlimited coins (real - patches coin deduction)](#unlimited-coins-real-patches-coin-deduction) | Real unlimited coins patch. Searches libil2cpp.so for the centralized coin-deduction pattern (sub w8, w8, w21; ...; str w8, [xN, #0x18]) and NOPs the final str instruction in every match. The game will read Coins, subtract the price, but never write the deducted value back — so Coins never decreases. Pattern-based, so works across game versions 4.0.4 and 4.0.5 (il2cpp v29 and v31). Found 55 matches in the ORIGINAL 4.0.5 lib (verified by sha256). Each patch verified before applying. |  |
+| [Unlock all (weapons, modes, no ads + level bypass)](#unlock-all-weapons-modes-no-ads-level-bypass) | Hex patches libil2cpp.so at VERIFIED offsets to: (1) NOP the level checks in AchatWeapon (2 level checks: level >= 51 and counter >= 499) — REMOVES LEVEL REQUIREMENT! (2) NOP the coin check in AchatWeapon (free weapons, price=50). (3) NOP the coin check in buyMiniGames (free mini-games). (4) Patch RemoveAds.get_AdsRemoved to always return true (no ads). Combined with UnlimitedCoinsPatch (which prevents coins from decreasing), this gives the player: unlimited coins + all weapons unlocked (no level requirement!) + all modes + no ads. Skins and colors are NOT patched here because their coin check pattern appears hundreds of times in a loop and would be unsafe to NOP — with unlimited coins, the player can buy them anyway. All offsets verified against the ORIGINAL 4.0.5 lib (61MB, il2cpp v31, sha256 starts with 1a7400ee). |  |
 
 </details>
 
