@@ -44,17 +44,20 @@ import app.morphe.patcher.patch.rawResourcePatch
 import com.Neurononfire.SupremeDuelist.patches.shared.SUPREME_DUELIST
 import java.util.logging.Logger
 
-private val NOP = byteArrayOf(0x1f, 0x20, 0x03, 0xd5)
+// Helper to create byte arrays from hex ints (avoids .toByte() on each)
+private fun hb(vararg ints: Int): ByteArray = ByteArray(ints.size) { ints[it].toByte() }
+
+private val NOP = hb(0x1f, 0x20, 0x03, 0xd5)
 
 // Pattern: ldr w9, [x8, #0xec]; cmp w9, #7; b.eq; cmp w9, #9; b.ne
-private val LDR_W9_0xEC = byteArrayOf(0x09, 0xed.toByte(), 0x40, 0xb9.toByte())
-private val CMP_W9_7 = byteArrayOf(0x3f, 0x1d, 0x00, 0x71)
-private val CMP_W9_9 = byteArrayOf(0x3f, 0x25, 0x00, 0x71)
+private val LDR_W9_0xEC = hb(0x09, 0xed, 0x40, 0xb9)
+private val CMP_W9_7 = hb(0x3f, 0x1d, 0x00, 0x71)
+private val CMP_W9_9 = hb(0x3f, 0x25, 0x00, 0x71)
 
 // b.eq: 0x54xxxxx0 (condition 0 = EQ, lowest 4 bits = 0)
 // b.ne: 0x54xxxxx1 (condition 1 = NE, lowest 4 bits = 1)
 private fun isBCond(word: Int, cond: Int): Boolean =
-    (word and 0xFF000000) == 0x54000000 && (word and 0xF) == cond
+    (word and 0xFF000000.toInt()) == 0x54000000 && (word and 0xF) == cond
 
 @Suppress("unused")
 val freeAdsRewardsPatch = rawResourcePatch(
