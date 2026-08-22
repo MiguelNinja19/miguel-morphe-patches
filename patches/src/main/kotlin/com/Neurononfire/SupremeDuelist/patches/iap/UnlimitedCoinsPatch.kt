@@ -60,15 +60,29 @@ private val NOP = hb(0x1f, 0x20, 0x03, 0xd5)
 // Encoding: 0x4B150108 -> LE bytes: 08 01 15 4B
 private val SUB_W8_W8_W21 = hb(0x08, 0x01, 0x15, 0x4b)
 
+// Constants used in ARM64 instruction pattern matching.
+// All values are explicitly typed as Int (hex literals that exceed
+// Int.MAX_VALUE are interpreted as the corresponding signed Int via
+// two's complement — this is valid Kotlin syntax).
+private const val STR_W8_OFFSET_0x18_BASE: Int = 0xB9001800
+private const val STR_W8_OFFSET_0x18_MASK: Int = 0xFFFFFC00
+private const val STR_W8_RT_MASK: Int = 0x1F
+private const val STR_W8_RT_EXPECTED: Int = 0x08
+private const val BRANCH_B_OPCODE_MASK: Int = 0xFC000000
+private const val BRANCH_B_OPCODE: Int = 0x14000000
+private const val BRANCH_BL_OPCODE: Int = 0x94000000
+private const val RET_OPCODE_MASK: Int = 0xFFFFFC00
+private const val RET_OPCODE: Int = 0xD65F0000
+
 // "str w8, [xN, #0x18]" detection:
 // The opcode is 0xB9001800 | (Rn << 5) | 8 (Rt=8 for w8)
 // Mask the top 22 bits (0xFFFFFC00) to identify the instruction,
 // and check that Rt=8 (lowest 5 bits = 0x08)
 private fun isStrW8Offset0x18(word: Int): Boolean {
     // Top 22 bits must be 0xB900_1800 (STR Wt, [Xn, #0x18])
-    if ((word and 0xFFFFFC00) != 0xB9001800) return false
+    if ((word and STR_W8_OFFSET_0x18_MASK) != STR_W8_OFFSET_0x18_BASE) return false
     // Lowest 5 bits must be 0x08 (Rt = w8)
-    if ((word and 0x1F) != 0x08) return false
+    if ((word and STR_W8_RT_MASK) != STR_W8_RT_EXPECTED) return false
     return true
 }
 
@@ -127,10 +141,10 @@ val unlimitedCoinsPatch = rawResourcePatch(
                         break
                     }
                     // If we hit a branch/ret before finding the str, give up
-                    if ((word and 0xFC000000) == 0x14000000 ||  // b
-                        (word and 0xFC000000) == 0x94000000 ||  // bl
-                        (word and 0xFFFFFC00) == 0xD65F0000      // ret
-                    ) {
+                    val isB = (word and BRANCH_B_OPCODE_MASK) == BRANCH_B_OPCODE
+                    val isBl = (word and BRANCH_B_OPCODE_MASK) == BRANCH_BL_OPCODE
+                    val isRet = (word and RET_OPCODE_MASK) == RET_OPCODE
+                    if (isB || isBl || isRet) {
                         break
                     }
                 }
