@@ -1,3 +1,86 @@
+## [1.14.0-dev.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.8...v1.14.0-dev.9) (2026-08-22)
+
+### 🐛 Bug Fixes
+
+* **supreme:** NOP both str AND b.le after coin deduction ([8823c21](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8823c215d653432ff2d25a0fe11b3ca35fbdb480)), closes [#0x18](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/0x18) [#0x18](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/0x18) [#fail](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/fail)
+
+## [1.14.0-dev.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.7...v1.14.0-dev.8) (2026-08-22)
+
+### 🐛 Bug Fixes
+
+* **supreme:** remove buyMiniGames NOP that breaks mode initialization ([35e48f2](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/35e48f2dc8b97d039c8bca8c31c6fb271fe9ee61))
+
+## [1.14.0-dev.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.6...v1.14.0-dev.7) (2026-08-22)
+
+### 🐛 Bug Fixes
+
+* **supreme:** revert to 67MB lib offsets + pattern-based level checks ([cd0af9e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cd0af9edf18a9cb52cc7d3d0a1167406bae4398d)), closes [#51](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/51) [#499](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/499)
+
+## [1.14.0-dev.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.5...v1.14.0-dev.6) (2026-08-22)
+
+### 🐛 Bug Fixes
+
+* **supreme:** use triple-quoted string for smali dollar signs ([254a28b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/254a28bba89389b05ea77ffb33e71ad1c2d813d6))
+
+## [1.14.0-dev.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.4...v1.14.0-dev.5) (2026-08-22)
+
+### 🐛 Bug Fixes
+
+* **supreme:** add missing .toInt() on 0x94000000 Long literal ([49b8bb0](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/49b8bb02e2e8d0e48b3c87faf629d2cc23fbbd48))
+* **supreme:** correct morphe imports, use hb() helper, fix type mismatches ([ccfd6d1](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ccfd6d1450b1af7a025357788a7ff67d9098ce8e))
+* **supreme:** correct morphe imports, use hb() helper, fix type mismatches ([6a25215](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/6a252156de23f7a25f6b3a34ce0ec5e3e97c5151))
+* **supreme:** correct morphe imports, use hb() helper, fix type mismatches ([9094807](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/909480771d162d44ce184bf3cabe7ff8dbb94df3))
+* **supreme:** correct morphe imports, use hb() helper, fix type mismatches ([8b67d8a](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8b67d8a6c9640b923d02de4480202394d7998334))
+* **supreme:** correct morphe imports, use hb() helper, fix type mismatches ([86d53c1](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/86d53c1bcb8083fdb96d8344e5179cbd81351188))
+* **supreme:** correct morphe imports, use hb() helper, fix type mismatches ([104334d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/104334d810c7768cb991c160f0eafe8b636406f4))
+* **supreme:** correct morphe imports, use hb() helper, fix type mismatches ([9ec80c5](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/9ec80c57e23e9fc970a4c1eb3e9eaf3fdda895a5))
+* **supreme:** escape dollar signs in smali strings, type hex literals as Int ([d57e841](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d57e841d16b74002c645ee83aee1b8ba8330baec))
+* **supreme:** escape dollar signs in smali strings, type hex literals as Int ([3641360](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/36413609743fad6edcc0c539f2bcea6a2ae8bd5e))
+* **supreme:** escape dollar signs in smali strings, type hex literals as Int ([8afcff5](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8afcff53369cde5dff71800a52339bb9eac74539))
+* **supreme:** use .toInt() instead of const val for Long hex literals ([f67dd73](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/f67dd73e156445abc933c0ca7044f32f1bdf4bfa))
+* **supreme:** use .toInt() instead of const val for Long hex literals ([7c97b02](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/7c97b02a620609937a957c8e8335d193ee203750))
+
+### ✨ New Features
+
+* **supreme:** add unlock all + level bypass + unlimited coins for v4.0.5 ([dcca631](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/dcca6310511a7ec60514b976b72ecb690a67214a))
+* **supreme:** add unlock all + level bypass + unlimited coins for v4.0.5 ([375714d](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/375714da1c8f3b36cd0968beb9e934629401b654))
+* **supreme:** add unlock all + level bypass + unlimited coins for v4.0.5 ([380c139](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/380c1393d1316a71957e519aa9bfa0afe537b129))
+* **supreme:** add unlock all + level bypass + unlimited coins for v4.0.5 ([a1f199c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a1f199cccd6767ef48f22b48d46fd33b4a7aaad7))
+* **supreme:** add unlock all + level bypass + unlimited coins for v4.0.5 ([df23380](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/df23380b13460a84a71e2c482b889e3b68e909ac))
+* **supreme:** add unlock all + level bypass + unlimited coins for v4.0.5 ([56dccb6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/56dccb66fa9ddc7d56972338a81bfe34bfc8f42d))
+* **supreme:** add unlock all + level bypass + unlimited coins for v4.0.5 ([b030ab4](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b030ab4f9c706abd453b7b876ea87084f2d627a6))
+
+## [1.14.0-dev.4](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.3...v1.14.0-dev.4) (2026-08-16)
+
+### 🐛 Bug Fixes
+
+* **supreme:** fix black screen crash by removing unsafe hex patches ([fe3c040](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fe3c0407d494ca8af3f635b68062b1400ab74124))
+* **supreme:** fix black screen crash by removing unsafe hex patches ([e020eb6](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/e020eb61fc7c140760aa532e726f1b54578d7609))
+
+## [1.14.0-dev.3](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.2...v1.14.0-dev.3) (2026-08-16)
+
+### 🐛 Bug Fixes
+
+* **supreme:** expand hex patches to 14 unlock + 3 coin methods (fixes weapons, skins, ads) ([ebbf919](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/ebbf919f65ed017fb7a4cdc063b48d045ab71895))
+* **supreme:** expand hex patches to 14 unlock + 3 coin methods (fixes weapons, skins, ads)" ([a1e0907](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/a1e0907cfe6bbec51eab6a0a8c87277c1cb644e7))
+
+## [1.14.0-dev.2](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.1...v1.14.0-dev.2) (2026-08-16)
+
+### 🐛 Bug Fixes
+
+* **supreme:** fix LaunchBillingFlowFingerprint match (use name instead of filter) ([1b470a9](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/1b470a951f8e0ad068872a5345e5490d215ecc68))
+
+## [1.14.0-dev.1](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.6...v1.14.0-dev.1) (2026-08-16)
+
+### ✨ New Features
+
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([39b02ed](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/39b02edd571c430e3b63658040af4c03e2b2e921))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([b5b460e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/b5b460e92c089fb0a075c68b6f9a44c0cb27e69f))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([fbaea0b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fbaea0b157f3bc1517f50452b2ce12d2ff7c7ebd))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([8252689](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8252689bdbe91dbb20bbe72cd322f05821694e2f))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([d87e20c](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/d87e20c25c684281aa532fa43681e204b95e3594))
+* **supreme:** add 4 patches for Supreme Duelist Stickman v4.0.5 ([8c4a683](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8c4a68310522f08217909a2c7a5c86b01f1c94d5))
+
 ## [1.13.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.13.5...v1.13.6) (2026-08-16)
 
 ### 🐛 Bug Fixes

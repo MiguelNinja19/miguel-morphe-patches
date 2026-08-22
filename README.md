@@ -20,7 +20,7 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 ## 🩹 Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.13.6](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.13.6)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;15 patches total
+> **[v1.14.0-dev.9](https://github.com/MiguelNinja19/miguel-morphe-patches/releases/tag/v1.14.0-dev.9)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;20 patches total
 <details open>
 <summary>📦 Hunter Assassin&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -34,6 +34,25 @@ https://github.com/MiguelNinja19/miguel-morphe-patches
 |----------|----------------|-----------|
 | [Auto reward ads](#auto-reward-ads) | When a rewarded ad is closed, the game always thinks you watched the entire ad. You get the reward even if you skip or close the ad immediately. |  |
 | [Unlimited gems, rubies & unlock all](#unlimited-gems-rubies-unlock-all) | Sets gems, rubies (diamonds), keys and tickets to 9999999. Unlocks VIP (removes ads + VIP rewards + Ninja Assassin VIP character), all assassin characters (2-44), including all Legendary characters (Scarecrow, Dracula, Thor, Wolverine, Myers, Santa, Grinch, Nutcracker, Cricket Player), and all special knives. |  |
+
+</details>
+
+<details open>
+<summary>📦 Supreme Duelist Stickman&nbsp;&nbsp;•&nbsp;&nbsp;5 patches</summary>
+<br>
+
+**🎯 Supported versions:**
+
+| 4.0.5 | 4.0.4 |
+| :---: | :---: |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Bypass PairIP license check](#bypass-pairip-license-check) | No-ops LicenseClient.checkLicense(Context) and LicenseClient.initializeLicenseCheck() to prevent the PairIP license verification from running. Required for the app to start when installed via Morphe/SAI (not from Play Store). |  |
+| [Free ads rewards (skip ad, grant unlock)](#free-ads-rewards-skip-ad-grant-unlock) | Patches ShowRewardedWeaponAd (and similar ad-reward methods) to skip the ad display and immediately grant the reward (weapon/skin/map unlock). Searches for the pattern 'ldr w9, [x8, #0xec]; cmp w9, #7; b.eq; cmp w9, #9; b.ne' and NOPs both conditional branches. This makes the code always fall through to the unlock branch regardless of ad state. Default OFF — enable only if you want all ad-rewarded content unlocked for free. |  |
+| [Free in-app purchases (optional)](#free-in-app-purchases-optional) | Skips Google Play Billing and credits IAP items (Remove Ads) directly. OPTIONAL: The other patches already give you unlimited coins and no ads. |  |
+| [Unlimited coins (real - patches coin deduction + branch)](#unlimited-coins-real-patches-coin-deduction-branch) | Real unlimited coins patch. Searches libil2cpp.so for the coin-deduction pattern (sub w8, w8, w21; ...; str w8, [xN, #0x18]; b.le/b.lt) and NOPs BOTH the str instruction AND the conditional branch that follows it. Previous version only NOPed the str, but the b.le still canceled purchases because the subs instruction set the 'less than' flag. |  |
+| [Unlock all (weapons, skins, colors, modes, no ads + level bypass)](#unlock-all-weapons-skins-colors-modes-no-ads-level-bypass) | Hex patches libil2cpp.so to: (1) NOP level checks in AchatWeapon (pattern-based: searches for cmp w9, #51 + b.lt and cmp w9, #499 + b.lt). (2) NOP coin checks in AchatWeapon, AchatSkin, AchatColor (3x) (offset-based, verified on 67MB lib). (3) Patch RemoveAds.get_AdsRemoved to always return true. buyMiniGames is NOT patched (breaks mode init — use UnlimitedCoinsPatch to buy modes with infinite coins). Combined: unlimited coins + all weapons (no level req!) + all skins/colors + no ads. |  |
 
 </details>
 
