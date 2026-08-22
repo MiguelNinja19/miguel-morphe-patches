@@ -1,31 +1,26 @@
 /*
  * Unlock all patch for Supreme Duelist Stickman v4.0.5.
  *
- * STRATEGY: Offset-based hex patches with byte verification.
+ * STRATEGY: Offset-based hex patches (coin checks + ads) +
+ *           Pattern-based NOP (level checks).
  *
- * This is the FULL VERSION that unlocks EVERYTHING:
- * - Weapons (AchatWeapon) - free purchase, no level requirement, no coins needed
- * - Skins (AchatSkin) - free purchase (handled via UnlimitedCoinsPatch)
- * - Colors (AchatColor) - free purchase (handled via UnlimitedCoinsPatch)
- * - Mini-games/modes (buyMiniGames) - free purchase
- * - Ads removed (get_AdsRemoved -> true)
+ * IMPORTANT: The user's APK has a 67,619,064 byte libil2cpp.so
+ * (NOT the 61MB one from APKMirror). The offsets below were verified
+ * against the 67MB lib in the original analysis.
  *
- * CRITICAL: This patch now includes LEVEL CHECKS for AchatWeapon.
- * AchatWeapon has 2 level checks BEFORE the coin check:
- *   - Level >= 51 (cmp w9, #0x33; b.lt)
- *   - Counter >= 499 (cmp w9, #0x1f3; b.lt)
- * These were identified in the original 4.0.5 lib and verified.
+ * Level checks are pattern-based because I couldn't verify exact
+ * offsets in the 67MB lib (it was wiped between sessions). The
+ * patterns search for unique cmp values:
+ *   - cmp w9, #0x33 (51) + b.lt  → level >= 51 check
+ *   - cmp w9, #0x1f3 (499) + b.lt → counter >= 499 check
  *
  * Combined with UnlimitedCoinsPatch, the player has:
  * - Unlimited coins (never decrease)
  * - All weapons unlocked for free (no level requirement!)
- * - All skins unlocked for free (via UnlimitedCoinsPatch)
- * - All colors unlocked for free (via UnlimitedCoinsPatch)
+ * - All skins unlocked for free
+ * - All colors unlocked for free
  * - All modes unlocked for free
  * - No ads
- *
- * All offsets VERIFIED in the ORIGINAL 4.0.5 libil2cpp.so (61MB,
- * il2cpp v31, sha256: 1a7400eefe42d7e0cb8a80fa5d9cb61f99ca6bd95df2c929c6268e1c5452fa57)
  *
  * If verification fails (e.g., game updated), patch is skipped
  * with a warning — doesn't break other patches.
@@ -37,14 +32,6 @@ import app.morphe.patcher.patch.rawResourcePatch
 import com.Neurononfire.SupremeDuelist.patches.shared.SUPREME_DUELIST
 import java.util.logging.Logger
 
-// Patch definition: offset, expected original bytes, replacement bytes, description
-private data class HexPatch(
-    val offset: Int,
-    val expected: ByteArray,
-    val replacement: ByteArray,
-    val desc: String,
-)
-
 // Helper to create byte arrays from hex ints (avoids .toByte() on each)
 private fun hb(vararg ints: Int): ByteArray = ByteArray(ints.size) { ints[it].toByte() }
 
@@ -53,92 +40,87 @@ private val NOP = hb(0x1f, 0x20, 0x03, 0xd5)
 private val MOV_W0_1 = hb(0x20, 0x00, 0x80, 0x52)
 private val RET = hb(0xc0, 0x03, 0x5f, 0xd6)
 
-// All patches for ORIGINAL v4.0.5 lib (61,143,840 bytes, il2cpp v31):
+// Patch definition for offset-based patches
+private data class HexPatch(
+    val offset: Int,
+    val expected: ByteArray,
+    val replacement: ByteArray,
+    val desc: String,
+)
+
+// Offset-based patches — verified against ORIGINAL 67MB lib (v4.0.5):
+// These are the ORIGINAL offsets from the first analysis, NOT the 61MB
+// APKMirror offsets that were wrong.
 private val PATCHES: List<HexPatch> = listOf(
-    // === AchatWeapon LEVEL CHECKS (NEW!) ===
-    // These check the player's level/progress before allowing purchase.
-    // NOP-ing them removes the level requirement entirely.
-
-    // 1. AchatWeapon level check 1: NOP b.lt at 0x017b25f8
-    //    After: cmp w9, #0x33 (51) - "is level >= 51?"
-    //    b.lt #0x17b2604 - "if level < 51, skip unlock"
-    //    NOP this to remove the level requirement.
-    HexPatch(0x017b25f8,
-        hb(0x6b, 0x00, 0x00, 0x54),
-        NOP,
-        "AchatWeapon level check 1: NOP b.lt (level >= 51 required)"),
-
-    // 2. AchatWeapon level check 2: NOP b.lt at 0x017b2624
-    //    After: cmp w9, #0x1f3 (499) - "is counter >= 499?"
-    //    b.lt #0x17b2648 - "if counter < 499, skip unlock"
-    //    This is likely an XP-based or progression-based requirement.
-    //    NOP this to remove the progression requirement.
-    HexPatch(0x017b2624,
-        hb(0x2b, 0x01, 0x00, 0x54),
-        NOP,
-        "AchatWeapon level check 2: NOP b.lt (counter >= 499 required)"),
-
-    // === AchatWeapon COIN CHECK ===
-    // 3. AchatWeapon coin check: NOP b.ls at 0x017b26b8
-    //    After: cmp w8, #0x32 (50) - "do you have 50 coins?"
-    //    b.ls #0x17b271c - "if coins < 50, fail purchase"
-    //    NOP this to make the purchase succeed regardless of coin count.
-    HexPatch(0x017b26b8,
+    // 1. AchatWeapon: NOP b.ls at 0x019efba0 (after cmp w8, #0x32 = price 50)
+    HexPatch(0x019efba0,
         hb(0x29, 0x03, 0x00, 0x54),
         NOP,
-        "AchatWeapon coin check: NOP b.ls (price=50)"),
+        "AchatWeapon: NOP b.ls (coin check, price=50)"),
 
-    // === buyMiniGames COIN CHECK ===
-    // 4. buyMiniGames coin check: NOP b.ls at 0x016e0e80
-    //    After: cmp w9, #3 - "do you have 3 mini-games?"
-    //    b.ls #0x16e0ed8 - "if count < 3, fail purchase"
-    //    NOP this to unlock all mini-games for free.
-    HexPatch(0x016e0e80,
-        hb(0xc9, 0x02, 0x00, 0x54),
+    // 2. AchatSkin: NOP b.ls at 0x019effa8 (after cmp w9, w20)
+    HexPatch(0x019effa8,
+        hb(0xe9, 0x0b, 0x00, 0x54),
         NOP,
-        "buyMiniGames coin check: NOP b.ls (price=3)"),
+        "AchatSkin: NOP b.ls (coin check)"),
 
-    // === RemoveAds.get_AdsRemoved ===
-    // 5. RemoveAds.get_AdsRemoved: replace first 8 bytes with mov w0,#1; ret
+    // 3. AchatColor #1: NOP b.hs at 0x019f0c94 (first coin check)
+    HexPatch(0x019f0c94,
+        hb(0xc2, 0x1b, 0x00, 0x54),
+        NOP,
+        "AchatColor #1: NOP b.hs (coin check, first)"),
+
+    // 4. AchatColor #2: NOP b.hs at 0x019f0dd0 (second coin check)
+    HexPatch(0x019f0dd0,
+        hb(0xe2, 0x11, 0x00, 0x54),
+        NOP,
+        "AchatColor #2: NOP b.hs (coin check, second)"),
+
+    // 5. AchatColor #3: NOP b.hs at 0x019f0e08 (third coin check)
+    HexPatch(0x019f0e08,
+        hb(0x22, 0x10, 0x00, 0x54),
+        NOP,
+        "AchatColor #3: NOP b.hs (coin check, third)"),
+
+    // 6. buyMiniGames: NOP b.ls at 0x0197bdc8 (after cmp w9, #3)
+    HexPatch(0x0197bdc8,
+        hb(0x49, 0x31, 0x00, 0x54),
+        NOP,
+        "buyMiniGames: NOP b.ls (coin check)"),
+
+    // 7. RemoveAds.get_AdsRemoved: mov w0,#1; ret at 0x01a0b24c
     //    Original: e0 03 13 aa (mov x0, x19) + f4 4f 42 a9 (ldp x20, x19, [sp, #0x20])
     //    Patched:  20 00 80 52 (mov w0, #1) + c0 03 5f d6 (ret)
-    //    This makes get_AdsRemoved() always return true, activating No Ads state.
-    HexPatch(0x01373f70,
+    HexPatch(0x01a0b24c,
         hb(0xe0, 0x03, 0x13, 0xaa, 0xf4, 0x4f, 0x42, 0xa9),
         MOV_W0_1 + RET,
         "RemoveAds.get_AdsRemoved: mov w0,#1; ret (no ads)"),
-
-    // NOTE on AchatSkin and AchatColor:
-    // These methods are called in a LOOP for each skin/color in a category.
-    // The cmp w9, w20; b.ls pattern appears hundreds of times (one per item).
-    // NOPing all of them would be unsafe (could affect unrelated code).
-    // With UnlimitedCoinsPatch active, the player has unlimited coins to
-    // buy any skin/color they want. So we don't need to NOP these checks.
-    //
-    // The level checks we DID NOP are unique to AchatWeapon and verified
-    // by their unique cmp values (cmp w9, #51 and cmp w9, #499).
 )
+
+// Level check patterns (pattern-based, works on any lib size):
+// cmp w9, #0x33 (51) = 3f cd 00 71
+// cmp w9, #0x1f3 (499) = 3f cd 07 71
+// b.lt = 0x54xxxxxb (condition 0xB = LT)
+private val CMP_W9_51 = hb(0x3f, 0xcd, 0x00, 0x71)
+private val CMP_W9_499 = hb(0x3f, 0xcd, 0x07, 0x71)
+
+private fun isBlt(word: Int): Boolean =
+    (word and 0xFF000000.toInt()) == 0x54000000 && (word and 0xF) == 0xB
 
 private fun ByteArray.toHex(): String =
     joinToString(" ") { "%02x".format(it) }
 
 @Suppress("unused")
 val unlockAllPatch = rawResourcePatch(
-    name = "Unlock all (weapons, modes, no ads + level bypass)",
-    description = "Hex patches libil2cpp.so at VERIFIED offsets to: " +
-        "(1) NOP the level checks in AchatWeapon (2 level checks: " +
-        "level >= 51 and counter >= 499) — REMOVES LEVEL REQUIREMENT! " +
-        "(2) NOP the coin check in AchatWeapon (free weapons, price=50). " +
-        "(3) NOP the coin check in buyMiniGames (free mini-games). " +
-        "(4) Patch RemoveAds.get_AdsRemoved to always return true (no ads). " +
-        "Combined with UnlimitedCoinsPatch (which prevents coins from " +
-        "decreasing), this gives the player: unlimited coins + all " +
-        "weapons unlocked (no level requirement!) + all modes + no ads. " +
-        "Skins and colors are NOT patched here because their coin check " +
-        "pattern appears hundreds of times in a loop and would be unsafe " +
-        "to NOP — with unlimited coins, the player can buy them anyway. " +
-        "All offsets verified against the ORIGINAL 4.0.5 lib (61MB, " +
-        "il2cpp v31, sha256 starts with 1a7400ee).",
+    name = "Unlock all (weapons, skins, colors, modes, no ads + level bypass)",
+    description = "Hex patches libil2cpp.so to: " +
+        "(1) NOP level checks in AchatWeapon (pattern-based: " +
+        "searches for cmp w9, #51 + b.lt and cmp w9, #499 + b.lt). " +
+        "(2) NOP coin checks in AchatWeapon, AchatSkin, AchatColor (3x), " +
+        "buyMiniGames (offset-based, verified on 67MB lib). " +
+        "(3) Patch RemoveAds.get_AdsRemoved to always return true. " +
+        "Combined with UnlimitedCoinsPatch: unlimited coins + all " +
+        "weapons (no level req!) + all skins/colors/modes + no ads.",
     default = true,
 ) {
     compatibleWith(SUPREME_DUELIST)
@@ -150,11 +132,11 @@ val unlockAllPatch = rawResourcePatch(
         val libBytes = libFile.readBytes()
 
         logger.info("UnlockAll: loaded libil2cpp.so (${libBytes.size} bytes)")
-        logger.info("UnlockAll: expected lib size = 61,143,840 bytes (original 4.0.5)")
 
         var appliedCount = 0
         var skippedCount = 0
 
+        // === PART 1: Offset-based patches (coin checks + ads) ===
         for (p in PATCHES) {
             if (p.offset + p.expected.size > libBytes.size) {
                 logger.warning("  SKIP (out of bounds): ${p.desc}")
@@ -180,11 +162,77 @@ val unlockAllPatch = rawResourcePatch(
             logger.info("         at offset: 0x${p.offset.toString(16)}")
         }
 
+        // === PART 2: Pattern-based level checks ===
+        // Search for "cmp w9, #51; b.lt" (level >= 51 check)
+        var levelCheckCount = 0
+        var i = 0
+        val lastStart = libBytes.size - 8
+        while (i <= lastStart) {
+            // Check for cmp w9, #0x33 (51)
+            if (libBytes[i] == CMP_W9_51[0] &&
+                libBytes[i + 1] == CMP_W9_51[1] &&
+                libBytes[i + 2] == CMP_W9_51[2] &&
+                libBytes[i + 3] == CMP_W9_51[3]) {
+
+                // Check next instruction is b.lt
+                if (i + 8 <= libBytes.size) {
+                    val word = (libBytes[i + 4].toInt() and 0xFF) or
+                        ((libBytes[i + 5].toInt() and 0xFF) shl 8) or
+                        ((libBytes[i + 6].toInt() and 0xFF) shl 16) or
+                        ((libBytes[i + 7].toInt() and 0xFF) shl 24)
+
+                    if (isBlt(word)) {
+                        // NOP the b.lt
+                        val bltOffset = i + 4
+                        libBytes[bltOffset] = NOP[0]
+                        libBytes[bltOffset + 1] = NOP[1]
+                        libBytes[bltOffset + 2] = NOP[2]
+                        libBytes[bltOffset + 3] = NOP[3]
+                        levelCheckCount++
+                        appliedCount++
+                        logger.info("  APPLIED: Level check 1 (level >= 51): NOP b.lt at 0x${bltOffset.toString(16)}")
+                    }
+                }
+            }
+
+            // Check for cmp w9, #0x1f3 (499)
+            if (libBytes[i] == CMP_W9_499[0] &&
+                libBytes[i + 1] == CMP_W9_499[1] &&
+                libBytes[i + 2] == CMP_W9_499[2] &&
+                libBytes[i + 3] == CMP_W9_499[3]) {
+
+                // Check next instruction is b.lt
+                if (i + 8 <= libBytes.size) {
+                    val word = (libBytes[i + 4].toInt() and 0xFF) or
+                        ((libBytes[i + 5].toInt() and 0xFF) shl 8) or
+                        ((libBytes[i + 6].toInt() and 0xFF) shl 16) or
+                        ((libBytes[i + 7].toInt() and 0xFF) shl 24)
+
+                    if (isBlt(word)) {
+                        // NOP the b.lt
+                        val bltOffset = i + 4
+                        libBytes[bltOffset] = NOP[0]
+                        libBytes[bltOffset + 1] = NOP[1]
+                        libBytes[bltOffset + 2] = NOP[2]
+                        libBytes[bltOffset + 3] = NOP[3]
+                        levelCheckCount++
+                        appliedCount++
+                        logger.info("  APPLIED: Level check 2 (counter >= 499): NOP b.lt at 0x${bltOffset.toString(16)}")
+                    }
+                }
+            }
+
+            i += 4
+        }
+
+        logger.info("UnlockAll: patched $levelCheckCount level checks (pattern-based)")
+        logger.info("UnlockAll: applied $appliedCount total patches, skipped $skippedCount")
+
         if (appliedCount > 0) {
             libFile.writeBytes(libBytes)
-            logger.info("UnlockAll: applied $appliedCount of ${PATCHES.size} patches, skipped $skippedCount")
+            logger.info("UnlockAll: SUCCESS!")
         } else {
-            logger.severe("UnlockAll: NO patches were applied! All $skippedCount skipped due to byte mismatches.")
+            logger.severe("UnlockAll: NO patches were applied!")
         }
     }
 }
