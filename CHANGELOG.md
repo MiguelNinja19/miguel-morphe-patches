@@ -1,3 +1,9 @@
+## [1.14.0-dev.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.6...v1.14.0-dev.7) (2026-08-22)
+
+### 🐛 Bug Fixes
+
+* **supreme:** revert to 67MB lib offsets + pattern-based level checks ([cd0af9e](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/cd0af9edf18a9cb52cc7d3d0a1167406bae4398d)), closes [#51](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/51) [#499](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/499)
+
 ## [1.14.0-dev.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.5...v1.14.0-dev.6) (2026-08-22)
 
 ### 🐛 Bug Fixes
