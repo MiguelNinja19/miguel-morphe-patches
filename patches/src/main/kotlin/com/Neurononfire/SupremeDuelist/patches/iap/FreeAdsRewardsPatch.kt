@@ -56,8 +56,12 @@ private val CMP_W9_9 = hb(0x3f, 0x25, 0x00, 0x71)
 
 // b.eq: 0x54xxxxx0 (condition 0 = EQ, lowest 4 bits = 0)
 // b.ne: 0x54xxxxx1 (condition 1 = NE, lowest 4 bits = 1)
+private const val BCOND_OPCODE_MASK: Int = 0xFF000000
+private const val BCOND_OPCODE_BASE: Int = 0x54000000
+private const val BCOND_COND_MASK: Int = 0xF
+
 private fun isBCond(word: Int, cond: Int): Boolean =
-    (word and 0xFF000000.toInt()) == 0x54000000 && (word and 0xF) == cond
+    (word and BCOND_OPCODE_MASK) == BCOND_OPCODE_BASE && (word and BCOND_COND_MASK) == cond
 
 @Suppress("unused")
 val freeAdsRewardsPatch = rawResourcePatch(
