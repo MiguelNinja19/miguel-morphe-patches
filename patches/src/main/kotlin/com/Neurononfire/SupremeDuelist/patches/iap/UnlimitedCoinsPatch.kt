@@ -50,12 +50,15 @@ import app.morphe.patcher.patch.rawResourcePatch
 import com.Neurononfire.SupremeDuelist.patches.shared.SUPREME_DUELIST
 import java.util.logging.Logger
 
+// Helper to create byte arrays from hex ints (avoids .toByte() on each)
+private fun hb(vararg ints: Int): ByteArray = ByteArray(ints.size) { ints[it].toByte() }
+
 // ARM64 instruction encodings (little-endian byte order)
-private val NOP = byteArrayOf(0x1f, 0x20, 0x03, 0xd5)
+private val NOP = hb(0x1f, 0x20, 0x03, 0xd5)
 
 // "sub w8, w8, w21" bytes (constant across all game versions)
 // Encoding: 0x4B150108 -> LE bytes: 08 01 15 4B
-private val SUB_W8_W8_W21 = byteArrayOf(0x08, 0x01, 0x15, 0x4b.toByte())
+private val SUB_W8_W8_W21 = hb(0x08, 0x01, 0x15, 0x4b)
 
 // "str w8, [xN, #0x18]" detection:
 // The opcode is 0xB9001800 | (Rn << 5) | 8 (Rt=8 for w8)
