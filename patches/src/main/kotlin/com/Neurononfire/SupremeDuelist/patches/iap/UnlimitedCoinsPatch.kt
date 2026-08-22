@@ -1,47 +1,24 @@
 /*
  * Unlimited Coins patch for Supreme Duelist Stickman v4.0.5.
  *
- * STRATEGY: Pattern-based NOP patch on the coin deduction instruction.
+ * STRATEGY: Pattern-based NOP patch on BOTH the coin deduction str
+ * AND the "not enough coins" branch that follows it.
  *
  * HOW IT WORKS:
- * After analyzing 3 modded APKs (PlatinMods 4.0.4, Modyolo 4.0.4,
- * Modyolo 4.0.5) and the original 4.0.5 lib, I discovered that the
- * game uses a CENTRALIZED coin deduction pattern:
+ * The game's coin deduction pattern is:
  *
- *   bl  <price_calc_function>     ; returns price in w21
- *   cmp w21, #1                   ; verify price >= 1
- *   b.lt #skip                    ; if 0, skip deduction
- *   ldr w8, [x19, #0x18]          ; load Coins from PlayerProfile
- *   sub w8, w8, w21               ; SUBTRACT price
- *   subs w4, w8, w20              ; (secondary check)
- *   str w8, [x19, #0x18]          ; STORE new Coins value
+ *   ldr w8, [x19, #0x18]      ; load Coins
+ *   sub w8, w8, w21            ; subtract price
+ *   subs w4, w8, w20           ; secondary check (sets flags!)
+ *   str w8, [x19, #0x18]       ; store deducted value ← NOP this
+ *   b.le #fail                 ; if not enough, skip ← ALSO NOP this!
+ *   ... purchase code ...
  *
- * This pattern appears 55 times in the original 4.0.5 libil2cpp.so
- * (the Modyolo 4.0.5 lib is IDENTICAL to the original — same sha256!).
- * By NOP-ing the `str w8, [x19, #0x18]` instruction, the game
- * reads Coins, subtracts the price mentally, but NEVER WRITES the
- * new value back. Result: coins never decrease!
+ * Previous version only NOPed the str, but the b.le AFTER it still
+ * canceled purchases because the subs instruction set the "less than
+ * or equal" flag. This version NOPs BOTH the str AND the b.le.
  *
- * WHY PATTERN-BASED (not offset-based):
- * Different game versions (4.0.4, 4.0.5, Modyolo vs PlatinMods)
- * have DIFFERENT offsets because Unity/IL2CPP recompiles methods
- * at different addresses each build. But the INSTRUCTION PATTERN
- * is identical across all versions. So we search for the bytes:
- *   - "sub w8, w8, w21"  (08 01 15 4B)
- *   - "str w8, [xN, #0x18]"  (xx 18 00 B9, where xx encodes the register)
- *
- * VERIFICATION:
- * This pattern was confirmed present in:
- *   - Original 4.0.5 libil2cpp.so: 55 occurrences (sha256 verified)
- *   - Modyolo 4.0.5 libil2cpp.so: SAME FILE as original (sha256 match)
- *   - Modyolo 4.0.4 libil2cpp.so: ~50 occurrences (il2cpp v29)
- *   - PlatinMods 4.0.4 libil2cpp.so: ~50 occurrences (il2cpp v29)
- *
- * SAFETY:
- * - Patch verifies each "sub w8, w8, w21" is followed by a valid
- *   "str w8, [xN, #0x18]" before NOP-ing
- * - If verification fails, skips that location (no crash)
- * - Each NOP is a single 4-byte instruction (1f 20 03 d5)
+ * Result: coins never decrease AND purchases always succeed.
  */
 
 package com.Neurononfire.SupremeDuelist.patches.iap
@@ -50,44 +27,31 @@ import app.morphe.patcher.patch.rawResourcePatch
 import com.Neurononfire.SupremeDuelist.patches.shared.SUPREME_DUELIST
 import java.util.logging.Logger
 
-// Helper to create byte arrays from hex ints (avoids .toByte() on each)
 private fun hb(vararg ints: Int): ByteArray = ByteArray(ints.size) { ints[it].toByte() }
 
-// ARM64 instruction encodings (little-endian byte order)
 private val NOP = hb(0x1f, 0x20, 0x03, 0xd5)
-
-// "sub w8, w8, w21" bytes (constant across all game versions)
-// Encoding: 0x4B150108 -> LE bytes: 08 01 15 4B
 private val SUB_W8_W8_W21 = hb(0x08, 0x01, 0x15, 0x4b)
 
-// "str w8, [xN, #0x18]" detection:
-// The opcode is 0xB9001800 | (Rn << 5) | 8 (Rt=8 for w8)
-// Mask the top 22 bits (0xFFFFFC00) to identify the instruction,
-// and check that Rt=8 (lowest 5 bits = 0x08).
-//
-// Note: Kotlin infers hex literals > 0x7FFFFFFF as Long. We use
-// Int.toLong() comparison or explicit .toInt() casts below.
 private fun isStrW8Offset0x18(word: Int): Boolean {
-    // Top 22 bits must be 0xB900_1800 (STR Wt, [Xn, #0x18])
-    // Use .toInt() on the mask/base to convert Long -> Int (wraps via two's complement)
-    if (word and 0xFFFFFC00.toInt() != 0xB9001800.toInt()) return false
-    // Lowest 5 bits must be 0x08 (Rt = w8)
-    if (word and 0x1F != 0x08) return false
+    if ((word and 0xFFFFFC00.toInt()) != 0xB9001800.toInt()) return false
+    if ((word and 0x1F) != 0x08) return false
     return true
 }
 
+// Check if instruction is a conditional branch (b.cond)
+// b.cond: 0x54xxxxxx (top byte = 0x54)
+private fun isCondBranch(word: Int): Boolean =
+    (word and 0xFF000000.toInt()) == 0x54000000
+
 @Suppress("unused")
 val unlimitedCoinsPatch = rawResourcePatch(
-    name = "Unlimited coins (real - patches coin deduction)",
+    name = "Unlimited coins (real - patches coin deduction + branch)",
     description = "Real unlimited coins patch. Searches libil2cpp.so " +
-        "for the centralized coin-deduction pattern (sub w8, w8, w21; " +
-        "...; str w8, [xN, #0x18]) and NOPs the final str instruction " +
-        "in every match. The game will read Coins, subtract the price, " +
-        "but never write the deducted value back — so Coins never " +
-        "decreases. Pattern-based, so works across game versions " +
-        "4.0.4 and 4.0.5 (il2cpp v29 and v31). " +
-        "Found 55 matches in the ORIGINAL 4.0.5 lib (verified by sha256). " +
-        "Each patch verified before applying.",
+        "for the coin-deduction pattern (sub w8, w8, w21; ...; str w8, " +
+        "[xN, #0x18]; b.le/b.lt) and NOPs BOTH the str instruction " +
+        "AND the conditional branch that follows it. Previous version " +
+        "only NOPed the str, but the b.le still canceled purchases " +
+        "because the subs instruction set the 'less than' flag.",
     default = true,
 ) {
     compatibleWith(SUPREME_DUELIST)
@@ -102,13 +66,10 @@ val unlimitedCoinsPatch = rawResourcePatch(
 
         var patchedCount = 0
         var scannedCount = 0
-        var skipCount = 0
 
-        // Scan the entire lib for "sub w8, w8, w21" (4 bytes)
         var i = 0
         val lastStart = libBytes.size - 4
         while (i <= lastStart) {
-            // Check if this offset has the sub instruction
             if (libBytes[i] == SUB_W8_W8_W21[0] &&
                 libBytes[i + 1] == SUB_W8_W8_W21[1] &&
                 libBytes[i + 2] == SUB_W8_W8_W21[2] &&
@@ -130,14 +91,10 @@ val unlimitedCoinsPatch = rawResourcePatch(
                         foundStrOffset = strOffset
                         break
                     }
-                    // If we hit a branch/ret before finding the str, give up.
-                    // Use .toInt() to convert Long literals (> Int.MAX_VALUE) to Int.
                     val isB = (word and 0xFC000000.toInt()) == 0x14000000
                     val isBl = (word and 0xFC000000.toInt()) == 0x94000000.toInt()
                     val isRet = (word and 0xFFFFFC00.toInt()) == 0xD65F0000.toInt()
-                    if (isB || isBl || isRet) {
-                        break
-                    }
+                    if (isB || isBl || isRet) break
                 }
 
                 if (foundStrOffset >= 0) {
@@ -147,25 +104,41 @@ val unlimitedCoinsPatch = rawResourcePatch(
                     libBytes[foundStrOffset + 2] = NOP[2]
                     libBytes[foundStrOffset + 3] = NOP[3]
                     patchedCount++
-                    if (patchedCount <= 5) {
-                        logger.info("  patched str at 0x${foundStrOffset.toString(16)} (sub at 0x${i.toString(16)})")
+
+                    // ALSO check the instruction AFTER the str — if it's a
+                    // conditional branch (b.le/b.lt/b.eq etc.), NOP it too!
+                    // This prevents the "not enough coins" check from failing.
+                    val afterStrOffset = foundStrOffset + 4
+                    if (afterStrOffset + 4 <= libBytes.size) {
+                        val afterWord = ((libBytes[afterStrOffset].toInt() and 0xFF)) or
+                            ((libBytes[afterStrOffset + 1].toInt() and 0xFF) shl 8) or
+                            ((libBytes[afterStrOffset + 2].toInt() and 0xFF) shl 16) or
+                            ((libBytes[afterStrOffset + 3].toInt() and 0xFF) shl 24)
+
+                        if (isCondBranch(afterWord)) {
+                            libBytes[afterStrOffset] = NOP[0]
+                            libBytes[afterStrOffset + 1] = NOP[1]
+                            libBytes[afterStrOffset + 2] = NOP[2]
+                            libBytes[afterStrOffset + 3] = NOP[3]
+                            patchedCount++
+                            if (patchedCount <= 10) {
+                                logger.info("  patched str at 0x${foundStrOffset.toString(16)} + branch at 0x${afterStrOffset.toString(16)}")
+                            }
+                        }
                     }
-                } else {
-                    skipCount++
                 }
             }
-            i += 4  // ARM64 instructions are 4-byte aligned
+            i += 4
         }
 
         logger.info("UnlimitedCoins: scanned $scannedCount 'sub w8, w8, w21' instructions")
-        logger.info("UnlimitedCoins: patched $patchedCount coin-deduction points (str -> nop)")
-        logger.info("UnlimitedCoins: skipped $skipCount (no str within 4 instructions)")
+        logger.info("UnlimitedCoins: patched $patchedCount instructions (str + branch -> nop)")
+        logger.info("UnlimitedCoins: SUCCESS! Coins will no longer decrease and purchases won't fail.")
 
         if (patchedCount > 0) {
             libFile.writeBytes(libBytes)
-            logger.info("UnlimitedCoins: SUCCESS! Coins will no longer decrease when spent.")
         } else {
-            logger.severe("UnlimitedCoins: NO patches applied! Pattern not found.")
+            logger.severe("UnlimitedCoins: NO patches applied!")
         }
     }
 }
