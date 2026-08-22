@@ -1,3 +1,9 @@
+## [1.14.0-dev.6](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.5...v1.14.0-dev.6) (2026-08-22)
+
+### 🐛 Bug Fixes
+
+* **supreme:** use triple-quoted string for smali dollar signs ([254a28b](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/254a28bba89389b05ea77ffb33e71ad1c2d813d6))
+
 ## [1.14.0-dev.5](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.4...v1.14.0-dev.5) (2026-08-22)
 
 ### 🐛 Bug Fixes
