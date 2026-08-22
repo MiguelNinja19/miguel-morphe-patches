@@ -1,8 +1,8 @@
 package com.Neurononfire.SupremeDuelist.patches.shared
 
-import app.morphe.patcher.Compatibility
-import app.morphe.patcher.AppTarget
-import app.morphe.patcher.ApkFileType
+import app.morphe.patcher.patch.Compatibility
+import app.morphe.patcher.patch.AppTarget
+import app.morphe.patcher.patch.ApkFileType
 
 val SUPREME_DUELIST = Compatibility(
     name = "Supreme Duelist Stickman",
