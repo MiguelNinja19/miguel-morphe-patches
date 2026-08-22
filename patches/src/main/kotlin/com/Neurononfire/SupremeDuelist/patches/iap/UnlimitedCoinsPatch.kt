@@ -133,7 +133,7 @@ val unlimitedCoinsPatch = rawResourcePatch(
                     // If we hit a branch/ret before finding the str, give up.
                     // Use .toInt() to convert Long literals (> Int.MAX_VALUE) to Int.
                     val isB = (word and 0xFC000000.toInt()) == 0x14000000
-                    val isBl = (word and 0xFC000000.toInt()) == 0x94000000
+                    val isBl = (word and 0xFC000000.toInt()) == 0x94000000.toInt()
                     val isRet = (word and 0xFFFFFC00.toInt()) == 0xD65F0000.toInt()
                     if (isB || isBl || isRet) {
                         break
