@@ -1,3 +1,9 @@
+## [1.14.0-dev.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.8...v1.14.0-dev.9) (2026-08-22)
+
+### 🐛 Bug Fixes
+
+* **supreme:** NOP both str AND b.le after coin deduction ([8823c21](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8823c215d653432ff2d25a0fe11b3ca35fbdb480)), closes [#0x18](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/0x18) [#0x18](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/0x18) [#fail](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/fail)
+
 ## [1.14.0-dev.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.7...v1.14.0-dev.8) (2026-08-22)
 
 ### 🐛 Bug Fixes
