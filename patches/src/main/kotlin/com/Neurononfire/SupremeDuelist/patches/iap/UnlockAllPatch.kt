@@ -45,10 +45,13 @@ private data class HexPatch(
     val desc: String,
 )
 
+// Helper to create byte arrays from hex ints (avoids .toByte() on each)
+private fun hb(vararg ints: Int): ByteArray = ByteArray(ints.size) { ints[it].toByte() }
+
 // ARM64 instruction encodings (little-endian byte order)
-private val NOP = byteArrayOf(0x1f, 0x20, 0x03, 0xd5)
-private val MOV_W0_1 = byteArrayOf(0x20, 0x00, 0x80, 0x52)
-private val RET = byteArrayOf(0xc0, 0x03, 0x5f, 0xd6)
+private val NOP = hb(0x1f, 0x20, 0x03, 0xd5)
+private val MOV_W0_1 = hb(0x20, 0x00, 0x80, 0x52)
+private val RET = hb(0xc0, 0x03, 0x5f, 0xd6)
 
 // All patches for ORIGINAL v4.0.5 lib (61,143,840 bytes, il2cpp v31):
 private val PATCHES: List<HexPatch> = listOf(
@@ -61,7 +64,7 @@ private val PATCHES: List<HexPatch> = listOf(
     //    b.lt #0x17b2604 - "if level < 51, skip unlock"
     //    NOP this to remove the level requirement.
     HexPatch(0x017b25f8,
-        byteArrayOf(0x6b, 0x00, 0x00, 0x54),
+        hb(0x6b, 0x00, 0x00, 0x54),
         NOP,
         "AchatWeapon level check 1: NOP b.lt (level >= 51 required)"),
 
@@ -71,7 +74,7 @@ private val PATCHES: List<HexPatch> = listOf(
     //    This is likely an XP-based or progression-based requirement.
     //    NOP this to remove the progression requirement.
     HexPatch(0x017b2624,
-        byteArrayOf(0x2b, 0x01, 0x00, 0x54),
+        hb(0x2b, 0x01, 0x00, 0x54),
         NOP,
         "AchatWeapon level check 2: NOP b.lt (counter >= 499 required)"),
 
@@ -81,7 +84,7 @@ private val PATCHES: List<HexPatch> = listOf(
     //    b.ls #0x17b271c - "if coins < 50, fail purchase"
     //    NOP this to make the purchase succeed regardless of coin count.
     HexPatch(0x017b26b8,
-        byteArrayOf(0x29, 0x03, 0x00, 0x54),
+        hb(0x29, 0x03, 0x00, 0x54),
         NOP,
         "AchatWeapon coin check: NOP b.ls (price=50)"),
 
@@ -91,7 +94,7 @@ private val PATCHES: List<HexPatch> = listOf(
     //    b.ls #0x16e0ed8 - "if count < 3, fail purchase"
     //    NOP this to unlock all mini-games for free.
     HexPatch(0x016e0e80,
-        byteArrayOf(0xc9, 0x02, 0x00, 0x54),
+        hb(0xc9, 0x02, 0x00, 0x54),
         NOP,
         "buyMiniGames coin check: NOP b.ls (price=3)"),
 
@@ -101,7 +104,7 @@ private val PATCHES: List<HexPatch> = listOf(
     //    Patched:  20 00 80 52 (mov w0, #1) + c0 03 5f d6 (ret)
     //    This makes get_AdsRemoved() always return true, activating No Ads state.
     HexPatch(0x01373f70,
-        byteArrayOf(0xe0, 0x03, 0x13, 0xaa, 0xf4, 0x4f, 0x42, 0xa9),
+        hb(0xe0, 0x03, 0x13, 0xaa, 0xf4, 0x4f, 0x42, 0xa9),
         MOV_W0_1 + RET,
         "RemoveAds.get_AdsRemoved: mov w0,#1; ret (no ads)"),
 
