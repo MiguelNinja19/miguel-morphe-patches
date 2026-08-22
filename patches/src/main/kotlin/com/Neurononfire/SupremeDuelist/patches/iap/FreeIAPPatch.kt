@@ -29,17 +29,16 @@ val freeIapPatch = bytecodePatch(
 
         // Hook 2: Make launchBillingFlow return success immediately
         // without contacting Google Play (skips the Play Store dialog).
-        // Uses ${'$'} to escape the dollar sign so Kotlin doesn't
-        // interpret the smali class names (BillingResult$Builder)
-        // as template string interpolations.
-        LaunchBillingFlowFingerprint.method.addInstructions(0,
-            "invoke-static {}, Lcom/android/billingclient/api/BillingResult;->newBuilder()Lcom/android/billingclient/api/BillingResult\${'$'}Builder;\n" +
-            "move-result-object v0\n" +
-            "const/4 v1, 0x0\n" +
-            "invoke-virtual {v0, v1}, Lcom/android/billingclient/api/BillingResult\${'$'}Builder;->setResponseCode(I)Lcom/android/billingclient/api/BillingResult\${'$'}Builder;\n" +
-            "invoke-virtual {v0}, Lcom/android/billingclient/api/BillingResult\${'$'}Builder;->build()Lcom/android/billingclient/api/BillingResult;\n" +
-            "move-result-object v0\n" +
-            "return-object v0"
-        )
+        // Uses ${'$'} to escape dollar signs in smali inner class names
+        // (BillingResult$Builder) inside triple-quoted strings.
+        LaunchBillingFlowFingerprint.method.addInstructions(0, """
+            invoke-static {}, Lcom/android/billingclient/api/BillingResult;->newBuilder()Lcom/android/billingclient/api/BillingResult${'$'}Builder;
+            move-result-object v0
+            const/4 v1, 0x0
+            invoke-virtual {v0, v1}, Lcom/android/billingclient/api/BillingResult${'$'}Builder;->setResponseCode(I)Lcom/android/billingclient/api/BillingResult${'$'}Builder;
+            invoke-virtual {v0}, Lcom/android/billingclient/api/BillingResult${'$'}Builder;->build()Lcom/android/billingclient/api/BillingResult;
+            move-result-object v0
+            return-object v0
+        """.trimIndent())
     }
 }
