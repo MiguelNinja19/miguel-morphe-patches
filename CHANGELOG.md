@@ -1,3 +1,9 @@
+## [1.14.0-dev.8](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.7...v1.14.0-dev.8) (2026-08-22)
+
+### 🐛 Bug Fixes
+
+* **supreme:** remove buyMiniGames NOP that breaks mode initialization ([35e48f2](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/35e48f2dc8b97d039c8bca8c31c6fb271fe9ee61))
+
 ## [1.14.0-dev.7](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.6...v1.14.0-dev.7) (2026-08-22)
 
 ### 🐛 Bug Fixes

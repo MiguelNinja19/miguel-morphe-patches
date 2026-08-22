@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.14.0-dev.7",
+  "version": "1.14.0-dev.8",
   "patches": [
     {
       "name": "Auto reward ads",
@@ -526,7 +526,7 @@
     },
     {
       "name": "Unlock all (weapons, skins, colors, modes, no ads + level bypass)",
-      "description": "Hex patches libil2cpp.so to: (1) NOP level checks in AchatWeapon (pattern-based: searches for cmp w9, #51 + b.lt and cmp w9, #499 + b.lt). (2) NOP coin checks in AchatWeapon, AchatSkin, AchatColor (3x), buyMiniGames (offset-based, verified on 67MB lib). (3) Patch RemoveAds.get_AdsRemoved to always return true. Combined with UnlimitedCoinsPatch: unlimited coins + all weapons (no level req!) + all skins/colors/modes + no ads.",
+      "description": "Hex patches libil2cpp.so to: (1) NOP level checks in AchatWeapon (pattern-based: searches for cmp w9, #51 + b.lt and cmp w9, #499 + b.lt). (2) NOP coin checks in AchatWeapon, AchatSkin, AchatColor (3x) (offset-based, verified on 67MB lib). (3) Patch RemoveAds.get_AdsRemoved to always return true. buyMiniGames is NOT patched (breaks mode init — use UnlimitedCoinsPatch to buy modes with infinite coins). Combined: unlimited coins + all weapons (no level req!) + all skins/colors + no ads.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
