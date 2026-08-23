@@ -17,6 +17,7 @@ body:
 
         - [Check existing app requests first](https://github.com/MiguelNinja19/miguel-morphe-patches/issues?q=label%3A%22app%20request%22) to avoid duplicates.
         - If an existing request is already open, react 👍 on it instead of creating another one.
+        - Please provide only one app per request. Any subsequent app requests shall be made in another issue.
 
         > [!IMPORTANT]
         > Features that depend on server-side functionality generally cannot be patched.
@@ -71,4 +72,6 @@ body:
         - label: I have verified that a suitable patch does not already exist in another community patch repository.
           required: true
         - label: I understand that server-side functionality cannot generally be patched.
+          required: true
+        - label: I am only making a request for one app.
           required: true
