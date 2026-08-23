@@ -2,7 +2,7 @@
 # https://github.com/rushiranpise/morphe-patches
 # Modified for this repository.
 name: 🐞 Bug report
-description: Report a bug or an issue in a game.
+description: Report a bug or an issue in an app.
 title: 'bug: '
 labels: ['bug']
 body:
