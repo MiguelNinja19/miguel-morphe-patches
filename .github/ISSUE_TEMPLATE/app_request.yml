@@ -1,0 +1,77 @@
+# Based on templates from:
+# https://github.com/rushiranpise/morphe-patches
+# Modified for this repository.
+name: 🚀 App request
+description: Request patches for an Android app.
+title: "app: "
+labels:
+  - "app request"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # App Request
+
+        Before submitting an app request:
+
+        - [Check existing app requests first](https://github.com/MiguelNinja19/miguel-morphe-patches/issues?q=label%3A%22app%20request%22) to avoid duplicates.
+        - If an existing request is already open, react 👍 on it instead of creating another one.
+        - Please provide only one app per request. Any subsequent app requests shall be made in another issue.
+
+        > [!IMPORTANT]
+        > Features that depend on server-side functionality generally cannot be patched.
+
+  - type: input
+    id: app_name
+    attributes:
+      label: App name
+      description: Full name of the app as shown on Google Play.
+      placeholder: Really Cool App
+    validations:
+      required: true
+
+  - type: input
+    id: play_store_link
+    attributes:
+      label: Play Store link
+      description: Provide the Google Play Store link for the app. 
+      placeholder: https://play.google.com/store/apps/details?id=com.example
+    validations:
+      required: true
+
+  - type: textarea
+    id: features
+    attributes:
+      label: Requested features
+      description: List the specific features you would like patched.
+      placeholder: |
+        - Unlimited money
+        - Remove ads
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional information
+      description: Any other details that may help with patch development.
+      placeholder: |
+        Add relevant information, screenshots, or other context here.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Requests may be closed if these requirements are not met.
+      options:
+        - label: I have checked existing app requests and this is not a duplicate.
+          required: true
+        - label: I have verified that a suitable patch does not already exist in another community patch repository.
+          required: true
+        - label: I understand that server-side functionality cannot generally be patched.
+          required: true
+        - label: I am only making a request for one app.
+          required: true
