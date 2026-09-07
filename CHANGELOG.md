@@ -1,3 +1,9 @@
+## [1.14.0-dev.10](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.9...v1.14.0-dev.10) (2026-09-07)
+
+### ✨ New Features
+
+* **Lara Croft: Guardian of Light:** add unlock full game patch (TBYB + LVL bypass) ([4876fc3](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/4876fc3aac96173c78b7ebc4831d1fa4848106d7))
+
 ## [1.14.0-dev.9](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.8...v1.14.0-dev.9) (2026-08-22)
 
 ### 🐛 Bug Fixes
