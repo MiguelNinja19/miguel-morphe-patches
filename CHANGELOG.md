@@ -1,3 +1,9 @@
+## [1.14.0-dev.11](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.10...v1.14.0-dev.11) (2026-09-07)
+
+### ✨ New Features
+
+* **Duck Life 6: Space:** add unlock full game patch (billing entitlements) ([51c22ef](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/51c22ef7ce33fa4f3292da8dbaa8d41f1bd8b4f2))
+
 ## [1.14.0-dev.10](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.9...v1.14.0-dev.10) (2026-09-07)
 
 ### ✨ New Features
