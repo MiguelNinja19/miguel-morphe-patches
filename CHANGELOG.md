@@ -1,3 +1,13 @@
+## [1.14.0-dev.12](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.11...v1.14.0-dev.12) (2026-09-08)
+
+### 🐛 Bug Fixes
+
+* **Duck Life 6: Space:** repair broken inline smali in unlock full game patch ([96cfcb4](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/96cfcb4f67fe262452139bceb7d5d5786ee9f392))
+
+### ✨ New Features
+
+* **Duck Life 4:** add bypass PairIP + unlock full game patches ([fde6289](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/fde6289d672cd990725c2a7ca5d4be070725f4dd))
+
 ## [1.14.0-dev.11](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.10...v1.14.0-dev.11) (2026-09-07)
 
 ### ✨ New Features
