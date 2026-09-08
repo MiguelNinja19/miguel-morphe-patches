@@ -1,3 +1,13 @@
+## [1.14.0-dev.13](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.12...v1.14.0-dev.13) (2026-09-08)
+
+### 🐛 Bug Fixes
+
+* **Lara Croft: Guardian of Light:** repair force FDR patch compilation (mutable class lookup) ([2580d45](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/2580d456aa23d194d822c6914a8d5f597984de38))
+
+### ✨ New Features
+
+* **Lara Croft: Guardian of Light:** add force FDR download patch (fix Play asset delivery block) ([44ee6f9](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/44ee6f9da40a836428a2acd1ffd5a05541d18dfd)), closes [#4](https://github.com/MiguelNinja19/miguel-morphe-patches/issues/4)
+
 ## [1.14.0-dev.12](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.11...v1.14.0-dev.12) (2026-09-08)
 
 ### 🐛 Bug Fixes
