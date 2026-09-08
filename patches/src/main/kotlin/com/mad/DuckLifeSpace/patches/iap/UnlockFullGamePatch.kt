@@ -77,6 +77,13 @@ private const val QUERY_PARAMS = "Lcom/android/billingclient/api/QueryPurchasesP
 private const val RESPONSE_LISTENER = "Lcom/android/billingclient/api/PurchasesResponseListener;"
 private const val PURCHASE = "Lcom/android/billingclient/api/Purchase;"
 private const val BILLING_RESULT = "Lcom/android/billingclient/api/BillingResult;"
+// NOTE: for inner-class descriptors (e.g. BillingResult$Builder) write the
+// FULL literal "...BillingResult${'$'}Builder;" — same style as the Supreme
+// and Assassin patches. NEVER concatenate BILLING_RESULT + "$Builder":
+// BILLING_RESULT already ends with ';' and the result
+// "BillingResult;$Builder" is an invalid descriptor that crashes the
+// inline smali compiler with "parser/lexer syntax errors" (the exact bug
+// that shipped in v1.14.0-dev.11).
 
 private const val PKG = "com.mad.DuckLifeSpace"
 
@@ -175,9 +182,9 @@ val unlockFullGamePatch = bytecodePatch(
         sb.appendLine("invoke-static {}, $BILLING_RESULT->newBuilder()Lcom/android/billingclient/api/BillingResult${'$'}Builder;")
         sb.appendLine("move-result-object v0")
         sb.appendLine("const/4 v1, 0x0")
-        sb.appendLine("invoke-virtual {v0, v1}, $BILLING_RESULT${'$'}Builder->setResponseCode(I)Lcom/android/billingclient/api/BillingResult${'$'}Builder;")
+        sb.appendLine("invoke-virtual {v0, v1}, Lcom/android/billingclient/api/BillingResult${'$'}Builder;->setResponseCode(I)Lcom/android/billingclient/api/BillingResult${'$'}Builder;")
         sb.appendLine("move-result-object v0")
-        sb.appendLine("invoke-virtual {v0}, $BILLING_RESULT${'$'}Builder->build()Lcom/android/billingclient/api/BillingResult;")
+        sb.appendLine("invoke-virtual {v0}, Lcom/android/billingclient/api/BillingResult${'$'}Builder;->build()$BILLING_RESULT")
         sb.appendLine("move-result-object v0")
         // The purchase list.
         sb.appendLine("new-instance v1, Ljava/util/ArrayList;")
@@ -187,12 +194,12 @@ val unlockFullGamePatch = bytecodePatch(
             sb.appendLine("const-string v2, \"$json\"")
             sb.appendLine("const-string v3, \"\"")
             sb.appendLine("new-instance v4, $PURCHASE")
-            sb.appendLine("invoke-direct {v4, v2, v3}, $PURCHASE-><init>(Ljava/lang/String; Ljava/lang/String;)V")
+            sb.appendLine("invoke-direct {v4, v2, v3}, $PURCHASE-><init>(Ljava/lang/String;Ljava/lang/String;)V")
             sb.appendLine("invoke-virtual {v1, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z")
         }
         // Deliver the fake inventory to the C# proxy and stop: the
         // real (Play Store) query never runs.
-        sb.appendLine("invoke-interface {p2, v0, v1}, $RESPONSE_LISTENER->onQueryPurchasesResponse(Lcom/android/billingclient/api/BillingResult; Ljava/util/List;)V")
+        sb.appendLine("invoke-interface {p2, v0, v1}, $RESPONSE_LISTENER->onQueryPurchasesResponse(Lcom/android/billingclient/api/BillingResult;Ljava/util/List;)V")
         sb.appendLine("return-void")
 
         queryMethod.addInstructions(0, sb.toString().trimEnd())
