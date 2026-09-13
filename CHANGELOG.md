@@ -1,3 +1,9 @@
+## [1.14.0-dev.14](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.13...v1.14.0-dev.14) (2026-09-13)
+
+### ✨ New Features
+
+* **Lara Croft: Guardian of Light:** add load game data from storage patch ([8f4a990](https://github.com/MiguelNinja19/miguel-morphe-patches/commit/8f4a990448e06a1983354540673d5786ff2f81f8))
+
 ## [1.14.0-dev.13](https://github.com/MiguelNinja19/miguel-morphe-patches/compare/v1.14.0-dev.12...v1.14.0-dev.13) (2026-09-08)
 
 ### 🐛 Bug Fixes
