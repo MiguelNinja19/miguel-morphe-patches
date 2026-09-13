@@ -13,5 +13,5 @@ guava = "33.6.0-jre"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
-guava = { module = "com.google.code.guava:guava", version.ref = "guava" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 morphe-patches-library = { module = "app.morphe:morphe-patches-library", version.ref = "morphe-patches-library" }
