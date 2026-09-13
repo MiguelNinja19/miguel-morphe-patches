@@ -17,5 +17,13 @@ pluginManagement {
 }
 
 plugins {
-    id("app.morphe.patches") version "1.3.2"
+    // Bumped from 1.3.2 to 1.3.4 for the "MicroG integration" and
+    // "Spoof signature" patches: they need packageMetadata.signingCertificates,
+    // document("AndroidManifest.xml") and MutableClassDef.setSuperClass,
+    // which are available in 1.3.4 (the version hoo-dles/morphe-patches
+    // and MorpheApp/morphe-patches build against). All the patch DSL this
+    // repo already uses is unchanged between 1.3.2 and 1.3.4.
+    // If anything else breaks, revert this line to "1.3.2" and remove the
+    // setSuperClass block marked in SpoofSignaturePatch.kt.
+    id("app.morphe.patches") version "1.3.4"
 }
