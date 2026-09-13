@@ -3,6 +3,7 @@ package app.morphe.patches.util
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.apk.ApkSignatureScheme
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.patcher.patch.PatchException
 import java.security.MessageDigest
 import java.security.cert.X509Certificate
@@ -20,11 +21,17 @@ import java.security.cert.X509Certificate
 /**
  * Prepend an early return to the method resolved by this fingerprint.
  *
+ * Declared with a [BytecodePatchContext] context parameter because
+ * [Fingerprint.method] is context-dependent in the patcher: it can only
+ * be resolved while a bytecode patch is executing (the implicit receiver
+ * of the `execute { ... }` / `finalize { ... }` blocks satisfies it).
+ *
  * @param intValue    value returned for I/Z/S/B/C returning methods (default 0)
  * @param stringValue value returned for reference returning methods
  * @throws PatchException when the fingerprint has no match or the
  *                        return type is unsupported
  */
+context(_: BytecodePatchContext)
 fun Fingerprint.returnEarly(intValue: Int = 0, stringValue: String? = null) {
     val method = this.method
     val smali = when (method.returnType.firstOrNull()) {
@@ -46,11 +53,14 @@ fun Fingerprint.returnEarly(intValue: Int = 0, stringValue: String? = null) {
  * fingerprint does not match the app (useful for universal "all"
  * patches that must degrade gracefully on apps without GMS code).
  */
+context(_: BytecodePatchContext)
 fun Fingerprint.returnEarlyOrNull(intValue: Int = 0, stringValue: String? = null): Boolean =
-    runCatching {
+    try {
         returnEarly(intValue, stringValue)
         true
-    }.getOrDefault(false)
+    } catch (_: Throwable) {
+        false
+    }
 
 // ─────────────────────────────────────────────────────────────────────
 // Certificate helpers (port of hoodles.morphe.util.ResourceUtils)
