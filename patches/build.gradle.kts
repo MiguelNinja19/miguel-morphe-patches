@@ -1,5 +1,23 @@
 group = "miguel.morphe.patches"
 
+// Dependency repositories (same setup as hoo-dles/morphe-patches and
+// MorpheApp/morphe-patches): needed to resolve
+// app.morphe:morphe-patches-library from Morphe's GitHub Packages registry.
+// On CI the GITHUB_ACTOR/GITHUB_TOKEN env vars provide the credentials.
+repositories {
+    google()
+    mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/MorpheApp/registry")
+        credentials {
+            username = providers.gradleProperty("gpr.user").orNull ?: System.getenv("GITHUB_ACTOR")
+            password = providers.gradleProperty("gpr.key").orNull ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+    maven { url = uri("https://jitpack.io") }
+}
+
 patches {
     about {
         name = "Miguel's Patches"
@@ -23,6 +41,18 @@ kotlin {
 val patchListGeneratorClasspath: Configuration by configurations.creating
 
 dependencies {
+    // Provides the newer patcher API (packageMetadata.signingCertificates,
+    // app.morphe.patcher.apk.ApkSignatureScheme, context-aware
+    // Fingerprint.method) required by the "MicroG integration" and
+    // "Spoof signature" patches. The Gradle plugin alone (1.3.4) ships an
+    // older patcher without these APIs — this is the same library both
+    // hoo-dles/morphe-patches and MorpheApp/morphe-patches add.
+    implementation(libs.morphe.patches.library)
+
+    // Required due to smali at runtime, or build fails (same as upstream
+    // patch repos; harmless if the smali version in use does not need it).
+    implementation(libs.guava)
+
     compileOnly(libs.gson)
     patchListGeneratorClasspath(libs.gson)
 }

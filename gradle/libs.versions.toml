@@ -1,8 +1,17 @@
 [versions]
 morphe-patcher = "1.5.2"
+# Same pairing used by hoo-dles/morphe-patches and MorpheApp/morphe-patches
+# (both build with plugin "app.morphe.patches" 1.3.4 + this library).
+# Provides the newer patcher API required by the MicroG integration and
+# Spoof signature patches: packageMetadata.signingCertificates,
+# app.morphe.patcher.apk.ApkSignatureScheme, etc.
+morphe-patches-library = "1.6.0"
 #noinspection GradleDependency
 smali = "d92701d947"
 gson = "2.14.0"
+guava = "33.6.0-jre"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+morphe-patches-library = { module = "app.morphe:morphe-patches-library", version.ref = "morphe-patches-library" }
